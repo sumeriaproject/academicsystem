@@ -1,0 +1,1 @@
+<?php if(isset($salida["content_main"])){ include($salida["content_main"]); } ?>

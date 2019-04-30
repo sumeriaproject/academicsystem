@@ -1,0 +1,112 @@
+.btn {
+  background: #30d927 !important;
+  background-image: -webkit-linear-gradient(top, #30d927, #1e4d23) !important;
+  background-image: -moz-linear-gradient(top, #30d927, #1e4d23) !important;
+  background-image: -ms-linear-gradient(top, #30d927, #1e4d23) !important;
+  background-image: -o-linear-gradient(top, #30d927, #1e4d23) !important;
+  background-image: linear-gradient(to bottom, #30d927, #1e4d23) !important;
+  -webkit-border-radius: 11 !important;
+  -moz-border-radius: 11 !important;
+  border-radius: 11px !important;
+  -webkit-box-shadow: 0px 1px 3px #666666 !important;
+  -moz-box-shadow: 0px 1px 3px #666666 !important;
+  box-shadow: 0px 1px 3px #666666 !important;
+  font-family: Arial !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  padding: 10px 10px 10px 10px !important;
+  text-decoration: none !important;
+   float:left !important;
+}
+
+.btn:hover {
+  background:#369e02 !important;
+  text-decoration: none !important;
+  color: #ffff00 !important;
+}
+
+.course-link {
+  background: #ffcc33;
+  background-image: -webkit-linear-gradient(top, #ffcc33, #ffaf24);
+  background-image: -moz-linear-gradient(top, #ffcc33, #ffaf24);
+  background-image: -ms-linear-gradient(top, #ffcc33, #ffaf24);
+  background-image: -o-linear-gradient(top, #ffcc33, #ffaf24);
+  background-image: linear-gradient(to bottom, #ffcc33, #ffaf24);
+  -webkit-border-radius: 60;
+  -moz-border-radius: 60;
+  border-radius: 60px;
+  -webkit-box-shadow: 0px 1px 3px #666666;
+  -moz-box-shadow: 0px 1px 3px #666666;
+  box-shadow: 0px 1px 3px #666666;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  padding: 10px 15px 10px 15px;
+  text-decoration: none;
+  float:left;
+  margin-right:5px;
+  cursor:pointer;
+}
+
+.course-link:hover {
+  background: #e67e22;
+  text-decoration: none;
+}
+
+.label-basico {
+ background: #3498db;
+  background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+  background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+  background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+  background-image: -o-linear-gradient(top, #3498db, #2980b9);
+  background-image: linear-gradient(to bottom, #3498db, #2980b9);
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 8px 20px 8px 20px;
+}
+.label-alto {
+  background: #fcb437;
+  background-image: -webkit-linear-gradient(top, #fcb437, #f2aa2e);
+  background-image: -moz-linear-gradient(top, #fcb437, #f2aa2e);
+  background-image: -ms-linear-gradient(top, #fcb437, #f2aa2e);
+  background-image: -o-linear-gradient(top, #fcb437, #f2aa2e);
+  background-image: linear-gradient(to bottom, #fcb437, #f2aa2e);
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 8px 20px 8px 20px;
+}
+.label-superior {
+  background: #8bcc12;
+  background-image: -webkit-linear-gradient(top, #8bcc12, #7eba0f);
+  background-image: -moz-linear-gradient(top, #8bcc12, #7eba0f);
+  background-image: -ms-linear-gradient(top, #8bcc12, #7eba0f);
+  background-image: -o-linear-gradient(top, #8bcc12, #7eba0f);
+  background-image: linear-gradient(to bottom, #8bcc12, #7eba0f);
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 11px;
+  padding: 8px 20px 8px 20px;
+}
+
+
+.notas-competencia .label-basico {
+ background: #3498db;  background-image: -webkit-linear-gradient(top, #3498db, #2980b9);  background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+  background-image: -ms-linear-gradient(top, #3498db, #2980b9);  background-image: -o-linear-gradient(top, #3498db, #2980b9);
+  background-image: linear-gradient(to bottom, #3498db, #2980b9);  font-family: Arial;
+  color: #ffffff;  font-size: 11px;  padding: 8px 20px 8px 20px;
+}
+.notas-competencia .label-alto {
+  background: #fcb437;  background-image: -webkit-linear-gradient(top, #fcb437, #f2aa2e);  background-image: -moz-linear-gradient(top, #fcb437, #f2aa2e);
+  background-image: -ms-linear-gradient(top, #fcb437, #f2aa2e);  background-image: -o-linear-gradient(top, #fcb437, #f2aa2e);
+  background-image: linear-gradient(to bottom, #fcb437, #f2aa2e);  font-family: Arial;
+  color: #ffffff;  font-size: 11px;  padding: 8px 20px 8px 20px;
+}
+.notas-competencia .label-superior {
+  background: #8bcc12;  background-image: -webkit-linear-gradient(top, #8bcc12, #7eba0f);  background-image: -moz-linear-gradient(top, #8bcc12, #7eba0f);
+  background-image: -ms-linear-gradient(top, #8bcc12, #7eba0f);  background-image: -o-linear-gradient(top, #8bcc12, #7eba0f);
+  background-image: linear-gradient(to bottom, #8bcc12, #7eba0f);  font-family: Arial;  color: #ffffff;  font-size: 11px;
+  padding: 8px 20px 8px 20px;
+}
+.criterio:hover{background:#FFF !important;}

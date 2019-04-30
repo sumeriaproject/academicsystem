@@ -1,0 +1,258 @@
+
+PROCESO ESTABLE 2019
+
+1. Cambiar nombres tablas con el año de notas
+2. Cambiar la tabla con el año usuarios
+    
+    //Crear Tabla
+    CREATE TABLE `notas_usuario_curso_2018` (
+      `id_usuario` bigint(20) NOT NULL,
+      `id_curso` int(11) NOT NULL
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+    ALTER TABLE `notas_usuario_curso_2018`
+      ADD PRIMARY KEY (`id_usuario`,`id_curso`);
+      
+    INSERT INTO `notas_usuario_curso_2018` SELECT `id_usuario`, `id_curso` FROM notas_usuario_curso;
+
+    //Borrar Estudiantes de la actual tabla
+    
+    DELETE FROM `notas_usuario_curso` WHERE id_usuario NOT IN (SELECT u.id_usuario
+          FROM  `notas_usuario` as u INNER JOIN notas_usuario_subsistema USING ( id_usuario ) WHERE id_subsistema IN (1,2) ) 
+    
+   
+3. Subir Tabla SIMAT (Solo se importa el archivo dentro de la base de datos y se crea una tabla automatica)
+      
+4. Actualizar Ids
+
+.:: SEDE  ::.
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '16' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE CANEY ALTO%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '2' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE BRISAS DE UPIN%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '2' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE CANEY BAJO%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '10' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE CHOAPAL%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '5' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE LA FLORESTA%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '15' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE MARAYAL%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '8' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE MEDIOS DOS%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '13' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE MIRALINDO%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '7' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE SAN CARLOS%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '3' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE SAN JUAN BOSCO%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '4' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE SARDINATA%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '6' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE VEGA LA GRANDE%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '1' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SEDE PRINCIPAL RURAL DE RESTREPO - VILLA REINA%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '12' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SAN ISIDRO%';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `SEDE` = '14' WHERE `notas_csv_simat_tmp_2019`.`SEDE` LIKE '%SANTA LUCIA%';
+
+.:: GRADO ::.
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '10' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD`= '9';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '9' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '8';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '8' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '7';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '7' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '6';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '6' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '5';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '5' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '4';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '4' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '3';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '3' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '2';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '2' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '1';
+UPDATE `notascerural`.`notas_csv_simat_tmp_2019` SET `GRADO_COD` = '1' WHERE `notas_csv_simat_tmp_2019`.`GRADO_COD` = '0';
+      
+5. Asignar el id del sistema a cada Estudiantes del archivo del SIMAT
+
+//Agregar columna
+ALTER TABLE `notas_csv_simat_tmp_2019` ADD `ID` BIGINT NOT NULL FIRST;
+ALTER TABLE `notas_csv_simat_tmp_2019` CHANGE `NUI` `NUI` VARCHAR(16) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `notas_csv_simat_tmp_2019` CHANGE `DOC` `DOC` VARCHAR(12) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+
+
+//Estudiantes Actuales que si estan en el SIMAT
+    //Por NUI 206
+    > SELECT * FROM notas_csv_simat_tmp_2019 cst INNER JOIN notas_usuario u  ON cst.NUI = u.nui //Por NUI 206
+    > UPDATE notas_csv_simat_tmp_2019 cst INNER JOIN notas_usuario u ON cst.NUI = u.nui SET cst.ID = u.id_usuario WHERE cst.ID = 0
+    
+    //Por DOC 177
+    > SELECT * FROM notas_csv_simat_tmp_2019 cst INNER JOIN notas_usuario u ON cst.DOC = u.identificacion WHERE cst.ID = 0
+    > UPDATE notas_csv_simat_tmp_2019 cst INNER JOIN notas_usuario u ON cst.DOC = u.identificacion SET cst.ID = u.id_usuario WHERE cst.ID = 0
+ 
+    //Intentar asignar nui a usuarios sin nui 
+    > SELECT * FROM `notas_usuario` u WHERE u.nui = '' 
+    
+    > UPDATE notas_usuario t1 
+    INNER JOIN notas_csv_simat_tmp_2019 t2
+    ON BINARY CONCAT(t1.nombre,t1.nombre2,t1.apellido,t1.apellido2) = BINARY CONCAT(t2.NOMBRE1,t2.NOMBRE2,t2.APELLIDO1,t2.APELLIDO2)
+    SET t1.nui = t2.NUI
+    WHERE t1.nui = ""
+    
+    > UPDATE notas_csv_simat_tmp_2019 cst INNER JOIN notas_usuario u ON cst.NUI = u.nui SET cst.ID = u.id_usuario WHERE cst.ID = 0
+
+6. Crear Estudiantes Nuevos
+
+    >INSERT INTO notas_usuario(
+      id_sede,
+      nombre,
+      nombre2,
+      apellido,
+      apellido2,
+      identificacion,
+      tipo_identificacion,
+      correo,
+      telefono,
+      imagen,
+      fecha_nacimiento,
+      nui,
+      usuario,
+      clave,
+      tipo,
+      estilo,
+      idioma,
+      estado
+    )
+    SELECT SEDE,NOMBRE1,NOMBRE2,APELLIDO1,APELLIDO2,DOC,TIPODOC,'','','','',NUI,'','',0,'basico','es_es',1 FROM  `notas_csv_simat_tmp_2019` WHERE ID = 0
+
+    
+    >INSERT INTO notas_usuario_subsistema
+     SELECT id_usuario,3,1 FROM notas_usuario u 
+     INNER JOIN notas_csv_simat_tmp_2019 cst ON cst.NUI = u.nui
+     WHERE id_usuario NOT IN (SELECT id_usuario
+     FROM  notas_usuario_subsistema) 
+    
+    
+    > UPDATE notas_csv_simat_tmp_2019 cst INNER JOIN notas_usuario u ON cst.NUI = u.nui SET cst.ID = u.id_usuario WHERE cst.ID = 0
+
+
+7. Actualizar Estado de Estudiantes
+    
+    //Cambiar a Retirado a Todos los Estudiantes que actualmente esten en estado MATRICULADO o ACTIVO
+    
+    > UPDATE notas_usuario u INNER JOIN notas_usuario_subsistema us
+      ON u.id_usuario=us.id_usuario  SET u.estado = 2 WHERE us.id_subsistema=3 AND u.estado IN (1,5) 
+
+
+    //Cambiar a ACTIVO a Todos los Estudiantes que actualmente esten registrados en el SIMAT
+    > UPDATE notas_usuario u INNER JOIN notas_csv_simat_tmp_2019 cst ON cst.ID = u.id_usuario SET u.estado = 1
+    
+    
+8. Finalmente asociar los estudiantes con sus respectivos cursos.
+
+INSERT INTO `notas_usuario_curso` SELECT ID,id_curso
+FROM notas_csv_simat_tmp_2019
+INNER JOIN notas_curso
+ON SEDE=id_sede
+AND GRADO_COD=id_grado
+AND ID<>0  
+ 
+
+
+POVEDA BERNAL DAVID SANTIAGO 
+BERNAL POVEDA DAVID SANTIAGO    
+    
+  
+INSERT INTO `notas_area` (`id_area`, `nombre`, `estado`) VALUES ('11', 'DIMENSION CORPORAL', '1');
+INSERT INTO `notas_area` (`id_area`, `nombre`, `estado`) VALUES ('12', 'DIMENSION COMUNICATIVA', '1');
+INSERT INTO `notas_area` (`id_area`, `nombre`, `estado`) VALUES ('13', 'DIMENSION COGNITIVA', '1');
+INSERT INTO `notas_area` (`id_area`, `nombre`, `estado`) VALUES ('14', 'DIMENSION ETICA, ACTITUDES Y VALORES', '1');
+INSERT INTO `notas_area` (`id_area`, `nombre`, `estado`) VALUES ('15', 'DIMENSION ESTETICA', '1');
+INSERT INTO `notas_area` (`id_area`, `nombre`, `estado`) VALUES ('16', 'DIMENSION ESPIRITUAL', '1');
+INSERT INTO `notas_area` (`id_area`, `nombre`, `estado`) VALUES ('17', 'DIMENSION SOCIOAFECTIVA', '1');
+
+INSERT INTO `notas_area_grado` (`id_area`, `id_grado`) VALUES ('11', '1');
+INSERT INTO `notas_area_grado` (`id_area`, `id_grado`) VALUES ('12', '1');
+INSERT INTO `notas_area_grado` (`id_area`, `id_grado`) VALUES ('13', '1');
+INSERT INTO `notas_area_grado` (`id_area`, `id_grado`) VALUES ('14', '1');
+INSERT INTO `notas_area_grado` (`id_area`, `id_grado`) VALUES ('15', '1');
+INSERT INTO `notas_area_grado` (`id_area`, `id_grado`) VALUES ('16', '1');
+INSERT INTO `notas_area_grado` (`id_area`, `id_grado`) VALUES ('17', '1');
+
+ALTER TABLE `notas_area` ADD `Tipo` VARCHAR(50) NOT NULL AFTER `nombre`;
+
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 1;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 2;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 3;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 4;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 5;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 6;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 7;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 8; 
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 9;
+UPDATE `notas_area` SET `Tipo` = 'CRITERIOS' WHERE `notas_area`.`id_area` = 10;
+
+UPDATE `notas_area` SET `Tipo` = 'CUALITATIVO' WHERE `notas_area`.`id_area` = 11;
+UPDATE `notas_area` SET `Tipo` = 'CUALITATIVO' WHERE `notas_area`.`id_area` = 12;
+UPDATE `notas_area` SET `Tipo` = 'CUALITATIVO' WHERE `notas_area`.`id_area` = 13;
+UPDATE `notas_area` SET `Tipo` = 'CUALITATIVO' WHERE `notas_area`.`id_area` = 14;
+UPDATE `notas_area` SET `Tipo` = 'CUALITATIVO' WHERE `notas_area`.`id_area` = 15;
+UPDATE `notas_area` SET `Tipo` = 'CUALITATIVO' WHERE `notas_area`.`id_area` = 16;
+UPDATE `notas_area` SET `Tipo` = 'CUALITATIVO' WHERE `notas_area`.`id_area` = 17;
+
+ALTER TABLE `notas_criterio_evaluacion` DROP `coordenada`;
+
+CREATE TABLE `notas_cualitativa_evaluacion` (
+  `id_cualitativa` int(11) NOT NULL,
+  `nombre` varchar(50) NOT NULL,
+  `abreviacion` varchar(20) NOT NULL,
+  `id_area` int(11) NOT NULL,
+  `estado` varchar(1) NOT NULL DEFAULT '1'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ALTER TABLE `notas_cualitativa_evaluacion` ADD PRIMARY KEY(`id_cualitativa`);
+ALTER TABLE `notas_cualitativa_evaluacion` CHANGE `id_cualitativa` `id_cualitativa` INT(11) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Algunas Veces', 'AV', '11', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Casi Siempre', 'CS', '11', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Siempre', 'S', '11', '1');
+
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Algunas Veces', 'AV', '12', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Casi Siempre', 'CS', '12', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Siempre', 'S', '12', '1');
+
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Algunas Veces', 'AV', '13', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Casi Siempre', 'CS', '13', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Siempre', 'S', '13', '1');
+
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Algunas Veces', 'AV', '14', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Casi Siempre', 'CS', '14', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Siempre', 'S', '14', '1');
+
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Algunas Veces', 'AV', '15', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Casi Siempre', 'CS', '15', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Siempre', 'S', '15', '1');
+
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Algunas Veces', 'AV', '16', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Casi Siempre', 'CS', '16', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Siempre', 'S', '16', '1');
+
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Algunas Veces', 'AV', '17', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Casi Siempre', 'CS', '17', '1');
+INSERT INTO `notas_cualitativa_evaluacion` (`id_cualitativa`, `nombre`, `abreviacion`, `id_area`, `estado`) VALUES (NULL, 'Siempre', 'S', '17', '1');
+
+ALTER TABLE `notas_nota_criterio` ADD PRIMARY KEY( `id_estudiante`, `id_competencia`, `id_criterio`);
+ALTER TABLE `notas_nota_criterio` DROP `id_nota_criterio`;
+
+CREATE TABLE `notas_nota_cualitativa` (
+  `id_estudiante` bigint(20) NOT NULL,
+  `id_competencia` int(11) NOT NULL,
+  `id_cualitativa` int(11) NOT NULL,
+  `usuario` bigint(20) NOT NULL,
+  `fecha` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `estado` varchar(1) NOT NULL DEFAULT '1'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+ALTER TABLE `notas_nota_cualitativa` ADD PRIMARY KEY( `id_estudiante`, `id_competencia`, `id_cualitativa`);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
