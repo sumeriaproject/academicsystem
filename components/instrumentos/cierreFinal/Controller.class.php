@@ -91,6 +91,7 @@ class FuncioncierreFinal{
 
 		$pdf = new FPDF('P','mm','Letter'); //215.9 mm x 279.4 mm
 		$pdf->SetMargins(10,10,10); //izq,arr,der
+    $imageFolder = $this->miConfigurador->getVariableConfiguracion("raizDocumento").'/images/';
 
     $e = 0;
 
@@ -107,12 +108,10 @@ class FuncioncierreFinal{
       $notasCompetencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
       $notasCompetencias = $this->organizador->orderKeyBy($notasCompetencias,"COMPETENCIA");
 
-      //traer
-
       $pdf->AddPage();
 
       $y = $pdf->GetY();
-      $pdf->Image('http://www.academia.ceruralrestrepo.com/cerural.jpg',10,10,25,25);
+      $pdf->Image($imageFolder.'/cerural.jpg',10,10,25,25);
       $pdf->SetY($y);
 
       $pdf->SetFont('Arial','',10);
@@ -163,7 +162,6 @@ class FuncioncierreFinal{
         $c=0;
         $competenciasPendientes = "";
         
-        
         while(isset($competenciasPorArea[$areas[$a]['ID']][$c][0])){
 
           $competencia = trim(utf8_decode($competenciasPorArea[$areas[$a]['ID']][$c]['COMPETENCIA']));
@@ -172,7 +170,6 @@ class FuncioncierreFinal{
           $xc = $pdf->GetX(); //x area inicial
           $yc = $pdf->GetY(); //y area inicial
        
-
           if($c == 0 ){ //si es la primer competencia obtener su posición en x
             $xfirstc = $pdf->GetX();
             $yfirstc = $pdf->GetY();
@@ -302,12 +299,11 @@ class FuncioncierreFinal{
       $pdf->SetXY($xcomp+30,$ycomp+54);
       $pdf->Cell(40,3,"Docente",0,0,'C');
 
-      $pdf->Image('http://www.academia.ceruralrestrepo.com/director.jpg',$xcomp+110,$ycomp+25,40,23);
+      $pdf->Image($imageFolder.'/director.jpg',$xcomp+110,$ycomp+25,40,23);
       $pdf->SetXY($xcomp+110,$ycomp+50);
       $pdf->Cell(40,4,utf8_decode("JAVIER MUÑOZ MORALES"),0,0,'C');
       $pdf->SetXY($xcomp+110,$ycomp+54);
       $pdf->Cell(40,3,"Director Rural",0,0,'C');
-
 
       $e++;
     }

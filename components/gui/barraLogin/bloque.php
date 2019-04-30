@@ -95,9 +95,9 @@ if(class_exists('BloquebarraLogin') === false){
 
 
 
-$estaClase="Bloque".$unBloque["nombre"];
+$estaClase = "Bloque".$unBloque["nombre"];
 
-$this->miConfigurador->setVariableConfiguracion("esteBloque",$unBloque);
+$this->miConfigurador->setVariableConfiguracion("component",$unBloque);
 
 if(isset($lenguaje)){
 	$esteBloque=new $estaClase($unBloque,$lenguaje);

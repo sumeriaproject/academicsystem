@@ -1,15 +1,10 @@
 <?php
-$indice=0;
-$estilo[$indice++]="";
+$indice = 0;
+$estilo[$indice++] = "";
+$estilo[$indice++] = "style.css"; 
 
-/*$estilo[$indice++]="base.css";
-$estilo[$indice++]="layout.css";
-$estilo[$indice++]="skeleton.css";
-$estilo[$indice++]="datatable/TableTools.css";*/
-$estilo[$indice++]="style.css"; 
-
-$rutaBloque=$this->miConfigurador->getVariableConfiguracion("host");
-$rutaBloque.=$this->miConfigurador->getVariableConfiguracion("site");
+$rutaBloque  = $this->miConfigurador->getVariableConfiguracion("host");
+$rutaBloque .= $this->miConfigurador->getVariableConfiguracion("site");
 
 if($unBloque["grupo"]==""){
 	$rutaBloque.="/components/".$unBloque["nombre"];
@@ -19,6 +14,4 @@ if($unBloque["grupo"]==""){
 
 foreach ($estilo as $nombre){
 	echo "<link rel='stylesheet' type='text/css' href='".$rutaBloque."/css/".$nombre."'>\n";
-
 }
-?>

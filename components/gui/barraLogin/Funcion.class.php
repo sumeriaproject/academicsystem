@@ -88,7 +88,7 @@ class FuncionbarraLogin
 		    $this->miSesion->terminarSesion($_SESSION['aplicativo']);
 		    $valor['OPCION']="login";
 		    $_REQUEST=array();
-		    echo "<script>location.replace('http://www.web.ceruralrestrepo.com/')</script>";
+		    echo "<script>location.replace('http://www.ceruralrestrepo.com/')</script>";
 		}
 		
 		return false;
