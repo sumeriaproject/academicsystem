@@ -1,10 +1,14 @@
 <div id="main_user">
+         <a href="<?=$formSaraDataEdit?>" type="submit" class="btn btn-inverse disabled">
+            <i class="icon-white icon-arrow-left"></i>
+            Regresar
+        </a>
 		<div class="row-fluid">
 						<div class="span12">
 							<div class="box box-bordered">
 								<center>
                 <div class="box-title">
-                  <h3>FORMATO DE MATRICULA - 2018 - <?=$userDataByID['APELLIDO']?> <?=$userDataByID['APELLIDO2']?> <?=$userDataByID['NOMBRE']?> <?=$userDataByID['NOMBRE2']?></h3>
+                  <h3>FORMATO DE MATRICULA - <?=$userDataByID['APELLIDO']?> <?=$userDataByID['APELLIDO2']?> <?=$userDataByID['NOMBRE']?> <?=$userDataByID['NOMBRE2']?></h3>
                 </div>
                 </center>
                   
@@ -604,13 +608,17 @@
 											</div>
 										</div>
                     <br/>
-										<div class="form-actions"> 
-                      <input name="optionValue" type="hidden" value="<?=$userDataByID['ID']?>" />
-                      <button type="submit" class="btn btn-primary">Guardar</button>
-										</div>
-										<input type='hidden' name='formSaraData' value="<?=$formSaraData?>">
-									</form>
-                  <a target="_blank" style="cursor:pointer" href="<?=$formSaraDataPrint?>" class="btn" rel="tooltip" title="Imprimir"><i class="icon-edit">IMPRIMIR FORMATO</i></a>  
+							<div class="form-actions"> 
+                                <input name="optionValue" type="hidden" value="<?=$userDataByID['ID']?>" />
+                                <button type="submit" class="btn btn-primary"><i class="icon-white icon-check"></i> Guardar</button>
+                                <a target="_blank" href="<?=$formSaraDataPrint?>" class="btn btn-primary">
+                                    <i class="icon-white icon-print"></i> 
+                                    Imprimir Formato
+                                </a>  
+							</div>
+							<input type='hidden' name='formSaraData' value="<?=$formSaraData?>">
+						</form>
+      
 
 								</div>
 							</div>

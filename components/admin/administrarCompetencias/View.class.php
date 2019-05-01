@@ -60,9 +60,6 @@ class ViewadministrarCompetencias{
 			case "edit":
 				$this->showEdit($_REQUEST['optionValue']);
 				break;
-			case "view":
-				$this->showView($_REQUEST['optionValue']);
-				break; 
 		}
 	}
 	
@@ -105,17 +102,6 @@ class ViewadministrarCompetencias{
 
 		include_once($this->ruta."/html/edit.php");
 	}
-
-	
-	function showView($id){
-
-		$cadena_sql=$this->sql->cadena_sql("elementByID",$id);
-		$elementByID=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
-		$elementByID=$elementByID[0];
-
-		include_once($this->ruta."/html/view.php");
-	}
-
 	
 	function showList($id_grado){
 		
