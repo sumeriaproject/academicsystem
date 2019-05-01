@@ -92,7 +92,7 @@ class dbConnect {
         $recursoDB = $this->getRecursoDB("configuracion");
         $cadena = $this->getClausulaSQL("", $nombre);
 
-        $resultado = $recursoDB->ejecutarAcceso($cadena, "busqueda");
+        $resultado = $recursoDB->execute($cadena, "busqueda");
 
         if (is_array($resultado)) {
         	foreach($resultado[0] as $clave=>$valor){

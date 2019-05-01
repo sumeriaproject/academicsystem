@@ -19,7 +19,7 @@ if (!isset($GLOBALS["autorizado"])) {
                 $this->mensaje['error'][] = "- Por favor ingresa un email valido";
             } else {
                 $cadena_sql = $this->sql->cadena_sql("searchEmail", $email);
-                $registro   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+                $registro   = $this->resource->execute($cadena_sql, "busqueda");
                 
                 if (is_array($registro)) {
                     $this->mensaje['error'][] = "- Ya tenemos un registro con este correo.";
@@ -45,7 +45,7 @@ if (!isset($GLOBALS["autorizado"])) {
         }
         
         $cadena_sql = $this->sql->cadena_sql("searchUserByIdent", $_REQUEST["identificacion"]);
-        $registro   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $registro   = $this->resource->execute($cadena_sql, "busqueda");
         
         if (is_array($registro)) {
             $this->mensaje['error'][] = "- Ya tenemos un registro con este numero de identificacion.";
@@ -56,16 +56,16 @@ if (!isset($GLOBALS["autorizado"])) {
             $_REQUEST['estado'] = isset($_REQUEST['estado']) ? $_REQUEST['estado'] : "1";
             
             $cadena_sql = $this->sql->cadena_sql("insertUser", $_REQUEST);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+            $result     = $this->resource->execute($cadena_sql, "");
             
             $cadena_sql = $this->sql->cadena_sql("searchUserByIdent", $_REQUEST["identificacion"]);
-            $id         = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+            $id         = $this->resource->execute($cadena_sql, "busqueda");
             $id         = $id[0]['id_usuario'];
             
             $this->new_id = $id;
             
             $cadena_sql = $this->sql->cadena_sql("EliminarSubsistema", $id);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+            $result     = $this->resource->execute($cadena_sql, "");
             
             if (is_array($_POST["role"])) {
                 foreach ($_POST["role"] as $name => $value) {
@@ -73,12 +73,12 @@ if (!isset($GLOBALS["autorizado"])) {
                         "id" => $id,
                         "subsistema" => $value
                     ));
-                    $registro   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+                    $registro   = $this->resource->execute($cadena_sql, "");
                 }
             }
             
             $cadena_sql = $this->sql->cadena_sql("EliminarCursos", $id);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+            $result     = $this->resource->execute($cadena_sql, "");
             
             if (is_array($_POST["course"])) {
                 foreach ($_POST["course"] as $name => $value) {
@@ -86,7 +86,7 @@ if (!isset($GLOBALS["autorizado"])) {
                         "id" => $id,
                         "curso" => $value
                     ));
-                    $registro   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+                    $registro   = $this->resource->execute($cadena_sql, "");
                 }
             }
             $this->mensaje['exito'][] = "El registro fue exitoso";

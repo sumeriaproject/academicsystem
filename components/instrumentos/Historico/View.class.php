@@ -4,7 +4,7 @@ if(!isset($GLOBALS["autorizado"])){
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 include_once("class/controlAcceso.class.php");
 include_once("class/Array.class.php");
@@ -17,13 +17,13 @@ class ViewHistorico{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 
 	function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->miSesion=Sesion::singleton();
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
 		$this->controlAcceso=new controlAcceso();
 		$this->controlAcceso->usuario=$this->idSesion;
@@ -53,7 +53,7 @@ class ViewHistorico{
 
 
 	function html(){
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 
 		switch($option){
@@ -79,31 +79,31 @@ class ViewHistorico{
 
    	//1.Rescato el listado de competencias para el grado actual
     $cadenaSql=$this->sql->cadenaSql("competencias",$variable['grado']);
-    $competencias=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $competencias=$this->resource->execute($cadenaSql,"busqueda");
     $competenciasPorArea=$this->organizador->orderMultiKeyBy($competencias,"ID_AREA");
 
 
     //2.Consulto el listado de areas para el grado actual
     $cadenaSql=$this->sql->cadenaSql("areas",$variable['grado']);
-    $areas=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $areas=$this->resource->execute($cadenaSql,"busqueda");
 
 
 		//2.Consultar nombres Sede, Curso, Area
 		$cadenaSql=$this->sql->cadenaSql("sedeByID",$variable['sede']);
-		$sedeByID=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$sedeByID=$this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID=$sedeByID[0];
 
 		$cadenaSql=$this->sql->cadenaSql("cursoByID",$variable['curso']);
-		$cursoByID=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursoByID=$this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID=$cursoByID[0];
 
 		$cadenaSql=$this->sql->cadenaSql("estudianteByID",$variable['estudiante']);
-		$estudianteByID=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$estudianteByID=$this->resource->execute($cadenaSql,"busqueda");
 
 
 		//6. Consulto las notas finales de los estudiante
 		$cadenaSql=$this->sql->cadenaSql("notasFinalesPorEstudiante",$variable);
-		$notasFinalesPorEstudiante=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$notasFinalesPorEstudiante=$this->resource->execute($cadenaSql,"busqueda");
     //6.1 Organizar por competencias
 		$notaEstudiante=$this->organizador->orderKeyBy($notasFinalesPorEstudiante,"COMPETENCIA");
 
@@ -118,7 +118,7 @@ class ViewHistorico{
 		$formSaraDataBoletin.="&action=Historico";
 		$formSaraDataBoletin.="&option=actualizarNota";
 		$formSaraDataBoletin.="&competencia=".$_REQUEST['competencia'];
-		$formSaraDataBoletin=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataBoletin,$this->enlace);
+		$formSaraDataBoletin=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataBoletin,$this->enlace);
 
     include_once($this->ruta."/html/competenciasPorCurso.php");
 	}
@@ -145,20 +145,20 @@ class ViewHistorico{
 		//  por consiguiente la consulta solo debe arrojar un registro.
 
 		$cadenaSql = $this->sql->cadenaSql("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
-		$cursos    = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursos    = $this->resource->execute($cadenaSql,"busqueda");
 		$id_curso  = $cursos[0]['ID'];
 
 		//4.Consulto el listado de estudiantes para el curso actual
 		$cadenaSql=$this->sql->cadenaSql("estudiantesPorCurso",$id_curso,$anio);
-      	$estudiantesPorCurso=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      	$estudiantesPorCurso=$this->resource->execute($cadenaSql,"busqueda");
 
 		//5.Consultar nombres Sede, Curso, Area
 		$cadenaSql=$this->sql->cadenaSql("sedeByID",$id_sede);
-		$sedeByID=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$sedeByID=$this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID=$sedeByID[0];
 
 		$cadenaSql=$this->sql->cadenaSql("cursoByID",$id_curso);
-		$cursoByID=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursoByID=$this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID=$cursoByID[0];
 
 
@@ -166,7 +166,7 @@ class ViewHistorico{
 		$formSaraDataActionList.="&bloqueGrupo=instrumentos";
 		$formSaraDataActionList.="&action=Historico";
 		$formSaraDataActionList.="&option=processList";
-		$formSaraDataActionList=$this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraDataActionList);
+		$formSaraDataActionList=$this->context->fabricaConexiones->crypto->codificar($formSaraDataActionList);
 
 		$formSaraDataBoletin="pagina=boletinFinal";
 		$formSaraDataBoletin.="&option=verBoletin";
@@ -175,7 +175,7 @@ class ViewHistorico{
 		$formSaraDataBoletin.="&sede=".$id_sede;
 		$formSaraDataBoletin.="&grado=".$id_grado;
 		$formSaraDataBoletin.="&anio=".$anio;
-		$formSaraDataBoletin=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataBoletin,$this->enlace);
+		$formSaraDataBoletin=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataBoletin,$this->enlace);
 
 		$formSaraDataBoletinFinal="action=cierreFinal";
 		$formSaraDataBoletinFinal.="&bloque=cierreFinal";
@@ -185,7 +185,7 @@ class ViewHistorico{
 		$formSaraDataBoletinFinal.="&sede=".$id_sede;
 		$formSaraDataBoletinFinal.="&grado=".$id_grado;
 		$formSaraDataBoletinFinal.="&anio=".$anio;
-		$formSaraDataBoletinFinal=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataBoletinFinal,$this->enlace);
+		$formSaraDataBoletinFinal=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataBoletinFinal,$this->enlace);
 
 		$formSaraDataPrint="bloque=Historico";
 		$formSaraDataPrint.="&bloqueGrupo=instrumentos";
@@ -194,7 +194,7 @@ class ViewHistorico{
 		$formSaraDataPrint.="&curso=".$id_curso;
 		$formSaraDataPrint.="&sede=".$id_sede;
 		$formSaraDataPrint.="&grado=".$id_grado;
-		$formSaraDataPrint=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataPrint,$this->enlace);
+		$formSaraDataPrint=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataPrint,$this->enlace);
 
 		$formSaraDataPrintControl="action=controlEvaluacion";
 		$formSaraDataPrintControl.="&bloque=controlEvaluacion";
@@ -204,7 +204,7 @@ class ViewHistorico{
 		$formSaraDataPrintControl.="&sede=".$id_sede;
 		$formSaraDataPrintControl.="&grado=".$id_grado;
 		$formSaraDataPrintControl.="&anio=".$anio;
-		$formSaraDataPrintControl=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataPrintControl,$this->enlace);
+		$formSaraDataPrintControl=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataPrintControl,$this->enlace);
 
 
 
@@ -215,7 +215,7 @@ class ViewHistorico{
 		$formSaraDataPrintLote.="&curso=".$id_curso;
 		$formSaraDataPrintLote.="&sede=".$id_sede;
 		$formSaraDataPrintLote.="&grado=".$id_grado;
-		$formSaraDataPrintLote=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataPrintLote,$this->enlace);
+		$formSaraDataPrintLote=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataPrintLote,$this->enlace);
 
 		include_once($this->ruta."/html/estudiantesPorCurso.php");
 	}

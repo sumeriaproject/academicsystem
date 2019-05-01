@@ -26,7 +26,7 @@ class Sesion
 	var $sesionExpiracion;
 	var $sesionUsuarioId;
 	var $registro_sesion;
-	var $miConfigurador;
+	var $context;
 	var $tema="default";
 	var $idioma="es_es";
 	var $rol=0;
@@ -38,14 +38,14 @@ class Sesion
 	 */
 	private function __construct()
 	{
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		session_start();
 		$this->miSql=new sesionSql();
-		$this->miPaginaActual=$this->miConfigurador->getVariableConfiguracion("pagina");
+		$this->miPaginaActual=$this->context->getVariable("pagina");
 		// Valores predefinidos para las sesiones
-		$this->sesionUsuario= $this->miConfigurador->fabricaConexiones->miLenguaje->getCadena("usuarioAnonimo");
+		$this->sesionUsuario= $this->context->fabricaConexiones->miLenguaje->getCadena("usuarioAnonimo");
 		$this->sesionUsuarioNombre= '';
-		$this->sesionExpiracion=$this->miConfigurador->getVariableConfiguracion("expiracion");
+		$this->sesionExpiracion=$this->context->getVariable("expiracion");
 		$this->sesionNivel=0;
 	}
 
@@ -102,8 +102,8 @@ class Sesion
 					*/
 
 					$conexion="configuracion";
-					$esteRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
-					$resultado=$esteRecursoDB->ejecutarAcceso($cadenaSql,"acceso");
+					$esteRecursoDB=$this->context->fabricaConexiones->getRecursoDB($conexion);
+					$resultado=$esteRecursoDB->execute($cadenaSql,"acceso");
 
 					return $resultado;
 				}
@@ -274,7 +274,7 @@ class Sesion
 					
 			}
 			/*Actualizar la cookie*/
-			$this->sesionExpiracion=$this->miConfigurador->getVariableConfiguracion("expiracion");
+			$this->sesionExpiracion=$this->context->getVariable("expiracion");
 			
 	
 			$tiempo=time()+$this->sesionExpiracion*60;
@@ -364,8 +364,8 @@ class Sesion
 			*/
 
 			$conexion="configuracion";
-			$esteRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
-			$resultado=$esteRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+			$esteRecursoDB=$this->context->fabricaConexiones->getRecursoDB($conexion);
+			$resultado=$esteRecursoDB->execute($cadenaSql,"busqueda");
 			
 			if($resultado){
 				
@@ -375,7 +375,7 @@ class Sesion
 			{
 				$cadenaSql=$this->miSql->getCadenaSql("insertarValorSesion",$parametro);				
 			}			
-			$resultado=$esteRecursoDB->ejecutarAcceso($cadenaSql,"acceso");
+			$resultado=$esteRecursoDB->execute($cadenaSql,"acceso");
 			return $resultado;
 
 
@@ -453,11 +453,11 @@ class Sesion
 
 		$cadenaSql=$cadenaSql=$this->miSql->getCadenaSql("borrarSesionesExpiradas",$this->sesionId);
 
-		$this->miConexion=$this->miConfigurador->fabricaConexiones->getRecursoDB("configuracion");
+		$this->miConexion=$this->context->fabricaConexiones->getRecursoDB("configuracion");
 
 		if($this->miConexion){
 
-			if($this->miConexion->ejecutarAcceso($cadenaSql))
+			if($this->miConexion->execute($cadenaSql))
 			{
 				return false;
 			}else{
@@ -500,10 +500,10 @@ class Sesion
 
 		
 		$conexion="configuracion";
-		$esteRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$esteRecursoDB=$this->context->fabricaConexiones->getRecursoDB($conexion);
 		
-		$cadena_sql = "DELETE FROM ".$this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion WHERE sesionId = '".($this->esta_sesion)."'";
-		$resultado=$esteRecursoDB->ejecutarAcceso($cadena_sql,"");
+		$cadena_sql = "DELETE FROM ".$this->context->getVariable("prefijo")."valor_sesion WHERE sesionId = '".($this->esta_sesion)."'";
+		$resultado=$esteRecursoDB->execute($cadena_sql,"");
 		
 		
 		$_SESSION = array();
@@ -552,7 +552,7 @@ class Sesion
 		$resultado &= $this->borrar_valor_sesion($configuracion,"acceso",$this->sesionId);
 		$resultado &= $this->borrar_valor_sesion($configuracion,"expiracion",$this->sesionId);
 
-		$this->sesionExpiracion=$this->miConfigurador->getVariableConfiguracion("expiracion");
+		$this->sesionExpiracion=$this->context->getVariable("expiracion");
 		
 		
 		$resultado &= $this->guardarValorSesion($configuracion,"id_usuario",$this->id_usuario,$this->sesionId);
@@ -629,7 +629,7 @@ class Sesion
 		$this->setSesionUsuarioId=$id_usuario;
 
 		$this->cadena_sql="UPDATE ";
-		$this->cadena_sql.=$this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+		$this->cadena_sql.=$this->context->getVariable("prefijo")."valor_sesion ";
 		$this->cadena_sql.="SET ";
 		$this->cadena_sql.="valor ='".$id_usuario."' ";
 		$this->cadena_sql.="WHERE ";
@@ -638,9 +638,9 @@ class Sesion
 		$this->cadena_sql.="variable='idUsuario' ";
 		//echo $this->cadena_sql."<br>";
 
-		$miConexion=$this->miConfigurador->fabricaConexiones->getRecursoDB("configuracion");
+		$miConexion=$this->context->fabricaConexiones->getRecursoDB("configuracion");
 
-		return $this->resultado=$miConexion->ejecutarAcceso($this->cadena_sql,"");
+		return $this->resultado=$miConexion->execute($this->cadena_sql,"");
 		
 
 	} //Fin del mètodo especificar_usuario
@@ -672,16 +672,16 @@ class Sesion
 		$this->cadena_sql="SELECT ";
 		$this->cadena_sql.="valor ";
 		$this->cadena_sql.="FROM ";
-		$this->cadena_sql.=$this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+		$this->cadena_sql.=$this->context->getVariable("prefijo")."valor_sesion ";
 		$this->cadena_sql.="WHERE ";
 		$this->cadena_sql.="sesionId ='".($this->sesionId)."' ";
 		$this->cadena_sql.="AND ";
 		$this->cadena_sql.="variable='".$variable."' ";
 		//echo $this->cadena_sql."<br>";
 
-		$miConexion=$this->miConfigurador->fabricaConexiones->getRecursoDB("configuracion");
+		$miConexion=$this->context->fabricaConexiones->getRecursoDB("configuracion");
 
-		$this->resultado=$miConexion->ejecutarAcceso($this->cadena_sql,"busqueda");
+		$this->resultado=$miConexion->execute($this->cadena_sql,"busqueda");
 		
 		if(is_array($this->resultado)){
 			return $this->resultado[0][0];

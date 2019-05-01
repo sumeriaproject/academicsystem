@@ -9,8 +9,8 @@ $funcion[$indice++]="jquery.ketchup.helpers.js";
 $embebido[$indice]=true;
 $funcion[$indice++]="login.js";
 
-$rutaBloque=$this->miConfigurador->getVariableConfiguracion("host");
-$rutaBloque.=$this->miConfigurador->getVariableConfiguracion("site");
+$rutaBloque=$this->context->getVariable("host");
+$rutaBloque.=$this->context->getVariable("site");
 
 if($unBloque["grupo"]==""){
 	$rutaBloque.="/components/".$unBloque["nombre"];

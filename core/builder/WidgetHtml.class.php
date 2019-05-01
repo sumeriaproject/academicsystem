@@ -17,7 +17,7 @@ class  WidgetHtml{
 	var $cadena_html;
 	var $configuracion;
 	var $atributos;
-	var $miConfigurador;
+	var $context;
 
 
 
@@ -57,7 +57,7 @@ class  WidgetHtml{
 	
 	function __construct(){
 		
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 	}
 
 	//IMPORTANTE!!!!!!!!!!!
@@ -301,13 +301,13 @@ class  WidgetHtml{
 				$this->atributos["baseDatos"]= "configuracion";
 			}
 			
-			$esteRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($this->atributos["baseDatos"]);
+			$esteRecursoDB=$this->context->fabricaConexiones->getRecursoDB($this->atributos["baseDatos"]);
 			if(!$esteRecursoDB){
 				//Esto se considera un error fatal
 				exit;			
 			}
 			
-			$this->cuadro_registro=$esteRecursoDB->ejecutarAcceso($cuadro_sql,"busqueda");
+			$this->cuadro_registro=$esteRecursoDB->execute($cuadro_sql,"busqueda");
 			
 			
 			if($this->cuadro_registro){
@@ -317,7 +317,7 @@ class  WidgetHtml{
 				//En el caso que se requiera una minilista de opciones al principio
 				if(isset($this->atributos["subcadena_sql"])) {
 				
-					$this->cuadro_miniRegistro=$esteRecursoDB->ejecutarAcceso($this->atributos["subcadena_sql"],"busqueda");
+					$this->cuadro_miniRegistro=$esteRecursoDB->execute($this->atributos["subcadena_sql"],"busqueda");
 					if($this->cuadro_registro){						
 						return true;
 					}

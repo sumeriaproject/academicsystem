@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"]))
 	exit;
 }else{
 
-	$miPaginaActual=$this->miConfigurador->getVariableConfiguracion("pagina");
+	$miPaginaActual=$this->context->getVariable("pagina");
 	switch($option)
 	{
 
@@ -67,8 +67,8 @@ if(!isset($GLOBALS["autorizado"]))
 
 	}
 
-	$enlace=$this->miConfigurador->getVariableConfiguracion("enlace");
-	$variable=$this->miConfigurador->fabricaConexiones->crypto->codificar($variable);
+	$enlace=$this->context->getVariable("enlace");
+	$variable=$this->context->fabricaConexiones->crypto->codificar($variable);
 
 	$_REQUEST[$enlace]=$variable;
 	$_REQUEST["recargar"]=true;

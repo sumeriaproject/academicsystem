@@ -2,16 +2,16 @@
 class LenguajeuserManagement
 {
     private $idioma;
-    private $miConfigurador;
+    private $context;
     private $nombreBloque;
     function __construct()
     {
-        $this->miConfigurador = Configurador::singleton();
-        $esteBloque           = $this->miConfigurador->getVariableConfiguracion("esteBloque");
+        $this->context = Context::singleton();
+        $esteBloque           = $this->context->getVariable("esteBloque");
         $this->nombreBloque   = $esteBloque["nombre"];
-        $this->ruta           = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
-        if ($this->miConfigurador->getVariableConfiguracion("idioma")) {
-            $idioma = $this->miConfigurador->getVariableConfiguracion("idioma");
+        $this->ruta           = $this->context->getVariable("rutaBloque");
+        if ($this->context->getVariable("idioma")) {
+            $idioma = $this->context->getVariable("idioma");
         } else {
             $idioma = "es_es";
         }

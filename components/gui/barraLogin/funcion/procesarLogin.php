@@ -3,17 +3,17 @@ if (!isset($GLOBALS["autorizado"])) {
     include("index.php");
     exit;
 } else {
-    $token = strrev(($this->miConfigurador->getVariableConfiguracion("enlace")));
+    $token = strrev(($this->context->getVariable("enlace")));
     if (isset($_REQUEST[$token . "usuario"]) && isset($_REQUEST[$token . "clave"])) {
         $variable["usuario"] = $_REQUEST[$token . "usuario"];
         $variable["clave"]   = md5($_REQUEST[$token . "clave"]);
         $conexion            = "aplicativo";
-        $esteRecursoDB       = $this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+        $esteRecursoDB       = $this->context->fabricaConexiones->getRecursoDB($conexion);
         if (!$esteRecursoDB) {
             exit;
         }
         $cadena_sql = $this->sql->cadena_sql("buscarUsuarioAplicativo", $variable);
-        $registro   = $esteRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $registro   = $esteRecursoDB->execute($cadena_sql, "busqueda");
         if ($registro) {
             if ($registro[0]["CLAVE"] == $variable["clave"]) {
                 $this->miSesion->tema   = $registro[0]["TEMA"];

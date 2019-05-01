@@ -2,8 +2,8 @@
 $indice=0;
 $estilo[$indice++]="login.css";
 
-$rutaBloque=$this->miConfigurador->getVariableConfiguracion("host");
-$rutaBloque.=$this->miConfigurador->getVariableConfiguracion("site");
+$rutaBloque=$this->context->getVariable("host");
+$rutaBloque.=$this->context->getVariable("site");
 
 if($unBloque["grupo"]==""){
 	$rutaBloque.="/components/".$unBloque["nombre"];

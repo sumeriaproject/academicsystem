@@ -4,7 +4,7 @@ if(!isset($GLOBALS["autorizado"])){
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 include_once("class/controlAcceso.class.php");
 include_once("class/Calendario.class.php");
@@ -18,13 +18,13 @@ class ViewcontrolEvaluacion{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 
 	function __construct(){
-		$this->miConfigurador  = Configurador::singleton();
+		$this->context  = Context::singleton();
 		$this->miSesion        = Sesion::singleton();
-		$this->miRecursoDB     = $this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace          = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->resource     = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace          = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->idSesion        = $this->miSesion->getValorSesion('idUsuario');
 		$this->controlAcceso   = new controlAcceso();
 		$this->calendario      = new Calendario();
@@ -61,7 +61,7 @@ class ViewcontrolEvaluacion{
 
 	function html()
 	{
-		$this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta = $this->context->getVariable("rutaBloque");
 		$option = isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 
 		switch($option){
@@ -85,25 +85,25 @@ class ViewcontrolEvaluacion{
 
 		//2. Consulto la competencia
 		$cadenaSql   = $this->sql->cadenaSql("competenciaByID",$_REQUEST['competencia']);
-		$competencia = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$competencia = $this->resource->execute($cadenaSql,"busqueda");
 		$competencia = $competencia[0];
 
 		//1.Consultar nombres Sede, Curso, Area
 		$cadenaSql = $this->sql->cadenaSql("sedeByID",$_REQUEST['sede']);
-		$sedeByID  = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID  = $sedeByID[0];
 
 		$cadenaSql = $this->sql->cadenaSql("cursoByID",$_REQUEST['curso']);
-		$cursoByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID = $cursoByID[0];
 
 		$cadenaSql = $this->sql->cadenaSql("areaByID",$competencia['ID_AREA']);
-		$areaByID  = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$areaByID  = $this->resource->execute($cadenaSql,"busqueda");
 		$areaByID  = $areaByID[0];
 
 		//3. Consulto los estudiantes que pertenecen al curso
 		$cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$_REQUEST['curso']);
-		$estudiantesPorCurso = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$estudiantesPorCurso = $this->resource->execute($cadenaSql,"busqueda");
 
 	    $formSaraDataXML  = "action=controlEvaluacion";
 	    $formSaraDataXML .= "&bloque=controlEvaluacion";
@@ -114,31 +114,31 @@ class ViewcontrolEvaluacion{
 	    $formSaraDataXML .= "&grado=".$_REQUEST['grado'];
 	    $formSaraDataXML .= "&competencia=".$_REQUEST['competencia'];
 	    $formSaraDataXML .= "&sede=".$_REQUEST['sede'];
-	    $formSaraDataXML =  $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataXML,$this->enlace);
+	    $formSaraDataXML =  $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataXML,$this->enlace);
 
 	    $formSaraDataUrl  = "pagina=controlEvaluacion";
 		$formSaraDataUrl .= "&grado=".$_REQUEST['grado'];
 		$formSaraDataUrl .= "&sede=".$_REQUEST['sede'];
-		$formSaraDataUrl  = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl,$this->enlace);
+		$formSaraDataUrl  = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl,$this->enlace);
 
 		switch($areaByID['TIPO']) 
 		{
 			case 'CRITERIOS':
 				//4. Consulto los criterios de evaluacion para el area a la que pertenece la competencia
 				$cadenaSql = $this->sql->cadenaSql("criteriosPorCompetencia",$_REQUEST['competencia']);
-				$criteriosPorCompetencia = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+				$criteriosPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 
 				//4.1 Agrupo los criterios por grupo
 				$criteriosPorCompetencia = $this->sorter->orderMultiKeyBy($criteriosPorCompetencia,"GRUPO");
 
 				//5. Consulto las notas parciales de los estudiantes correspondientes a los criterios
 				$cadenaSql  = $this->sql->cadenaSql("notasPorCompetencia",$_REQUEST);
-				$notasPorCompetencia = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+				$notasPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$notasPorCompetencia = $this->sorter->orderTwoKeyBy($notasPorCompetencia,"ESTUDIANTE","CRITERIO");
 
 				//6. Consulto las notas finales de los estudiantes correspondientes a los criterios
 				$cadenaSql = $this->sql->cadenaSql("notasFinalesCriteriosPorCompetencia",$_REQUEST);
-				$notasFinalesPorCompetencia = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+				$notasFinalesPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$notasFinalesPorCompetencia = $this->sorter->orderKeyBy($notasFinalesPorCompetencia,"ESTUDIANTE");
 
 				$formSaraDataNota  = "jxajax=controlEvaluacion";
@@ -151,19 +151,19 @@ class ViewcontrolEvaluacion{
 				$formSaraDataNota .= "&area=".$competencia['ID_AREA'];
 				$formSaraDataNota .= "&grado=".$competencia['GRADO'];
 
-				$formSaraDataNota=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataNota,$this->enlace);
+				$formSaraDataNota=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataNota,$this->enlace);
 
    				include_once($this->ruta."/html/notasPorCompetenciaCriterios.php");
 			break;
 			case 'CUALITATIVA':
 
 				$cadenaSql = $this->sql->cadenaSql("cualitativasPorCompetencia",$_REQUEST['competencia']);
-				$cualitativasPorCompetencia = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+				$cualitativasPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$cualitativasPorCompetencia = $this->sorter->orderKeyBy($cualitativasPorCompetencia,"ID");
 
 				//Consulto las notas finales de los estudiantes correspondientes a las cualitativas
 				$cadenaSql  = $this->sql->cadenaSql("notasFinalesCualitativasPorCompetencia",$_REQUEST);
-				$notasPorCompetencia = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+				$notasPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$notasPorCompetencia = $this->sorter->orderKeyBy($notasPorCompetencia,"ESTUDIANTE");
 
 				$formSaraDataNota  = "jxajax=controlEvaluacion";
@@ -176,7 +176,7 @@ class ViewcontrolEvaluacion{
 				$formSaraDataNota .= "&area=".$competencia['ID_AREA'];
 				$formSaraDataNota .= "&grado=".$competencia['GRADO'];
 
-				$formSaraDataNota = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataNota,$this->enlace);
+				$formSaraDataNota = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataNota,$this->enlace);
 
 				include_once($this->ruta."/html/notasPorCompetenciaCualitativa.php");
 			break;
@@ -204,7 +204,7 @@ class ViewcontrolEvaluacion{
 		//  por consiguiente la consulta solo debe arrojar un registro.
 
 		$cadenaSql = $this->sql->cadenaSql("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
-		$cursos    =$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursos    =$this->resource->execute($cadenaSql,"busqueda");
 		$id_curso  = $cursos[0]['ID'];
 
 
@@ -216,25 +216,25 @@ class ViewcontrolEvaluacion{
 
 		//4.Consulto el listado de areas para el grado actual
 		$cadenaSql = $this->sql->cadenaSql("areas",$id_grado);
-		$areas     = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$areas     = $this->resource->execute($cadenaSql,"busqueda");
 
 		//5.Rescato el listado de competencias para el grado actual
 		$cadenaSql    = $this->sql->cadenaSql("competencias",$id_grado);
-		$competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$competencias = $this->resource->execute($cadenaSql,"busqueda");
 		$competenciasPorArea = $this->orderArrayMultiKeyBy($competencias,"ID_AREA");
 
 		$formSaraDataActionList="bloque=controlEvaluacion";
 		$formSaraDataActionList.="&bloqueGrupo=instrumentos";
 		$formSaraDataActionList.="&action=controlEvaluacion";
 		$formSaraDataActionList.="&option=processList";
-		$formSaraDataActionList=$this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraDataActionList);
+		$formSaraDataActionList=$this->context->fabricaConexiones->crypto->codificar($formSaraDataActionList);
 
 		$formSaraDataCurso="pagina=controlEvaluacion";
 		$formSaraDataCurso.="&option=verNotas";
 		$formSaraDataCurso.="&curso=".$id_curso;
 		$formSaraDataCurso.="&sede=".$id_sede;
 		$formSaraDataCurso.="&grado=".$id_grado;
-		$formSaraDataCurso=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataCurso,$this->enlace);
+		$formSaraDataCurso=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataCurso,$this->enlace);
 
 		$formSaraDataPrint="action=controlEvaluacion";
 		$formSaraDataPrint.="&bloque=controlEvaluacion";
@@ -243,7 +243,7 @@ class ViewcontrolEvaluacion{
 		$formSaraDataPrint.="&curso=".$id_curso;
 		$formSaraDataPrint.="&sede=".$id_sede;
 		$formSaraDataPrint.="&grado=".$id_grado;
-		$formSaraDataPrint=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataPrint,$this->enlace);
+		$formSaraDataPrint=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataPrint,$this->enlace);
 
 		include_once($this->ruta."/html/competenciasPorCurso.php");
 	}
@@ -251,17 +251,17 @@ class ViewcontrolEvaluacion{
 	function showNew(){
 
 		$cadenaSql=$this->sql->cadenaSql("grados");
-		$grados=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$grados=$this->resource->execute($cadenaSql,"busqueda");
 
 		$id_grado="2"; //corregir esto para q las areas correspondan al grado
 		$cadenaSql=$this->sql->cadenaSql("areas",$id_grado);
-		$areas=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$areas=$this->resource->execute($cadenaSql,"busqueda");
 
 		$formSaraDataAction="bloque=controlEvaluacion";
 		$formSaraDataAction.="&bloqueGrupo=instrumentos";
 		$formSaraDataAction.="&action=controlEvaluacion";
 		$formSaraDataAction.="&option=processNew";
-		$formSaraDataAction=$this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraDataAction);
+		$formSaraDataAction=$this->context->fabricaConexiones->crypto->codificar($formSaraDataAction);
 
 		include_once($this->ruta."/html/new.php");
 	}

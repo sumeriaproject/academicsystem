@@ -16,7 +16,7 @@ class dbms
 	private $conteo;
 	private $registro;
 	private $campo;
-	private $miConfigurador;
+	private $context;
 
 
 	/**

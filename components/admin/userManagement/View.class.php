@@ -1,5 +1,5 @@
 <?php
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 include_once("class/controlAcceso.class.php");
 include_once("class/Array.class.php");
@@ -14,15 +14,15 @@ class ViewuserManagement
     var $lenguaje;
     var $formulario;
     var $enlace;
-    var $miConfigurador;
+    var $context;
     
     function __construct()
     {
         
-        $this->miConfigurador = Configurador::singleton();
+        $this->context = Context::singleton();
         $this->miSesion       = Sesion::singleton();
-        $this->miRecursoDB    = $this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-        $this->enlace         = $this->miConfigurador->getVariableConfiguracion("host") . $this->miConfigurador->getVariableConfiguracion("site") . "?" . $this->miConfigurador->getVariableConfiguracion("enlace");
+        $this->resource    = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
+        $this->enlace         = $this->context->getVariable("host") . $this->context->getVariable("site") . "?" . $this->context->getVariable("enlace");
         $this->idSesion       = $this->miSesion->getValorSesion('idUsuario');
         $this->rol            = $this->miSesion->getValorSesion('rol');
         
@@ -31,7 +31,7 @@ class ViewuserManagement
             $formSaraData .= "&bloque=barraLogin";
             $formSaraData .= "&bloqueGrupo=gui";
             $formSaraData .= "&opcionLogin=logout";
-            $formSaraData = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
+            $formSaraData = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
             echo "<script>location.replace('" . $formSaraData . "')</script>";
         }
         $this->rol                    = $this->miSesion->getValorSesion('rol');
@@ -74,10 +74,10 @@ class ViewuserManagement
         $formSaraData .= "&optionValue=" . $id;
         
         $option       = "&option=edit";
-        $link['edit'] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData . $option, $this->enlace);
+        $link['edit'] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData . $option, $this->enlace);
         
         $option       = "&option=view";
-        $link['view'] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData . $option, $this->enlace);
+        $link['view'] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData . $option, $this->enlace);
         
         $formSaraData = "jxajax=main";
         $formSaraData .= "&action=userManagement";
@@ -85,14 +85,14 @@ class ViewuserManagement
         $formSaraData .= "&bloqueGrupo=admin";
         $formSaraData .= "&option=processDelete";
         $formSaraData .= "&optionValue=" . $id;
-        $link['delete'] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
+        $link['delete'] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
         
         $formSaraData = "pagina=userManagement";
         $formSaraData .= "&bloque=userManagement";
         $formSaraData .= "&tema=admin";
         $formSaraData .= "&bloqueGrupo=admin";
         $formSaraData .= "&option=list";
-        $link['postDelete'] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
+        $link['postDelete'] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
         
         return $link;
     }
@@ -101,7 +101,7 @@ class ViewuserManagement
     function html()
     {
         
-        $this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+        $this->ruta = $this->context->getVariable("rutaBloque");
         $option     = isset($_REQUEST['option']) ? $_REQUEST['option'] : "listEstudiante";
         
         switch ($option) {
@@ -153,11 +153,11 @@ class ViewuserManagement
     function printEnroll($id)
     {
         $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
-        $userDataByID = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
         $cadena_sql     = $this->sql->cadena_sql("userEnrollByID", $id);
-        $userEnrollByID = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userEnrollByID = $this->resource->execute($cadena_sql, "busqueda");
         $userEnrollByID = $userEnrollByID[0];
         
         $tipo_victima        = array();
@@ -197,11 +197,11 @@ class ViewuserManagement
         $sede['12'] = "SAN ISIDRO";
         
         $cadena_sql  = $this->sql->cadena_sql("teacherList");
-        $teacherList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $teacherList = $this->resource->execute($cadena_sql, "busqueda");
         $teacherList = $this->organizador->orderKeyBy($teacherList, 'ID');
-        $imageFolder = $this->miConfigurador->getVariableConfiguracion("raizDocumento").'/images/';
+        $imageFolder = $this->context->getVariable("raizDocumento").'/images/';
         
-        $this->nextYear = ($this->miConfigurador->getVariableConfiguracion("anio")) * 1 + 1;
+        $this->nextYear = ($this->context->getVariable("anio")) * 1 + 1;
         
         $pdf = new FPDF('P', 'mm', 'Letter'); //215.9 mm x 279.4 mm
         $pdf->SetMargins(10, 10, 10); //izq,arr,der
@@ -352,23 +352,23 @@ class ViewuserManagement
     {
         
         $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
-        $userDataByID = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
         $cadena_sql  = $this->sql->cadena_sql("espacioList");
-        $espacioList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $espacioList = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("sedeList");
-        $sedeList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("roleList");
-        $roleList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("courseList");
-        $courseList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $courseList = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql   = $this->sql->cadena_sql("courseByUser", $id);
-        $courseByUser = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $courseByUser = $this->resource->execute($cadena_sql, "busqueda");
         $courseByUser = explode(",", $courseByUser[0]['COURSES']);
         
         $courseList = $this->orderArrayMultiKeyBy($courseList, 'NAMESEDE');
@@ -378,7 +378,7 @@ class ViewuserManagement
         $formSaraData .= "&action=userManagement";
         $formSaraData .= "&option=processEdit";
         $formSaraData .= "&optionValue=" . $id;
-        $formSaraData = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraData);
+        $formSaraData = $this->context->fabricaConexiones->crypto->codificar($formSaraData);
         
         if ($rol <> "3") {
             $formSaraData = "bloque=userManagement";
@@ -386,7 +386,7 @@ class ViewuserManagement
             $formSaraData .= "&action=userManagement";
             $formSaraData .= "&option=processEdit";
             $formSaraData .= "&optionValue=" . $id;
-            $formSaraData = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraData);
+            $formSaraData = $this->context->fabricaConexiones->crypto->codificar($formSaraData);
             
             include_once($this->ruta . "/html/edit.php");
         } else {
@@ -396,7 +396,7 @@ class ViewuserManagement
             $formSaraData .= "&action=userManagement";
             $formSaraData .= "&option=processEditStudent";
             $formSaraData .= "&optionValue=" . $id;
-            $formSaraData = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraData);
+            $formSaraData = $this->context->fabricaConexiones->crypto->codificar($formSaraData);
             
             $formSaraDataEdit = "pagina=userManagement";
             $formSaraDataEdit .= "&bloque=userManagement";
@@ -404,7 +404,7 @@ class ViewuserManagement
             $formSaraDataEdit .= "&option=edit";
             $formSaraDataEdit .= "&optionValue=" . $id;
             $formSaraDataEdit .= "&editRol=3";
-            $formSaraDataEdit = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
+            $formSaraDataEdit = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
             
             include_once($this->ruta . "/html/editStudent.php");
         }
@@ -413,30 +413,30 @@ class ViewuserManagement
     function showEditEnroll($id, $rol = 3)
     {
         $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
-        $userDataByID = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
         $cadena_sql     = $this->sql->cadena_sql("userEnrollByID", $id);
-        $userEnrollByID = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userEnrollByID = $this->resource->execute($cadena_sql, "busqueda");
         $userEnrollByID = $userEnrollByID[0];
         
         $cadena_sql  = $this->sql->cadena_sql("espacioList");
-        $espacioList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $espacioList = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("sedeList");
-        $sedeList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql  = $this->sql->cadena_sql("teacherList");
-        $teacherList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $teacherList = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("roleList");
-        $roleList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("courseList");
-        $courseList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $courseList = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql   = $this->sql->cadena_sql("courseByUser", $id);
-        $courseByUser = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $courseByUser = $this->resource->execute($cadena_sql, "busqueda");
         $courseByUser = explode(",", $courseByUser[0]['COURSES']);
         
         $courseList = $this->orderArrayMultiKeyBy($courseList, 'NAMESEDE');
@@ -446,14 +446,14 @@ class ViewuserManagement
         $formSaraData .= "&action=userManagement";
         $formSaraData .= "&option=processEditStudentEnroll";
         $formSaraData .= "&optionValue=" . $id;
-        $formSaraData = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraData);
+        $formSaraData = $this->context->fabricaConexiones->crypto->codificar($formSaraData);
         
         $formSaraDataMun = "pagina=userManagement";
         $formSaraDataMun .= "&bloque=userManagement";
         $formSaraDataMun .= "&bloqueGrupo=admin";
         $formSaraDataMun .= "&option=getMunicipio";
         $formSaraDataMun .= "&jxajax=getMunicipio";
-        $formSaraDataMun = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataMun, $this->enlace);
+        $formSaraDataMun = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataMun, $this->enlace);
 
         $formSaraDataEdit = "pagina=userManagement";
         $formSaraDataEdit .= "&bloque=userManagement";
@@ -461,7 +461,7 @@ class ViewuserManagement
         $formSaraDataEdit .= "&option=edit";
         $formSaraDataEdit .= "&editRol=" . $rol;
         $formSaraDataEdit .= "&optionValue=" . $id;
-        $formSaraDataEdit = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
+        $formSaraDataEdit = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
 
         $formSaraDataPrint = "pagina=userManagement";
         $formSaraDataPrint .= "&bloque=userManagement";
@@ -469,7 +469,7 @@ class ViewuserManagement
         $formSaraDataPrint .= "&option=printEnroll";
         $formSaraDataPrint .= "&jxajax=userManagement";
         $formSaraDataPrint .= "&optionValue=" . $id;
-        $formSaraDataPrint = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataPrint, $this->enlace);
+        $formSaraDataPrint = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataPrint, $this->enlace);
         
         $departamentos = $this->organizador->getDeptosColombia();
         
@@ -479,17 +479,17 @@ class ViewuserManagement
     function showView($id)
     {
         $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
-        $userDataByID = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
         $cadena_sql = $this->sql->cadena_sql("roleList");
-        $roleList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("sedeList");
-        $sedeList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql  = $this->sql->cadena_sql("espacioList");
-        $espacioList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $espacioList = $this->resource->execute($cadena_sql, "busqueda");
         
         $link = $this->getUrlLinksbyId($id);
         
@@ -498,12 +498,8 @@ class ViewuserManagement
     
     function showList($option, $rol)
     {
-        $cadena_sql  = $this->sql->cadena_sql("espacioList");
-        $espacioList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
-        $espacioList = $this->orderArrayKeyBy($espacioList, "ID");
-        
         $cadena_sql = $this->sql->cadena_sql("sedeList");
-        $sedeList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         $sedeList   = $this->orderArrayKeyBy($sedeList, "ID");
         
         $formSaraData = "jxajax=main";
@@ -512,50 +508,46 @@ class ViewuserManagement
         $formSaraData .= "&bloque=userManagement";
         $formSaraData .= "&bloqueGrupo=admin";
         $formSaraData .= "&option=new";
-        $linkUserNew = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
+        $linkUserNew = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
        
         $formSaraDataUrl = "pagina=userManagement";
         $formSaraDataUrl .= "&option=" . $option;
-        $formSaraDataUrl = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl, $this->enlace);
+        $formSaraDataUrl = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl, $this->enlace);
         
         $formSaraDataEdit = "pagina=userManagement";
         $formSaraDataEdit .= "&bloque=userManagement";
         $formSaraDataEdit .= "&bloqueGrupo=admin";
         $formSaraDataEdit .= "&option=edit";
         $formSaraDataEdit .= "&editRol=" . $rol;
-        $formSaraDataEdit = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
+        $formSaraDataEdit = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
         
         $formSaraDataDelete = "action=userManagement";
         $formSaraDataDelete .= "&bloque=userManagement";
         $formSaraDataDelete .= "&bloqueGrupo=admin";
         $formSaraDataDelete .= "&option=processDelete";
-        $formSaraDataDelete = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataDelete, $this->enlace);
-        
-        $cadena_sql = $this->sql->cadena_sql("sedeList");
-        $sedeList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
-        $sedeList   = $this->orderArrayKeyBy($sedeList, "ID");
+        $formSaraDataDelete = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataDelete, $this->enlace);
         
         $cadena_sql = $this->sql->cadena_sql("courseList");
-        $courseList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $courseList = $this->resource->execute($cadena_sql, "busqueda");
         $courseList = $this->orderArrayKeyBy($courseList, "IDCOURSE");
         
         $cadena_sql = $this->sql->cadena_sql("roleList");
-        $roleList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         $roleList   = $this->orderArrayKeyBy($roleList, "ID");
         
         $variable['sede'] = isset($_REQUEST['sede']) ? $_REQUEST['sede'] : "";
         $variable['rol']  = isset($_REQUEST['rol']) ? $_REQUEST['rol'] : "";
         
         $cadena_sql  = $this->sql->cadena_sql("userList", $variable);
-        $userAllList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userAllList = $this->resource->execute($cadena_sql, "busqueda");
         $userAllList = $this->orderArrayKeyBy($userAllList, "ID");
         
         $cadena_sql       = $this->sql->cadena_sql("UserListbyCourse");
-        $userListbyCourse = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userListbyCourse = $this->resource->execute($cadena_sql, "busqueda");
         $userListbyCourse = $this->orderArrayKeyBy($userListbyCourse, "IDUSER");
         
         $cadena_sql     = $this->sql->cadena_sql("UserListbyRole");
-        $userListbyRole = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $userListbyRole = $this->resource->execute($cadena_sql, "busqueda");
         $userListbyRole = $this->orderArrayMultiKeyBy($userListbyRole, "IDUSER");
         
         $userList = $userAllList; 
@@ -569,14 +561,14 @@ class ViewuserManagement
         $access = $this->controlAcceso->getAccesoCompleto();
         
         $cadena_sql  = $this->sql->cadena_sql("UserListWithAcces", $variable);
-        $result      = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $result      = $this->resource->execute($cadena_sql, "busqueda");
         $userAllList = $this->organizador->orderMultiTwoKeyBy($result, "SEDE_ID", "CURSO_ID");
         
         $formSaraDataEdit = "pagina=userManagement";
         $formSaraDataEdit .= "&bloque=userManagement";
         $formSaraDataEdit .= "&bloqueGrupo=admin";
         $formSaraDataEdit .= "&option=view";
-        $formSaraDataEdit = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
+        $formSaraDataEdit = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataEdit, $this->enlace);
         
         include_once($this->ruta . "/html/simpleList.php");
     }
@@ -585,26 +577,26 @@ class ViewuserManagement
     {
         
         $cadena_sql = $this->sql->cadena_sql("roleList");
-        $roleList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("sedeList");
-        $sedeList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("courseList");
-        $courseList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $courseList = $this->resource->execute($cadena_sql, "busqueda");
         $courseList = $this->orderArrayMultiKeyBy($courseList, 'NAMESEDE');
         
         $s = 0;
         
         while (isset($sedeList[$s][0])) {
             $cadena_sql = $this->sql->cadena_sql("lastIdByCourse", $sedeList[$s]['ID']);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+            $result     = $this->resource->execute($cadena_sql, "busqueda");
 
             $lastID = $result[0][0];
             
             do {
                 $cadena_sql = $this->sql->cadena_sql("basicUserByID", $lastID);
-                $exist      = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+                $exist      = $this->resource->execute($cadena_sql, "busqueda");
                 
                 if (is_array($exist)) {
                     $lastID++;
@@ -621,7 +613,7 @@ class ViewuserManagement
         $formSaraData .= "&bloqueGrupo=admin";
         $formSaraData .= "&action=userManagement";
         $formSaraData .= "&option=processNew";
-        $formSaraData = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraData);
+        $formSaraData = $this->context->fabricaConexiones->crypto->codificar($formSaraData);
         
         include_once($this->ruta . "/html/new.php");
     }
@@ -630,25 +622,25 @@ class ViewuserManagement
     {
         
         $cadena_sql = $this->sql->cadena_sql("roleList");
-        $roleList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("sedeList");
-        $sedeList   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
         $cadena_sql = $this->sql->cadena_sql("courseList");
-        $courseList = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $courseList = $this->resource->execute($cadena_sql, "busqueda");
         
         $courseList = $this->orderArrayMultiKeyBy($courseList, 'NAMESEDE');
         $s          = 0;
         while (isset($sedeList[$s][0])) {
             $cadena_sql = $this->sql->cadena_sql("lastIdByCourse", $sedeList[$s]['ID']);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+            $result     = $this->resource->execute($cadena_sql, "busqueda");
             
             $lastID = $result[0][0];
             
             do {
                 $cadena_sql = $this->sql->cadena_sql("basicUserByID", $lastID);
-                $exist      = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+                $exist      = $this->resource->execute($cadena_sql, "busqueda");
                 
                 if (is_array($exist)) {
                     $lastID++;
@@ -665,7 +657,7 @@ class ViewuserManagement
         $formSaraData .= "&bloqueGrupo=admin";
         $formSaraData .= "&action=userManagement";
         $formSaraData .= "&option=processNew";
-        $formSaraData = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraData);
+        $formSaraData = $this->context->fabricaConexiones->crypto->codificar($formSaraData);
         
         include_once($this->ruta . "/html/newStudent.php");
     }

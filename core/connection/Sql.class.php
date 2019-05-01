@@ -1,13 +1,13 @@
 <?php
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 
 
 class Sql
 {
 	
 	
-	var $miConfigurador;
+	var $context;
 	
 		/**
      * @name sql 
@@ -17,7 +17,7 @@ class Sql
 	 */
 	
 	function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 	}
 	
 	
@@ -40,7 +40,7 @@ class Sql
 	
 	function limpiarVariables($variable,$conexion){
 		
-		$recursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);		
+		$recursoDB=$this->context->fabricaConexiones->getRecursoDB($conexion);		
 		return	$recursoDB->limpiarVariable($variable);
 		
 	}

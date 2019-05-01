@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"])){
 }
 
 include_once("core/auth/Sesion.class.php");
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -20,25 +20,25 @@ class FuncioncontrolEvaluacion
 	var $funcion;
 	var $lenguaje;
 	var $ruta;
-	var $miConfigurador;
+	var $context;
 	var $miInspectorHTML;
 	var $error;
-	var $miRecursoDB;
+	var $resource;
 	var $crypto;
 	var $mensaje;
 	var $status;
 
     function __construct()
     {
-        $this->miConfigurador = Configurador::singleton();
+        $this->context = Context::singleton();
         $this->miSesion = Sesion::singleton();
         $this->idSesion = $this->miSesion->getValorSesion('idUsuario');
         $this->miInspectorHTML=InspectorHTML::singleton();
-        $this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+        $this->ruta = $this->context->getVariable("rutaBloque");
         $this->miMensaje = Mensaje::singleton();
-        $this->enlace = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+        $this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
         $conexion = "aplicativo";
-        $this->miRecursoDB= $this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+        $this->resource= $this->context->fabricaConexiones->getRecursoDB($conexion);
         $this->sorter=orderArray::singleton();
     }
 
@@ -52,7 +52,7 @@ class FuncioncontrolEvaluacion
         //0. Consultar desempenio competencia anterior
         //a. Seleccionar todas las competencias con un identificador menor al actual
         $cadenaSql = $this->sql->cadenaSql("competenciasAnteriores",$variable);
-    	$competenciasAnteriores = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    	$competenciasAnteriores = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($competenciasAnteriores)){
           $ca = 0;
@@ -61,7 +61,7 @@ class FuncioncontrolEvaluacion
             $variable_tmp['estudiante'] = $variable['estudiante'];
 
             $cadenaSql = $this->sql->cadenaSql("notaFinal",$variable_tmp);
-            $nota = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+            $nota = $this->resource->execute($cadenaSql,"busqueda");
 
             if(!is_array($nota) || $nota[0]['DESEMPENIO']=="" ){
               $respuesta->error = "La nota no sera almacenada!!. Complete las notas correspondientes a competencias anteriores";
@@ -80,18 +80,18 @@ class FuncioncontrolEvaluacion
 
 		//2. Consultar si la nota existe
 		$cadenaSql = $this->sql->cadenaSql("notaPorCriterio",$variable);
-		$notaPorCriterio = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$notaPorCriterio = $this->resource->execute($cadenaSql,"busqueda");
 
 		//3. Si ya existe, actualizarNota
 		if(is_array($notaPorCriterio)){
 			$cadenaSql = $this->sql->cadenaSql("actualizarNotaCriterio",$variable);
-			$notaPorCriterio = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+			$notaPorCriterio = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
 		}
 		//4. Si no existe insertar
 		else{
 			$cadenaSql = $this->sql->cadenaSql("insertarNotaCriterio",$variable);
-			$notaPorCriterio = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+			$notaPorCriterio = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
 		}
     return $respuesta;
@@ -105,18 +105,18 @@ class FuncioncontrolEvaluacion
 
         //Consultar si la nota existe
         $cadenaSql = $this->sql->cadenaSql("notaPorCualitativa",$variable);
-        $notaPorCualitativa = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $notaPorCualitativa = $this->resource->execute($cadenaSql,"busqueda");
 
         //Si ya existe, actualizarNota
         if(is_array($notaPorCualitativa)){
             $cadenaSql = $this->sql->cadenaSql("actualizarNotaCualitativa",$variable);
-            $notaPorCualitativa = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+            $notaPorCualitativa = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
         }
         //Si no existe insertar
         else{
             $cadenaSql = $this->sql->cadenaSql("insertarNotaCualitativa",$variable);
-            $notaPorCualitativa = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+            $notaPorCualitativa = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
         }
 
@@ -154,13 +154,13 @@ class FuncioncontrolEvaluacion
 			//5.1 Para poder calcular la sumatoria, todos los criterios deben tener la correspondiente nota
 
 			$cadenaSql= $this->sql->cadenaSql("criteriosPorCompetencia",$competencia);
-			$criteriosPorCompetencia= $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+			$criteriosPorCompetencia= $this->resource->execute($cadenaSql,"busqueda");
 
 			$variable['competencia']= $competencia;
 			$variable['estudiante']= $estudiante;
 
 			$cadenaSql= $this->sql->cadenaSql("notasPorEstudianteyCompetencia",$variable);
-			$notasPorEstudianteyCompetencia= $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+			$notasPorEstudianteyCompetencia= $this->resource->execute($cadenaSql,"busqueda");
 			$notasPorEstudianteyCompetencia= $this->sorter->orderKeyBy($notasPorEstudianteyCompetencia,"CRITERIO");
 
 			$criteriosPendientes=0;
@@ -204,15 +204,15 @@ class FuncioncontrolEvaluacion
         $variable['nota_porcentual'] = $respuesta->notaFinalPorcentaje;
 
         $cadenaSql = $this->sql->cadenaSql("notaFinal",$variable);
-        $notaFinal = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $notaFinal = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($notaFinal)){
             $variable['id_nota_final'] = $notaFinal[0]['ID'];
             $cadenaSql = $this->sql->cadenaSql("actualizarNotaFinal",$variable);
-            $notaFinal = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+            $notaFinal = $this->resource->execute($cadenaSql,"");
         }else{
             $cadenaSql = $this->sql->cadenaSql("insertarNotaFinal",$variable);
-            $notaFinal = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+            $notaFinal = $this->resource->execute($cadenaSql,"");
         }
 
         $respuesta->status=true;
@@ -236,7 +236,7 @@ class FuncioncontrolEvaluacion
 				$variable["grado"] = $_REQUEST['grado'];
 				$variable["sede"] = $_REQUEST['sede'];
 
-				$this->miConfigurador->render("controlEvaluacion",$variable);
+				$this->context->render("controlEvaluacion",$variable);
 
 			break;
 			case "showPDFCompetencias":
@@ -301,31 +301,31 @@ class FuncioncontrolEvaluacion
 	public function showPDFCompetencias($variable)
     {
         $cadenaSql = $this->sql->cadenaSql("sedeByID",$variable['sede']);
-    	$sedeByID  = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    	$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
     	$sedeByID  = $sedeByID[0];
 
         $cadenaSql = $this->sql->cadenaSql("cursoByID",$_REQUEST['curso']);
-    	$cursoByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    	$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
     	$cursoByID = $cursoByID[0];
 
         $cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$variable['curso']);
-        $estudiantesPorCurso = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $estudiantesPorCurso = $this->resource->execute($cadenaSql,"busqueda");
 
         $cadenaSql = $this->sql->cadenaSql("notasCriteroPorCurso",$variable['curso']);
-        $notasPorCurso = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $notasPorCurso = $this->resource->execute($cadenaSql,"busqueda");
         $notasPorCurso = $this->sorter->orderTwoKeyBy($notasPorCurso,"ESTUDIANTE","COMPETENCIA");       
         
         $cadenaSql = $this->sql->cadenaSql("notasDefinitivasPorCurso",$variable['curso']);
-        $notasDefinitivas = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $notasDefinitivas = $this->resource->execute($cadenaSql,"busqueda");
         $notasDefinitivas = $this->sorter->orderTwoKeyBy($notasDefinitivas,"ESTUDIANTE","AREA");
 
         $cadenaSql = $this->sql->cadenaSql("competencias",$variable['grado']);
-    	$competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    	$competencias = $this->resource->execute($cadenaSql,"busqueda");
     	$competenciasPorArea = $this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
 
         //Consulto el listado de areas para el grado actual
         $cadenaSql = $this->sql->cadenaSql("areas",$variable['grado']);
-        $areas = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $areas = $this->resource->execute($cadenaSql,"busqueda");
         $areas = $this->sorter->orderKeyBy($areas,"ID");
 
         /*switch($areaByID['TIPO']) 
@@ -338,7 +338,7 @@ class FuncioncontrolEvaluacion
             case 'CUALITATIVA':
 
                 $cadenaSql = $this->sql->cadenaSql("notasCualitativaPorCurso",$variable['curso']);
-                $notasPorCurso = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+                $notasPorCurso = $this->resource->execute($cadenaSql,"busqueda");
                 $notasPorCurso = $this->sorter->orderTwoKeyBy($notasPorCurso,"ESTUDIANTE","COMPETENCIA");
                
             break;
@@ -459,119 +459,4 @@ class FuncioncontrolEvaluacion
         }
         $pdf->Output();
 	}
-
-
-	/*public function showNotasCompleto($variable){
-
-        $cadenaSql = $this->sql->cadenaSql("sedeByID",$variable['sede']);
-        $sedeByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
-        $sedeByID = $sedeByID[0];
-
-        $cadenaSql = $this->sql->cadenaSql("cursoByID",$_REQUEST['curso']);
-        $cursoByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
-        $cursoByID = $cursoByID[0];
-
-        $cadenaSql = $this->sql->cadenaSql("estudiantes",$variable['curso']);
-        $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
-
-        $cadenaSql = $this->sql->cadenaSql("notas",$variable['curso']);
-        $notasPorCurso = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
-        $notasPorCurso = $this->sorter->orderTwoKeyBy($notasPorCurso,"ESTUDIANTE","COMPETENCIA");
-
-
-        $cadenaSql = $this->sql->cadenaSql("competenciasAll");
-        $competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
-        $competenciasPorArea = $this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
-
-        //Consulto el listado de areas para el grado actual
-        $cadenaSql = $this->sql->cadenaSql("areasAll");
-        $areas = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
-        $areas = $this->sorter->orderKeyBy($areas,"ID");
-
-
-		$pdf = new FPDF('L','mm','Legal'); //215.9 mm x 279.4 mm
-		$pdf->SetMargins(10,10,10); //izq,arr,der
-        $pdf->AddPage();
-
-    $y = $pdf->GetY();
-    $pdf->Image('http://www.academia.ceruralrestrepo.com/cerural.jpg',10,10,25,25);
-    $pdf->SetY($y);
-
-    $pdf->SetFont('Arial','',10);
-    $pdf->Cell(190,5,"DEPARTAMENTO DEL META - RESTREPO",0,0,'C');
-    $pdf->Ln();
-    $pdf->Cell(190,5,utf8_decode("SECRETARÍA DE EDUCACIÓN"),0,0,'C');
-    $pdf->Ln();
-    $pdf->SetFont('Arial','B',13);
-    $pdf->Cell(190,5,"CENTRO EDUCATIVO RURAL DE RESTREPO",0,0,'C');
-    $pdf->Ln();
-    $pdf->SetFont('Arial','I',10);
-    $pdf->Cell(190,5,"DANE 150606000393",0,0,'C');
-    $pdf->Cell(60,5,utf8_decode("Sede: ".$sedeByID['NOMBRE']),0,0,'C');
-    $pdf->Cell(20,5,utf8_decode("Grado: ".$cursoByID['NOMBRE']),0,0,'C');
-
-    $pdf->Ln(8);
-
-    //Encabezado
-
-    $pdf->SetFont('Arial','',5);
-    $pdf->SetX(65);
-
-    foreach($competenciasPorArea as $areaKey => $competencias){
-
-        $numCompArea = count($competenciasPorArea[$areaKey]);
-        $anchoArea = (5.5*($numCompArea+1)) ; //mas 1 de la nota definitiva
-        $pdf->Cell($anchoArea,6, substr($areas[$areaKey]['AREA'],0,23),1);
-
-    }
-
-    $pdf->Ln();
-
-    $pdf->SetFont('Arial','',6);
-
-    //Codigos competencias
-    $pdf->SetX(65);
-
-    foreach($competenciasPorArea as $areaKey => $competencias){
-      foreach($competencias as $competencia){
-        $pdf->Cell(5.5,6,$competencia["IDENTIFICADOR"],1,0,'C');
-      }
-      $pdf->Cell(5.5,6,'D',1,0,'C');
-    }
-    $pdf->Ln();
-
-    //Notas Estudiantes
-
-    $a=0;
-    while(isset($estudiantes[$a][0])){
-      $pdf->SetFont('Arial','',7);
-      $nombreEstudiante = $estudiantes[$a]['APELLIDO']." ".$estudiantes[$a]['APELLIDO2']." ";
-      $nombreEstudiante .= $estudiantes[$a]['NOMBRE']." ".$estudiantes[$a]['NOMBRE2']." ";
-      $pdf->Cell(55,5,utf8_decode($nombreEstudiante),1);
-
-      foreach($competenciasPorArea as $key => $value){
-        foreach($value as $competencia){
-          $desempenio = $notasPorCurso[$estudiantes[$a]['ID']][$competencia["ID"]]['DESEMPENIO'];
-          if( $desempenio == "Alto"){
-            $pdf->SetFillColor(255,255,0);
-          }
-          elseif( $desempenio == "Basico" ){
-            $pdf->SetFillColor(221, 228, 255);
-          }
-          elseif( $desempenio == "Superior" ){
-            $pdf->SetFillColor(0,255,255);
-          }
-          else{
-            $pdf->SetFillColor(255,255,255);
-          }
-          $pdf->Cell(5.5,5,$notasPorCurso[$estudiantes[$a]['ID']][$competencia["ID"]]['NOTA_FINAL'],1,0,'C',true);
-        }
-        $pdf->Cell(5.5,5,' ',1,0,'C',true);
-      }
-
-      $pdf->Ln();
-     $a++;
-    }
-    $pdf->Output();
-	}*/
 }

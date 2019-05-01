@@ -6,7 +6,7 @@ ini_set ('display_errors','1');
  *  Implementa el patrón Fachada para el paquete builder.
  */
 
-require_once("core/manager/Configurador.class.php");
+require_once("core/manager/Context.class.php");
 require_once("core/builder/builderSql.class.php");
 require_once("core/builder/ArmadorPagina.class.php"); 
 require_once("core/builder/ProcesadorPagina.class.php");
@@ -16,7 +16,7 @@ include_once("core/crypto/Encriptador.class.php");
 class Pagina
 {
 
-	var $miConfigurador;
+	var $context;
 
 	var $recursoDB;
 
@@ -32,12 +32,12 @@ class Pagina
 
 
 	function __construct(){
-		$this->miConfigurador = Configurador::singleton();
+		$this->context = Context::singleton();
 		$this->generadorClausulas = BuilderSql::singleton();
 		$this->armadorPagina = new ArmadorPagina();
 		$this->procesadorPagina = new ProcesadorPagina();
 		$this->cripto = Encriptador::singleton();
-		$this->raizDocumentos = $this->miConfigurador->getVariableConfiguracion("raizDocumento");
+		$this->raizDocumentos = $this->context->getVariable("raizDocumento");
 
 		/**
 		 * El recurso de conexión que utilizan los objetos de esta clase es "configuracion"
@@ -51,7 +51,7 @@ class Pagina
 	
 		
 
-		$this->recursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB("configuracion");
+		$this->recursoDB=$this->context->fabricaConexiones->getRecursoDB("configuracion");
 
 		
 		
@@ -77,7 +77,7 @@ class Pagina
 				}
 			}else{
 				
-				$this->raizDocumentos=$this->miConfigurador->getVariableConfiguracion("raizDocumento");
+				$this->raizDocumentos=$this->context->getVariable("raizDocumento");
 
 				if($_REQUEST["bloqueGrupo"]==""){
 					include_once($this->raizDocumentos."/components/".$_REQUEST["bloque"]."/bloque.php");					
@@ -108,7 +108,7 @@ class Pagina
 		
 	
 		if($cadenaSql){
-			$registro=$this->recursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+			$registro=$this->recursoDB->execute($cadenaSql,"busqueda");
 			$totalRegistros=$this->recursoDB->getConteo();
 			
 			if($totalRegistros>0) {

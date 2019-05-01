@@ -1,6 +1,6 @@
 <?php
 
-include_once ($this->miConfigurador->getVariableConfiguracion("raizDocumento")."/core/connection/Sql.class.php");
+include_once ($this->context->getVariable("raizDocumento")."/core/connection/Sql.class.php");
 
 
 
@@ -8,13 +8,13 @@ class BuilderSql extends Sql{
 
 	var $cadena_sql;
 	
-	var $miConfigurador;
+	var $context;
 	
 	private static $instance;
 
 	function __construct(){
 
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		return 0;
 	}
 	
@@ -39,7 +39,7 @@ class BuilderSql extends Sql{
 
 	private function clausula($indice,$parametro){
 
-		$prefijo=$this->miConfigurador->getVariableConfiguracion("prefijo");
+		$prefijo=$this->context->getVariable("prefijo");
 
 		switch ($indice){
 

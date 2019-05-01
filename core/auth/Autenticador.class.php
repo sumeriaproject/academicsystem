@@ -27,9 +27,9 @@ class Autenticador
 
 	private function __construct(){
 
-		$this->configurador=Configurador::singleton();
+		$this->configurador=Context::singleton();
 
-		require_once($this->configurador->getVariableConfiguracion("raizDocumento")."/core/auth/Sesion.class.php");
+		require_once($this->configurador->getVariable("raizDocumento")."/core/auth/Sesion.class.php");
 		$this->sesionUsuario=Sesion::singleton();
 
 	}
@@ -78,7 +78,7 @@ class Autenticador
 
 		if($clausulaSQL){
 
-			$registro=$this->configurador->conexionDB->ejecutarAcceso($clausulaSQL,"busqueda");
+			$registro=$this->configurador->conexionDB->execute($clausulaSQL,"busqueda");
 			$totalRegistros=$this->configurador->conexionDB->getConteo();
 
 			if($totalRegistros>0) {

@@ -19,7 +19,7 @@ if (!isset($GLOBALS["autorizado"])) {
         }
         
         $cadena_sql = $this->sql->cadena_sql("searchUserByIdandUser", $_REQUEST);
-        $registro   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "busqueda");
+        $registro   = $this->resource->execute($cadena_sql, "busqueda");
         
         if (is_array($registro)) {
             $this->mensaje['error'][] = "- Ya tenemos un registro con este numero de identificacion.";
@@ -37,10 +37,10 @@ if (!isset($GLOBALS["autorizado"])) {
         if (count($this->mensaje['error']) == 0) {
             
             $cadena_sql = $this->sql->cadena_sql("actualizarRegistro", $_REQUEST);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+            $result     = $this->resource->execute($cadena_sql, "");
             
             $cadena_sql = $this->sql->cadena_sql("EliminarSubsistema", $id);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+            $result     = $this->resource->execute($cadena_sql, "");
             
             if (is_array($_POST["role"])) {
                 foreach ($_POST["role"] as $name => $value) {
@@ -48,12 +48,12 @@ if (!isset($GLOBALS["autorizado"])) {
                         "id" => $id,
                         "subsistema" => $value
                     ));
-                    $registro   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+                    $registro   = $this->resource->execute($cadena_sql, "");
                 }
             }
             
             $cadena_sql = $this->sql->cadena_sql("EliminarCursos", $id);
-            $result     = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+            $result     = $this->resource->execute($cadena_sql, "");
             
             if (is_array($_POST["course"])) {
                 foreach ($_POST["course"] as $name => $value) {
@@ -61,7 +61,7 @@ if (!isset($GLOBALS["autorizado"])) {
                         "id" => $id,
                         "curso" => $value
                     ));
-                    $registro   = $this->miRecursoDB->ejecutarAcceso($cadena_sql, "");
+                    $registro   = $this->resource->execute($cadena_sql, "");
                 }
             }
             $this->mensaje['exito'][] = "El docente se actualizo correctamente";

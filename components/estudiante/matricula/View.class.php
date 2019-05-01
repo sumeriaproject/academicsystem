@@ -4,7 +4,7 @@ if(!isset($GLOBALS["autorizado"])){
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 include_once("class/controlAcceso.class.php");
 include_once("class/Array.class.php");
@@ -17,13 +17,13 @@ class Viewmatricula{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 
 	function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->miSesion=Sesion::singleton();
-		$this->miRecursoDB = $this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->resource = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
 		$this->controlAcceso=new controlAcceso();
 		$this->controlAcceso->usuario = $this->idSesion;
@@ -53,7 +53,7 @@ class Viewmatricula{
 
 
 	function html(){
-		$this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta = $this->context->getVariable("rutaBloque");
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"new";
 
 		switch($option){
@@ -84,16 +84,16 @@ class Viewmatricula{
 		//  por consiguiente la consulta solo debe arrojar un registro.
 
 			$cadenaSql = $this->sql->cadenaSql("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
-			$cursos = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+			$cursos = $this->resource->execute($cadenaSql,"busqueda");
 			$id_curso = $cursos[0]['ID'];
 
 		//4.Consulto el listado de estudiantes para el curso actual
 			$cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$id_curso);
-      $estudiantesPorCurso = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantesPorCurso = $this->resource->execute($cadenaSql,"busqueda");
 
 		//4.1.Consulto el listado de estudiantes para el curso actual
    		$cadenaSql   = $this->sql->cadenaSql("notasEstudiantes",$id_curso);
-    	$notasEstudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    	$notasEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
     	$compEstudiante = array();
     	foreach($notasEstudiantes as $key=>$value){
     		$compEstudiante[$value["ID"]] = $value;
@@ -101,11 +101,11 @@ class Viewmatricula{
 
     //5.Consultar nombres Sede, Curso, Area
       $cadenaSql = $this->sql->cadenaSql("sedeByID",$id_sede);
-      $sedeByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $sedeByID = $this->resource->execute($cadenaSql,"busqueda");
       $sedeByID = $sedeByID[0];
 
       $cadenaSql = $this->sql->cadenaSql("cursoByID",$id_curso);
-      $cursoByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $cursoByID = $this->resource->execute($cadenaSql,"busqueda");
       $cursoByID = $cursoByID[0];
 
 
@@ -113,7 +113,7 @@ class Viewmatricula{
 			$formSaraDataActionList.="&bloqueGrupo=instrumentos";
 			$formSaraDataActionList.="&action=matricula";
 			$formSaraDataActionList.="&option=processList";
-			$formSaraDataActionList = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraDataActionList);
+			$formSaraDataActionList = $this->context->fabricaConexiones->crypto->codificar($formSaraDataActionList);
 
 
 			$formSaraDataNota="jxajax=matricula";
@@ -125,7 +125,7 @@ class Viewmatricula{
 			$formSaraDataNota.="&grado=".$id_grado;
 			$formSaraDataNota.="&curso=".$id_curso;
 
-			$formSaraDataNota = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataNota,$this->enlace);
+			$formSaraDataNota = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataNota,$this->enlace);
 
 
 			include_once($this->ruta."/html/estudiantesPorCurso.php");

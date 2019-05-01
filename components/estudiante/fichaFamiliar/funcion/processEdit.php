@@ -8,7 +8,7 @@ if(!isset($GLOBALS["autorizado"]))
 	switch($option){
 		case "processEditCompany":	
 			$cadena_sql=$this->sql->cadena_sql("updateDataCompany",$_REQUEST);
-			$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+			$result=$this->resource->execute($cadena_sql,"");
 			$this->mensaje="Datos Actualizados Correctamente";
 			return $this->status=FALSE;
 		break;
@@ -17,18 +17,18 @@ if(!isset($GLOBALS["autorizado"]))
 			switch($_REQUEST['optionTab']){
 				case "basic":
 					$cadena_sql=$this->sql->cadena_sql("updateDataCommerceBasic",$_REQUEST);
-					$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+					$result=$this->resource->execute($cadena_sql,"");
 					$this->mensaje="Datos Basicos Actualizados Correctamente";
 				break;
 				case "features":
 
 					$cadena_sql=$this->sql->cadena_sql("deleteDataCommerceFeatures",$_REQUEST);
-					$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+					$result=$this->resource->execute($cadena_sql,"");
 
 					foreach($_REQUEST['optionFeature'] as $value){
 						$_REQUEST['optionValFeature']=$value;
 						$cadena_sql=$this->sql->cadena_sql("insertDataCommerceFeatures",$_REQUEST);
-						$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+						$result=$this->resource->execute($cadena_sql,"");
 
 					}
 
@@ -38,7 +38,7 @@ if(!isset($GLOBALS["autorizado"]))
 				break;
 				case "time":
 					$cadena_sql=$this->sql->cadena_sql("updateDataCommerceTime",$_REQUEST);
-					$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+					$result=$this->resource->execute($cadena_sql,"");
 					$this->mensaje="Datos de Calendario Actualizados Correctamente";
 				break;
 			}

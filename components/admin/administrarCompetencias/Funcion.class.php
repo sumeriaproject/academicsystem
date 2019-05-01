@@ -6,7 +6,7 @@ if(!isset($GLOBALS["autorizado"]))
 }
 
 include_once("core/auth/Sesion.class.php");
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -26,10 +26,10 @@ class FuncionadministrarCompetencias
 	var $funcion;
 	var $lenguaje;
 	var $ruta;
-	var $miConfigurador;
+	var $context;
 	var $miInspectorHTML;
 	var $error;
-	var $miRecursoDB;
+	var $resource;
 	var $crypto;
 	var $mensaje;
 	var $status;
@@ -75,7 +75,7 @@ class FuncionadministrarCompetencias
 				$variable["option"] = "list"; 
 				$variable["grado"]  = $_REQUEST['grado']; 
 				
-				$this->miConfigurador->render("administrarCompetencias",$variable);
+				$this->context->render("administrarCompetencias",$variable);
 			break;
 			case "processEdit":
 				$this->processEdit($_REQUEST);
@@ -89,7 +89,7 @@ class FuncionadministrarCompetencias
 				}
 				$variable["option"] = "list"; 
 				$variable["grado"]  = $_REQUEST['grado']; 
-				$this->miConfigurador->render("administrarCompetencias",$variable);
+				$this->context->render("administrarCompetencias",$variable);
 				
 			break;
 			case "processDelete": 
@@ -103,7 +103,7 @@ class FuncionadministrarCompetencias
 					$variable["mensaje"] = "La competencia se actualizo correctamente";
 				}
 				$variable["option"]="list"; 
-				$this->miConfigurador->render("administrarCompetencias",$variable);
+				$this->context->render("administrarCompetencias",$variable);
 			break;
 		}
 	}
@@ -112,14 +112,14 @@ class FuncionadministrarCompetencias
 	function __construct()
 	{
 		
-		$this->miConfigurador = Configurador::singleton();
+		$this->context = Context::singleton();
 		$this->miSesion       = Sesion::singleton();
 		$this->idSesion       = $this->miSesion->getValorSesion('idUsuario');
 		$this->miInspectorHTML = InspectorHTML::singleton();
-		$this->ruta   = $this->miConfigurador->getVariableConfiguracion("rutaBloque");		
-		$this->enlace = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->ruta   = $this->context->getVariable("rutaBloque");		
+		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion = "aplicativo";
-		$this->miRecursoDB = $this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$this->resource = $this->context->fabricaConexiones->getRecursoDB($conexion);
 		$this->pagina = new Pagina();
 		$this->mensaje['error'] = [];
 

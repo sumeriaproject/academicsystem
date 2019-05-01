@@ -1,5 +1,5 @@
 <?php
-require_once("core/manager/Configurador.class.php");
+require_once("core/manager/Context.class.php");
 require_once("core/auth/Sesion.class.php");
 require_once("core/connection/dbConnect.class.php");
 require_once("core/crypto/Encriptador.class.php");
@@ -21,9 +21,9 @@ class Bootstrap{
 	 * Objeto.
 	 * Encargado de inicializar las variables globales. Su atributo $configuracion contiene los valores necesarios
 	 * para gestionar la aplicacion.
-	 * @var Configurador
+	 * @var Context
 	 */
-	var $miConfigurador;
+	var $context;
 
 
 	/**
@@ -96,8 +96,8 @@ class Bootstrap{
 		 * Importante conservar el orden de creación de los siguientes objetos porque tienen
 		 * referencias cruzadas.
 		 */
-		$this->miConfigurador=Configurador::singleton();
-		$this->miConfigurador->setConectorDB($this->conectorDB);
+		$this->context=Context::singleton();
+		$this->context->setConectorDB($this->conectorDB);
 		
 		/**
 		 * El objeto del a clase Sesion es el último que se debe crear.
@@ -113,11 +113,11 @@ class Bootstrap{
 
 	public function iniciar(){
 
-		// Poblar el atributo miConfigurador->configuracion
+		// Poblar el atributo context->configuracion
 
-		$this->miConfigurador->variable();
+		$this->context->variable();
 
-		if(!$this->miConfigurador->getVariableConfiguracion("instalado"))
+		if(!$this->context->getVariable("instalado"))
 		{
 			$this->instalarAplicativo();
 
@@ -134,7 +134,7 @@ class Bootstrap{
 
 	function setMisVariables($variables){
 		$this->misVariables=$variables;
-		$this->miConfigurador->setRutas($variables);
+		$this->context->setRutas($variables);
 	}
 
 	/**
@@ -154,14 +154,14 @@ class Bootstrap{
 		$pagina=$this->determinarPagina();
 	
 		
-		$this->miConfigurador->setVariableConfiguracion("pagina",$pagina);
+		$this->context->setVariable("pagina",$pagina);
 		
 		
 		/**
 		 * Verificar que se tenga una sesión válida
 		*/
 
-		require_once($this->miConfigurador->getVariableConfiguracion("raizDocumento")."/core/auth/Autenticador.class.php");
+		require_once($this->context->getVariable("raizDocumento")."/core/auth/Autenticador.class.php");
 		$this->autenticador=Autenticador::singleton();
 		$this->autenticador->especificarPagina($pagina);
 
@@ -170,7 +170,7 @@ class Bootstrap{
 			/**
 			 * Procesa la página solicitada por el usuario
 			 */
-			require_once($this->miConfigurador->getVariableConfiguracion("raizDocumento")."/core/builder/Pagina.class.php");
+			require_once($this->context->getVariable("raizDocumento")."/core/builder/Pagina.class.php");
 			
 					
 			$this->miPagina=new Pagina();
@@ -191,7 +191,7 @@ class Bootstrap{
 	}
 	
 	private function mostrarMensajeError($mensaje){
-		$this->miConfigurador->setVariableConfiguracion("error", true);
+		$this->context->setVariable("error", true);
 		$this->cuadroMensaje->mostrarMensaje($mensaje, "error");		
 	}
 
@@ -201,8 +201,8 @@ class Bootstrap{
 		 * Determinar la página que se desea cargar
 		 */
 
-		if(isset($_REQUEST[$this->miConfigurador->getVariableConfiguracion("enlace")])) {
-			$this->miConfigurador->fabricaConexiones->crypto->decodificar_url($_REQUEST[$this->miConfigurador->getVariableConfiguracion("enlace")]);
+		if(isset($_REQUEST[$this->context->getVariable("enlace")])) {
+			$this->context->fabricaConexiones->crypto->decodificar_url($_REQUEST[$this->context->getVariable("enlace")]);
 			
 			if(isset($_REQUEST["redireccionar"])) {
 				$this->redireccionar();
@@ -255,14 +255,14 @@ class Bootstrap{
 			}
 		}
 
-		$this->miConfigurador->cripto->decodificar_url($_REQUEST["redireccion"]);
+		$this->context->cripto->decodificar_url($_REQUEST["redireccion"]);
 
 		foreach($_REQUEST as $clave=> $val) {
 			$variable.="&".$clave."=".$val;
 		}
 
-		$variable=$this->miConfigurador->cripto->codificar_url($variable,$this->miConfigurador->configuracion);
-		$indice=$this->miConfigurador->configuracion["host"].$this->miConfigurador->configuracion["site"]."/index.php?";
+		$variable=$this->context->cripto->codificar_url($variable,$this->context->configuracion);
+		$indice=$this->context->configuracion["host"].$this->context->configuracion["site"]."/index.php?";
 		echo "<script>location.replace('".$indice.$variable."')</script>";
 		return 0;
 

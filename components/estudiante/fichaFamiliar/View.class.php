@@ -1,5 +1,5 @@
 <?
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 include_once("plugin/filter/generadorFiltros.class.php");
 
@@ -11,15 +11,15 @@ class ViewfichaFamiliar{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 	var $companies;
 	
 	function __construct()
 	{
 	
-		$this->miConfigurador=Configurador::singleton();
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->context=Context::singleton();
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->miSesion=Sesion::singleton();
 		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
 		if($this->idSesion==""){
@@ -57,11 +57,11 @@ class ViewfichaFamiliar{
 		$formSaraData.="&optionValue=".$id;
 
 		$option="&option=edit";
-		$link['edit']=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData.$option,$this->enlace);
+		$link['edit']=$this->context->fabricaConexiones->crypto->codificar_url($formSaraData.$option,$this->enlace);
 
 	
 		$option="&option=view";
-		$link['view']=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData.$option,$this->enlace);
+		$link['view']=$this->context->fabricaConexiones->crypto->codificar_url($formSaraData.$option,$this->enlace);
 		
 
 		$formSaraData="jxajax=main";
@@ -70,7 +70,7 @@ class ViewfichaFamiliar{
 	   	$formSaraData.="&bloqueGrupo=backReservame";
 		$formSaraData.="&optionProcess=processDelete";
 		$formSaraData.="&optionValue=".$id;
-		$link['delete']=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+		$link['delete']=$this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 		
 
 		$formSaraData="pagina=companyManagement";
@@ -78,7 +78,7 @@ class ViewfichaFamiliar{
 		$formSaraData.="&tema=admin";
 		$formSaraData.="&bloqueGrupo=backReservame";
 		$formSaraData.="&optionProcess=list";
-		$link['postDelete']=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+		$link['postDelete']=$this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 		
 		return $link;
 	}
@@ -89,7 +89,7 @@ class ViewfichaFamiliar{
 	function html(){
 		
 
-		$this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta = $this->context->getVariable("rutaBloque");
  		$option = isset($_REQUEST['option'])?$_REQUEST['option']:"edit";
 
 
@@ -118,10 +118,10 @@ class ViewfichaFamiliar{
 	function companyByUser(){
 
 		$cadena_sql=$this->sql->cadena_sql("companyByUser",$this->idSesion);
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$result=$this->resource->execute($cadena_sql,"busqueda");
 
 		$cadena_sql=$this->sql->cadena_sql("companyListAll");
-		$allCompanies=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$allCompanies=$this->resource->execute($cadena_sql,"busqueda");
 
 
 		$this->companies=array();      
@@ -142,7 +142,7 @@ class ViewfichaFamiliar{
 	function companyByParent($parent,$allCompanies) {
 		
 		/*$cadena_sql=$this->sql->cadena_sql("companyList",$parent);
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");*/
+		$result=$this->resource->execute($cadena_sql,"busqueda");*/
 		$allCompaniesOrderByParent=$this->orderArrayKeyBy($allCompanies,"IDPARENT");
 
 		//si el id tiene hijos asociados recorremos sus hijos
@@ -187,7 +187,7 @@ class ViewfichaFamiliar{
 		}
 
 		$cadena_sql=$this->sql->cadena_sql("commerceFilterList",$idcommerce);
-		$commerce=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$commerce=$this->resource->execute($cadena_sql,"busqueda");
  		$commerce=$this->orderArrayKeyBy($commerce,"IDOPTION");
 
 
@@ -220,14 +220,14 @@ class ViewfichaFamiliar{
 	function showEdit($id){
 
 		$cadena_sql=$this->sql->cadena_sql("companyListbyID",$id);
-		$company=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$company=$this->resource->execute($cadena_sql,"busqueda");
 		$company=$company[0];
 
 		$cadena_sql=$this->sql->cadena_sql("commerceListbyCompany",$id);
-		$commerce=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$commerce=$this->resource->execute($cadena_sql,"busqueda");
 		
 		$cadena_sql=$this->sql->cadena_sql("categoryListCommerce");
-		$categoryListCommerce=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");		
+		$categoryListCommerce=$this->resource->execute($cadena_sql,"busqueda");		
 		
 
 
@@ -237,7 +237,7 @@ class ViewfichaFamiliar{
 		$formSaraDataCommerce.="&action=fichaFamiliar";
 		$formSaraDataCommerce.="&optionProcess=processEditCommerce";
 		$formSaraDataCommerce.="&optionValue=1010001";
-		$formSaraDataCommerce=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataCommerce,$this->enlace);
+		$formSaraDataCommerce=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataCommerce,$this->enlace);
 		
 
 
@@ -248,7 +248,7 @@ class ViewfichaFamiliar{
 	function showView($id){
 
 		$cadena_sql=$this->sql->cadena_sql("companyListbyID",$id);
-		$company=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$company=$this->resource->execute($cadena_sql,"busqueda");
 		$company=$company[0];
 
 
@@ -258,7 +258,7 @@ class ViewfichaFamiliar{
 	function showList(){
 
 		$cadena_sql=$this->sql->cadena_sql("companyListbyID",implode(",",$this->companies));
-		$companyList=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$companyList=$this->resource->execute($cadena_sql,"busqueda");
 
 		include_once($this->ruta."/html/list.php");
 	}
@@ -266,16 +266,16 @@ class ViewfichaFamiliar{
 	function showNew(){
 
 		$cadena_sql=$this->sql->cadena_sql("companyList");
-		$companyList=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$companyList=$this->resource->execute($cadena_sql,"busqueda");
 
 		$cadena_sql=$this->sql->cadena_sql("roleList");
-		$roleList=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$roleList=$this->resource->execute($cadena_sql,"busqueda");
 
 		$formSaraData="bloque=userManagement";
 		$formSaraData.="&bloqueGrupo=admin";
 		$formSaraData.="&action=userManagement";
 		$formSaraData.="&option=processNew";
-		$formSaraData=$this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraData);
+		$formSaraData=$this->context->fabricaConexiones->crypto->codificar($formSaraData);
 
 		include_once($this->ruta."/html/new.php");
 	}

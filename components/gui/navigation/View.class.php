@@ -1,5 +1,5 @@
 <?php
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 
 class ViewNavigation{
@@ -10,14 +10,14 @@ class ViewNavigation{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 	
 	function __construct()
 	{
 		$this->miSesion=Sesion::singleton();
-		$this->miConfigurador=Configurador::singleton();
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->context=Context::singleton();
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->id_usuario=$this->miSesion->getValorSesion('idUsuario');
 	}
 
@@ -48,7 +48,7 @@ class ViewNavigation{
 
 	function html() 
 	{
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 		$this->showMenu();
 	}
 	
@@ -56,12 +56,12 @@ class ViewNavigation{
 	function showMenu(){
 
 		$cadena_sql=$this->sql->cadena_sql("menuList",$this->miSesion->getValorSesion('rol'));
-		$menuList=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$menuList=$this->resource->execute($cadena_sql,"busqueda");
 
 		$menuList=$this->orderArrayKeyBy($menuList,"PADRE");
 
 		$cadena_sql=$this->sql->cadena_sql("roleList");
-		$roleList=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$roleList=$this->resource->execute($cadena_sql,"busqueda");
 
 
 
@@ -74,7 +74,7 @@ class ViewNavigation{
 		$formSaraData="pagina=".$page;
 		$formSaraData.="&";
 		$formSaraData.=$param;
-		$formSaraData=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+		$formSaraData=$this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 
 		return $formSaraData;
 

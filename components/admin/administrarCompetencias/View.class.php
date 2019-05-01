@@ -1,5 +1,5 @@
 <?php
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 
 class ViewadministrarCompetencias{
@@ -10,13 +10,13 @@ class ViewadministrarCompetencias{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 	
 	function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->miSesion=Sesion::singleton();
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
 	}
 
@@ -46,7 +46,7 @@ class ViewadministrarCompetencias{
 
 	function html(){
 		
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 		
 		switch($option){
@@ -66,19 +66,19 @@ class ViewadministrarCompetencias{
 	function showEdit($id) 
 	{ 
 		$cadena_sql  = $this->sql->cadena_sql("competenciaByID",$id);
-		$competencia = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$competencia = $this->resource->execute($cadena_sql,"busqueda");
 		$competencia = $competencia[0];
 		 
 		$cadena_sql = $this->sql->cadena_sql("grados");
-		$grados = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$grados = $this->resource->execute($cadena_sql,"busqueda");
 		
 		$id_grado = "1"; //corregir esto para q las areas correspondan al grado  
 		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
-		$areas = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$areas = $this->resource->execute($cadena_sql,"busqueda");
 
 		$id_grado = "2"; //corregir esto para q las areas correspondan al grado  
 		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
-		$areas2 = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$areas2 = $this->resource->execute($cadena_sql,"busqueda");
 
 		$areas = array_merge($areas,$areas2);
 
@@ -87,18 +87,18 @@ class ViewadministrarCompetencias{
 		$formSaraDataAction .= "&action=administrarCompetencias";
 		$formSaraDataAction .= "&option=processEdit"; 
 		$formSaraDataAction .= "&optionValue=".$id;
-		$formSaraDataAction = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraDataAction);
+		$formSaraDataAction = $this->context->fabricaConexiones->crypto->codificar($formSaraDataAction);
 
 		$formSaraDataUrl  = "pagina=administrarCompetencias";
 		$formSaraDataUrl .= "&grado=".$competencia['GRADO'];
-		$formSaraDataUrl  = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl,$this->enlace);
+		$formSaraDataUrl  = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl,$this->enlace);
 
 		$formSaraDeleteAction  = "bloque=administrarCompetencias";
 		$formSaraDeleteAction .= "&bloqueGrupo=admin";
 		$formSaraDeleteAction .= "&action=administrarCompetencias";
 		$formSaraDeleteAction .= "&option=processDelete"; 
 		$formSaraDeleteAction .= "&optionValue=".$id;
-		$formSaraDeleteAction  = $this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraDeleteAction);
+		$formSaraDeleteAction  = $this->context->fabricaConexiones->crypto->codificar($formSaraDeleteAction);
 
 		include_once($this->ruta."/html/edit.php");
 	}
@@ -106,39 +106,39 @@ class ViewadministrarCompetencias{
 	function showList($id_grado){
 		
 		$cadena_sql=$this->sql->cadena_sql("grados");
-		$grados=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");		
+		$grados=$this->resource->execute($cadena_sql,"busqueda");		
 		$grados=$this->orderArrayKeyBy($grados,"ID");		
 		
 		//rescato el listado de areas para el grado actual
 		$cadena_sql=$this->sql->cadena_sql("areas",$id_grado);
-		$areas=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$areas=$this->resource->execute($cadena_sql,"busqueda");
 		
 		//rescato el listado de competencias para el grado actual
 		$cadena_sql = $this->sql->cadena_sql("competencias",$id_grado);
-		$competencias = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$competencias = $this->resource->execute($cadena_sql,"busqueda");
 		$competenciasPorArea = $this->orderArrayMultiKeyBy($competencias,"ID_AREA");
 
 		
 		$formSaraDataUrl  = "pagina=administrarCompetencias";
 
 		$formSaraDataNew  = "&option=new";
-		$formSaraDataNew  = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataNew,$this->enlace);
+		$formSaraDataNew  = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataNew,$this->enlace);
 
 		$formSaraDataEdit = "&option=edit";
-		$formSaraDataEdit = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataEdit,$this->enlace);
+		$formSaraDataEdit = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataEdit,$this->enlace);
 
 		$formSaraDataView = "&option=view"; 
-		$formSaraDataView = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataView,$this->enlace);
+		$formSaraDataView = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataView,$this->enlace);
 
 		$formSaraDataList = "&option=list";
-		$formSaraDataList = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataList,$this->enlace);
+		$formSaraDataList = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl.$formSaraDataList,$this->enlace);
 
 
 		$formSaraDataDelete="bloque=blockName";
 		$formSaraDataDelete.="&bloqueGrupo=admin";
 		$formSaraDataDelete.="&action=blockName";
 		$formSaraDataDelete.="&option=processDelete";
-		$formSaraDataDelete=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataDelete,$this->enlace);
+		$formSaraDataDelete=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataDelete,$this->enlace);
 
 		include_once($this->ruta."/html/list.php");
 	}
@@ -146,15 +146,15 @@ class ViewadministrarCompetencias{
 	function showNew(){
 		
 		$cadena_sql=$this->sql->cadena_sql("grados");
-		$grados=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$grados=$this->resource->execute($cadena_sql,"busqueda");
 		
 		$id_grado = "1"; //corregir esto para q las areas correspondan al grado  
 		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
-		$areas = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$areas = $this->resource->execute($cadena_sql,"busqueda");
 
 		$id_grado = "2"; //corregir esto para q las areas correspondan al grado  
 		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
-		$areas2 = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$areas2 = $this->resource->execute($cadena_sql,"busqueda");
 
 		$areas = array_merge($areas,$areas2);
 		
@@ -162,10 +162,10 @@ class ViewadministrarCompetencias{
 		$formSaraDataAction.="&bloqueGrupo=admin";
 		$formSaraDataAction.="&action=administrarCompetencias";
 		$formSaraDataAction.="&option=processNew"; 
-		$formSaraDataAction=$this->miConfigurador->fabricaConexiones->crypto->codificar($formSaraDataAction);
+		$formSaraDataAction=$this->context->fabricaConexiones->crypto->codificar($formSaraDataAction);
 
 		$formSaraDataUrl  = "pagina=administrarCompetencias";
-		$formSaraDataUrl  = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraDataUrl,$this->enlace);
+		$formSaraDataUrl  = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataUrl,$this->enlace);
 
 
 		include_once($this->ruta."/html/new.php");

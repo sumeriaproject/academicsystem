@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"]))
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("View.class.php");
 include_once("Funcion.class.php");
 include_once("Sql.class.php");
@@ -22,17 +22,17 @@ if(class_exists('BloquebarraLogin') === false){
 		var $miSql;
 
 
-		var $miConfigurador;
+		var $context;
 
 		public function __construct($esteBloque,$lenguaje="")
 		{
 
-			//El objeto de la clase Configurador debe ser único en toda la aplicación
-			$this->miConfigurador=Configurador::singleton();
+			//El objeto de la clase Context debe ser único en toda la aplicación
+			$this->context=Context::singleton();
 
 
-			$ruta=$this->miConfigurador->getVariableConfiguracion("raizDocumento");
-			$rutaURL=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site");
+			$ruta=$this->context->getVariable("raizDocumento");
+			$rutaURL=$this->context->getVariable("host").$this->context->getVariable("site");
 			
 			
 
@@ -45,8 +45,8 @@ if(class_exists('BloquebarraLogin') === false){
 				$rutaURL.="/components/".$esteBloque["grupo"]."/".$esteBloque["nombre"]."/";
 			}
 				
-			$this->miConfigurador->setVariableConfiguracion("rutaBloque",$ruta);
-			$this->miConfigurador->setVariableConfiguracion("rutaUrlBloque",$rutaURL);
+			$this->context->setVariable("rutaBloque",$ruta);
+			$this->context->setVariable("rutaUrlBloque",$rutaURL);
 
 			$nombreClaseFuncion="Funcion".$esteBloque["nombre"];
 			$this->miFuncion=new $nombreClaseFuncion();
@@ -97,7 +97,7 @@ if(class_exists('BloquebarraLogin') === false){
 
 $estaClase = "Bloque".$unBloque["nombre"];
 
-$this->miConfigurador->setVariableConfiguracion("component",$unBloque);
+$this->context->setVariable("component",$unBloque);
 
 if(isset($lenguaje)){
 	$esteBloque=new $estaClase($unBloque,$lenguaje);

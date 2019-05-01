@@ -5,15 +5,15 @@ if(!isset($GLOBALS["autorizado"])) {
 	exit;
 }
   
-  $esteBloque=$this->miConfigurador->getVariableConfiguracion("esteBloque");
-  $enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+  $esteBloque=$this->context->getVariable("esteBloque");
+  $enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
   
   if($this->miSesion->getValorSesion('idUsuario')<>""){
 	
 	$usuario_registro=$this->miSesion->getValorSesion('idUsuario');
 	$linkAccount="pagina=myAccount";
 	$linkAccount.="&user=".$usuario_registro;
-	$linkAccount=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($linkAccount,$enlace);
+	$linkAccount=$this->context->fabricaConexiones->crypto->codificar_url($linkAccount,$enlace);
 		  
 	  
   }else{
@@ -22,15 +22,15 @@ if(!isset($GLOBALS["autorizado"])) {
   }
 	
 	$cadena_sql=$this->sql->cadena_sql("dataUserByID",$usuario_registro);
-	$user=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda"); 
+	$user=$this->resource->execute($cadena_sql,"busqueda"); 
 
 	$formSaraData="action=barraLogin";
 	$formSaraData.="&bloque=barraLogin";
 	$formSaraData.="&bloqueGrupo=gui";
 	$formSaraData.="&opcionLogin=logout";
-	$formSaraData=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$enlace);
+	$formSaraData=$this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$enlace);
 	
-	$rutaTema=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."/theme/".$this->miConfigurador->getVariableConfiguracion("tema");
+	$rutaTema=$this->context->getVariable("host").$this->context->getVariable("site")."/theme/".$this->context->getVariable("tema");
 
 
 ?>

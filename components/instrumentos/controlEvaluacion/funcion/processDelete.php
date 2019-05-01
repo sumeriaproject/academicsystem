@@ -10,15 +10,15 @@ if(!isset($GLOBALS["autorizado"]))
 	
 		
 		$cadena_sql=$this->sql->cadena_sql("userByID",$id);
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");	
+		$result=$this->resource->execute($cadena_sql,"busqueda");	
 		$variable['usuario']=$this->idSesion;
 		$variable['evento']=json_encode(array("evento"=>"delete","datos"=>$result));
 		 
 		$cadena_sql=$this->sql->cadena_sql("DeleteUser",$id);
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+		$result=$this->resource->execute($cadena_sql,"");
 		if($result===TRUE){
 			$cadena_sql=$this->sql->cadena_sql("logger",$variable);
-			$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+			$result=$this->resource->execute($cadena_sql,"");
 			$status=TRUE;
 		}else{
 			$status=FALSE;

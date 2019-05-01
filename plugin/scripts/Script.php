@@ -1,7 +1,7 @@
 <?php
 
-$host=$this->miConfigurador->getVariableConfiguracion("host");
-$sitio=$this->miConfigurador->getVariableConfiguracion("site");
+$host=$this->context->getVariable("host");
+$sitio=$this->context->getVariable("site");
 $indice=0;
 $funcion[$indice++]="funciones.js";
 

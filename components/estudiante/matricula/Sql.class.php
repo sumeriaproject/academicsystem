@@ -4,25 +4,25 @@ if(!isset($GLOBALS["autorizado"])) {
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/connection/Sql.class.php");
 
 
 class Sqlmatricula extends sql {
 
 
-	var $miConfigurador;
+	var $context;
 
 
 	function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 	}
 
 
 	function cadenaSql($tipo,$variable="") {
 
-		$prefijo=$this->miConfigurador->getVariableConfiguracion("prefijo");
-		$idSesion=$this->miConfigurador->getVariableConfiguracion("id_sesion");
+		$prefijo=$this->context->getVariable("prefijo");
+		$idSesion=$this->context->getVariable("id_sesion");
 
 		if(isset($_REQUEST['sufijo']) && !empty($_REQUEST['sufijo'])) {
     	$sufijo = $_REQUEST['sufijo'];

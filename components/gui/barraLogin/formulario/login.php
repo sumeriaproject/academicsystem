@@ -5,13 +5,13 @@ if(!isset($GLOBALS["autorizado"])) {
 	exit;
 }
 	
-	$component = $this->miConfigurador->getVariableConfiguracion("component");
+	$component = $this->context->getVariable("component");
 
 	$dataLoginForm  = "action=".$component["nombre"];
 	$dataLoginForm .= "&bloque=".$component["nombre"];
 	$dataLoginForm .= "&opcionLogin=login";
 	$dataLoginForm .= "&bloqueGrupo=".$component["grupo"];
-	$dataLoginForm  = $this->miConfigurador->fabricaConexiones->crypto->codificar($dataLoginForm);
+	$dataLoginForm  = $this->context->fabricaConexiones->crypto->codificar($dataLoginForm);
 
 ?>
 <center>

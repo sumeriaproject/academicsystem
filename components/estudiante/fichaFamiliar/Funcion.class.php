@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"]))
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -17,10 +17,10 @@ class FuncionfichaFamiliar
 	var $funcion;
 	var $lenguaje;
 	var $ruta;
-	var $miConfigurador;
+	var $context;
 	var $miInspectorHTML;
 	var $error;
-	var $miRecursoDB;
+	var $resource;
 	var $crypto;
 	var $mensaje;
 	var $status;
@@ -77,21 +77,21 @@ class FuncionfichaFamiliar
 	function __construct()
 	{
 		
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 
 		$this->miInspectorHTML=InspectorHTML::singleton();
 			
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");		
+		$this->ruta=$this->context->getVariable("rutaBloque");		
 		
 		$this->miMensaje=Mensaje::singleton();
 		
 		$conexion="aplicativo";
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);
 		
-		if(!$this->miRecursoDB){
+		if(!$this->resource){
 		
-			$this->miConfigurador->fabricaConexiones->setRecursoDB($conexion,"tabla");
-			$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);			
+			$this->context->fabricaConexiones->setRecursoDB($conexion,"tabla");
+			$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);			
 		}
 		
 		

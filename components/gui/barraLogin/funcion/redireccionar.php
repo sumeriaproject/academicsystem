@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"]))
 	exit;
 }else{
 
-	$miPaginaActual=$this->miConfigurador->getVariableConfiguracion("pagina");
+	$miPaginaActual=$this->context->getVariable("pagina");
 
 	
 
@@ -47,9 +47,9 @@ if(!isset($GLOBALS["autorizado"]))
 
 	}
 
-	$rutaURL=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site");
-	$enlace=$rutaURL."?".$this->miConfigurador->getVariableConfiguracion("enlace");
-	$variable=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($variable,$enlace);
+	$rutaURL=$this->context->getVariable("host").$this->context->getVariable("site");
+	$enlace=$rutaURL."?".$this->context->getVariable("enlace");
+	$variable=$this->context->fabricaConexiones->crypto->codificar_url($variable,$enlace);
 
 	echo "<script>location.replace('".$variable."')</script>";  
 

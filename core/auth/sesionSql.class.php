@@ -4,11 +4,11 @@ require_once("core/connection/Sql.class.php");
 class sesionSql extends Sql{
 
 	var $cadena_sql;
-	var $miConfigurador;
+	var $context;
 
 	function __construct(){
 
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		return 0;
 	}
 
@@ -30,7 +30,7 @@ class sesionSql extends Sql{
 				$this->cadena_sql[$indice]="SELECT ";
 				$this->cadena_sql[$indice].="nivel ";
 				$this->cadena_sql[$indice].="FROM ";
-				$this->cadena_sql[$indice].=$this->miConfigurador->getVariableConfiguracion("prefijo")."pagina ";
+				$this->cadena_sql[$indice].=$this->context->getVariable("prefijo")."pagina ";
 				$this->cadena_sql[$indice].="WHERE ";
 				$this->cadena_sql[$indice].="nombre='".$parametro."' ";
 				$this->cadena_sql[$indice].="LIMIT 1";
@@ -39,7 +39,7 @@ class sesionSql extends Sql{
 			case "actualizarSesion":
 				
 				$this->cadena_sql[$indice]="UPDATE ";
-				$this->cadena_sql[$indice].=$this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+				$this->cadena_sql[$indice].=$this->context->getVariable("prefijo")."valor_sesion ";
 				$this->cadena_sql[$indice].="SET ";
 				$this->cadena_sql[$indice].="expiracion=".(time()+$parametro["expiracion"])." ";
 				$this->cadena_sql[$indice].="WHERE ";
@@ -49,7 +49,7 @@ class sesionSql extends Sql{
 			case "borrarVariableSesion":
 				$this->cadena_sql[$indice]="DELETE ";
 				$this->cadena_sql[$indice]="FROM ";
-				$this->cadena_sql[$indice]=	$this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+				$this->cadena_sql[$indice]=	$this->context->getVariable("prefijo")."valor_sesion ";
 				$this->cadena_sql[$indice]="WHERE ";
 				$this->cadena_sql[$indice]="sesionId='".$parametro["sesionId"]." ";
 				$this->cadena_sql[$indice]="AND variable='".$parametro["dato"]."'";
@@ -58,7 +58,7 @@ class sesionSql extends Sql{
 			case "borrarSesionesExpiradas":
 				$this->cadena_sql[$indice]="DELETE ";
 				$this->cadena_sql[$indice].="FROM ";
-				$this->cadena_sql[$indice].=$this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+				$this->cadena_sql[$indice].=$this->context->getVariable("prefijo")."valor_sesion ";
 				$this->cadena_sql[$indice].="WHERE ";
 				$this->cadena_sql[$indice].="expiracion<".time();
 				break;	
@@ -66,7 +66,7 @@ class sesionSql extends Sql{
 			case "buscarValorSesion":
 				$this->cadena_sql[$indice] = "SELECT * ";
 				$this->cadena_sql[$indice].="FROM ";
-				$this->cadena_sql[$indice].=$this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+				$this->cadena_sql[$indice].=$this->context->getVariable("prefijo")."valor_sesion ";
 				$this->cadena_sql[$indice].="WHERE ";
 				$this->cadena_sql[$indice].="sesionId = '".$parametro["sesionId"]."' "; 
 				$this->cadena_sql[$indice].="AND variable='".$parametro["variable"]."'";
@@ -74,7 +74,7 @@ class sesionSql extends Sql{
 				
 			case "actualizarValorSesion":
 				$this->cadena_sql[$indice] = "UPDATE ";
-				$this->cadena_sql[$indice].= $this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+				$this->cadena_sql[$indice].= $this->context->getVariable("prefijo")."valor_sesion ";
 				$this->cadena_sql[$indice].= "SET ";
 				$this->cadena_sql[$indice].="valor='".$parametro["valor"]."', ";
 				$this->cadena_sql[$indice].="expiracion='".$parametro["expiracion"]."' ";
@@ -85,7 +85,7 @@ class sesionSql extends Sql{
 				
 			case "insertarValorSesion":
 				$this->cadena_sql[$indice] = "INSERT INTO ";
-				$this->cadena_sql[$indice].=  $this->miConfigurador->getVariableConfiguracion("prefijo")."valor_sesion ";
+				$this->cadena_sql[$indice].=  $this->context->getVariable("prefijo")."valor_sesion ";
 				$this->cadena_sql[$indice].= "( ";
 				$this->cadena_sql[$indice].= " sesionId, ";
 				$this->cadena_sql[$indice].= " variable, ";

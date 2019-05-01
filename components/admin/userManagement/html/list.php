@@ -14,9 +14,9 @@
 	SEDE:
 	<select id="sede">
 		<option <?=($variable['sede']=="")?"selected":""?> value="" >TODAS</option>
-		<? foreach($sedeList as $keySede => $valueSede ) { ?>
-		<option <?=($variable['sede']==$valueSede['ID'])?"selected":""?> value="<?=$valueSede['ID']?>" ><?=$valueSede['NOMBRE']?></option>
-		<? } ?>
+		<?php foreach($sedeList as $keySede => $valueSede ) { ?>
+			<option <?=($variable['sede']==$valueSede['ID'])?"selected":""?> value="<?=$valueSede['ID']?>" ><?=$valueSede['NOMBRE']?></option>
+		<?php } ?>
 	</select>
 
 	<div class="row-fluid">
@@ -62,8 +62,8 @@
 								<!--td><?=$value['USUARIO']?></td-->
 								<td><?=$value['NOMBRE']?></td>
 								<td><?=isset($userListbyCourse[$key])?$courseList[$userListbyCourse[$key]['IDCOURSE']]['NAMECOURSE']:''?></td>
-								<td ><?=$value['IDENT']?></td>
-								<td >
+								<td class='hidden-1024'><?=$value['IDENT']?></td>
+								<td class='hidden-1024'>
                   
                   <?php if($value['ESTADO']==1): ?> <span class='label label-satgreen'>Activo</span> <?php endif; ?>
                   <?php if($value['ESTADO']==2): ?> <span class='label label-lightred'>Retirado</span> <?php endif; ?>
@@ -72,8 +72,8 @@
                   <?php if($value['ESTADO']==5): ?> <span class='label label-lightyellow'>Matriculado</span> <?php endif; ?>
                   
                 </td>
-								<td >
-									<a style="cursor:pointer" href="<?=$formSaraDataEdit."&optionValue=".$key?>" class="btn"><i class="icon-edit"></i></a>  
+								<td class='hidden-480'>
+									<a style="cursor:pointer" href="<?=$formSaraDataEdit."&optionValue=".$key?>" class="btn" rel="tooltip" title="Editar"><i class="icon-edit"></i></a>  
                   <?php
                     /*if ($this->rol == 1):
                   ?>

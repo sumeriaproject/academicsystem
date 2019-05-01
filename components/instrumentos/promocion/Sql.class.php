@@ -4,7 +4,7 @@ if(!isset($GLOBALS["autorizado"])) {
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/connection/Sql.class.php");
 
 //Para evitar redefiniciones de clases el nombre de la clase del archivo sqle debe corresponder al nombre del bloque
@@ -13,11 +13,11 @@ include_once("core/connection/Sql.class.php");
 class Sqlpromocion extends sql {
 
 
-	var $miConfigurador;
+	var $context;
 
 
 	function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 	}
 
 
@@ -28,8 +28,8 @@ class Sqlpromocion extends sql {
 		 *
 		 */
 
-		$prefijo=$this->miConfigurador->getVariableConfiguracion("prefijo");
-		$idSesion=$this->miConfigurador->getVariableConfiguracion("id_sesion");
+		$prefijo=$this->context->getVariable("prefijo");
+		$idSesion=$this->context->getVariable("id_sesion");
 
 		switch($tipo) {
 

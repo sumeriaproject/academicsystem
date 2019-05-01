@@ -7,7 +7,7 @@ if(!isset($GLOBALS["autorizado"]))
 	if(!empty($_POST)){
 		if(count($this->mensaje['error']) == 0){	
 			$cadena_sql=$this->sql->cadena_sql("actualizarCompetencia",$variable);
-			$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+			$result=$this->resource->execute($cadena_sql,"");
 			return $this->status=TRUE;
 		}else{
 			return $this->status=FALSE;

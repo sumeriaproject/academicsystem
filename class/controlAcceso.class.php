@@ -1,5 +1,5 @@
 <?php
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("class/Array.class.php");
 
 class controlAcceso{
@@ -8,10 +8,10 @@ class controlAcceso{
 	public $rol;
 
 	public function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->organizador=orderArray::singleton();
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->prefijo=$this->miConfigurador->getVariableConfiguracion("prefijo");
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->prefijo=$this->context->getVariable("prefijo");
 	}
 	
 	public function getGrados(){
@@ -20,20 +20,20 @@ class controlAcceso{
 		$cursos=implode(",",array_keys($cursos));
 
 		$cadena_sql="SELECT DISTINCT(id_grado) ID FROM {$this->prefijo}curso WHERE id_curso IN ({$cursos}) ";
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$result=$this->resource->execute($cadena_sql,"busqueda");
 		$result=$this->organizador->orderKeyBy($result,"ID");
 		
 		$grados=implode(",",array_keys($result));
 		
 		$cadena_sql="SELECT id_grado ID,nombre_numero NOMBRE FROM {$this->prefijo}grado WHERE  id_grado IN ({$grados}) AND estado<>0";
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$result=$this->resource->execute($cadena_sql,"busqueda");
 		$result=$this->organizador->orderKeyBy($result,"ID");
 		return $result;
 	}
 	
 	public function getCursosUsuario(){
 		$cadena_sql="SELECT id_curso ID FROM {$this->prefijo}usuario_curso WHERE id_usuario={$this->usuario} ";
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$result=$this->resource->execute($cadena_sql,"busqueda");
 		$result=$this->organizador->orderKeyBy($result,"ID");
 		return $result;
 	}	
@@ -54,7 +54,7 @@ class controlAcceso{
 	    INNER JOIN notas_grado g ON c.id_grado = g.id_grado
 	    AND uc.id_usuario = {$this->usuario} ";
 	    
-			$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+			$result=$this->resource->execute($cadena_sql,"busqueda");
 		$result=$this->organizador->orderTwoKeyBy($result,"SEDE_ID","CURSO_ID");
 		return $result;
 	}
@@ -65,13 +65,13 @@ class controlAcceso{
 		$cursos=implode(",",array_keys($cursos));
 		
 		$cadena_sql="SELECT DISTINCT(id_sede) ID FROM {$this->prefijo}curso WHERE id_curso IN ({$cursos}) ";
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$result=$this->resource->execute($cadena_sql,"busqueda");
 		$result=$this->organizador->orderKeyBy($result,"ID");
 		
 		$sedes=implode(",",array_keys($result));
 		
 		$cadena_sql="SELECT id_sede ID,nombre NOMBRE FROM {$this->prefijo}sede WHERE  id_sede IN ({$sedes}) AND estado<>0 ";
-		$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$result=$this->resource->execute($cadena_sql,"busqueda");
 		$result=$this->organizador->orderKeyBy($result,"ID");
 		return $result;	
 	}

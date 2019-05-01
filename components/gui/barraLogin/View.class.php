@@ -1,5 +1,5 @@
 <?php
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 
 class ViewbarraLogin{
 
@@ -9,14 +9,14 @@ class ViewbarraLogin{
 	var $lenguaje;
 	var $formulario;
 	
-	var $miConfigurador;
+	var $context;
 	
 	function __construct()
 	{
 		$conexion="aplicativo";
 		$this->miSesion=Sesion::singleton();
-		$this->miConfigurador=Configurador::singleton();
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);		
+		$this->context=Context::singleton();
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);		
 	}
 
 	public function setRuta($unaRuta){
@@ -50,7 +50,7 @@ class ViewbarraLogin{
 
 	function html()
 	{
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 
 		if($this->miSesion->getValorSesion('idUsuario')<>"" && $this->miSesion->getValorSesion('rol')<>"0"){
 		  
@@ -58,7 +58,7 @@ class ViewbarraLogin{
       $variable['usuario']=$this->miSesion->getValorSesion('idUsuario');
 
 			$cadena_sql=$this->sql->cadena_sql("buscarIndexUsuario",$variable);
-			$registro=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+			$registro=$this->resource->execute($cadena_sql,"busqueda");
       
       if(!is_array($registro)){
         include_once($this->ruta."html/login.php");

@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"])){
 }
 
 include_once("core/auth/Sesion.class.php");
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -21,10 +21,10 @@ class FuncionboletinFinal{
 	var $funcion;
 	var $lenguaje;
 	var $ruta;
-	var $miConfigurador;
+	var $context;
 	var $miInspectorHTML;
 	var $error;
-	var $miRecursoDB;
+	var $resource;
 	var $crypto;
 	var $mensaje;
 	var $status;
@@ -37,30 +37,30 @@ class FuncionboletinFinal{
 
 		//Rescato el listado de competencias para el grado actual
 		$cadenaSql    = $this->sql->cadenaSql("competencias",$variable['grado']);
-		$competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$competencias = $this->resource->execute($cadenaSql,"busqueda");
 		$competenciasPorArea = $this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
 
 		//Consulto el listado de areas para el grado actual
 		$cadenaSql = $this->sql->cadenaSql("areas",$variable['grado']);
-		$areas = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$areas = $this->resource->execute($cadenaSql,"busqueda");
 
 		//Consultar nombres Sede, Curso, Area
 		$cadenaSql = $this->sql->cadenaSql("sedeByID",$variable['sede']);
-		$sedeByID  = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID  = $sedeByID[0];
 
 		$cadenaSql = $this->sql->cadenaSql("cursoByID",$variable['curso']);
-		$cursoByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID = $cursoByID[0];
 
         if( isset($variable['estudiante']) && !empty($variable['estudiante']) )
         {
           $cadenaSql = $this->sql->cadenaSql("estudianteByID",$variable['estudiante']);
-          $listadoEstudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+          $listadoEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
         } else
         {
           $cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$variable['curso']);
-          $listadoEstudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+          $listadoEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
         }
 
         $this->loadPDFBoletin($listadoEstudiantes,$cursoByID,$sedeByID,$areas,$competenciasPorArea,$variable['grado']);
@@ -71,7 +71,7 @@ class FuncionboletinFinal{
     {
 		$pdf = new FPDF('P','mm','Letter'); //215.9 mm x 279.4 mm
 		$pdf->SetMargins(10,10,10); //izq,arr,der
-        $imageFolder = $this->miConfigurador->getVariableConfiguracion("raizDocumento").'/images/';
+        $imageFolder = $this->context->getVariable("raizDocumento").'/images/';
 
         $e=0;
 
@@ -81,11 +81,11 @@ class FuncionboletinFinal{
             $variable['estudiante'] = $listadoEstudiantes[$e]['ID'];
             //Consultar las notas finales de los estudiante
             $cadenaSql = $this->sql->cadenaSql("notasFinalesPorEstudianteCriterios",$variable);
-            $notasFinalesPorEstudianteCriterios = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+            $notasFinalesPorEstudianteCriterios = $this->resource->execute($cadenaSql,"busqueda");
             $notasFinalesPorEstudianteCriterios = $this->sorter->orderKeyBy($notasFinalesPorEstudianteCriterios,"COMPETENCIA");
 
             $cadenaSql = $this->sql->cadenaSql("notasFinalesPorEstudianteCualitativa",$variable);
-            $notasFinalesPorEstudianteCualitativa = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+            $notasFinalesPorEstudianteCualitativa = $this->resource->execute($cadenaSql,"busqueda");
             $notasFinalesPorEstudianteCualitativa = $this->sorter->orderKeyBy($notasFinalesPorEstudianteCualitativa,"COMPETENCIA");
 
             //Organizar por competencias
@@ -122,7 +122,7 @@ class FuncionboletinFinal{
 				$variable["grado"]=$_REQUEST['grado'];
 				$variable["sede"]=$_REQUEST['sede'];
 
-				$this->miConfigurador->render("boletinFinal",$variable);
+				$this->context->render("boletinFinal",$variable);
 
 			break;
 			case "imprimirBoletin":
@@ -137,15 +137,15 @@ class FuncionboletinFinal{
 
 	function __construct()
 	{
-		$this->miConfigurador = Configurador::singleton();
+		$this->context = Context::singleton();
 		$this->miSesion = Sesion::singleton();
 		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
 		$this->miInspectorHTML = InspectorHTML::singleton();
-		$this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta = $this->context->getVariable("rutaBloque");
 		$this->miMensaje = Mensaje::singleton();
-		$this->enlace = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion = "aplicativo";
-		$this->miRecursoDB = $this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$this->resource = $this->context->fabricaConexiones->getRecursoDB($conexion);
 		$this->sorter = orderArray::singleton();
 
 

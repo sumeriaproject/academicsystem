@@ -3,7 +3,7 @@
 require_once("config/config.class.php");
 
 
-class Configurador{
+class Context{
 
 	private static $instance;
 
@@ -152,7 +152,7 @@ class Configurador{
 	 * @return string|boolean
 	 */
 
-	function getVariableConfiguracion($cadena="") {
+	function getVariable($cadena="") {
 		
 		if(isset($this->configuracion[$cadena])){
 			
@@ -164,7 +164,7 @@ class Configurador{
 	}
 
 
-	function setVariableConfiguracion($variable="", $cadena="") {
+	function setVariable($variable="", $cadena="") {
 		
 		
 
@@ -189,7 +189,7 @@ class Configurador{
 			$variable.="&".$key."=".$value;
 		}
 		
-		$enlace=$this->getVariableConfiguracion("enlace");
+		$enlace=$this->getVariable("enlace");
 		$variable=$this->fabricaConexiones->crypto->codificar($variable);
 		$_REQUEST[$enlace]=$variable;
 		$_REQUEST["recargar"]=true;

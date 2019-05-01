@@ -1,5 +1,5 @@
 <?php
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("class/Array.class.php");
 
 class Calendario{
@@ -8,10 +8,10 @@ class Calendario{
 	public $rol;
 
 	public function __construct(){
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->organizador=orderArray::singleton();
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->prefijo=$this->miConfigurador->getVariableConfiguracion("prefijo");
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->prefijo=$this->context->getVariable("prefijo");
 	}
 	
 	public function getEvento($idcurso,$evento){
@@ -22,7 +22,7 @@ class Calendario{
     $cadena_sql .= " AND evento = '{$evento}' ";
     $cadena_sql .= " AND NOW() BETWEEN fecha_inicio AND fecha_fin ";
     
-		$result = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+		$result = $this->resource->execute($cadena_sql,"busqueda");
     
     if(is_array($result)){
       return TRUE;

@@ -1,18 +1,18 @@
 <?php
 
-require_once("core/manager/Configurador.class.php");
+require_once("core/manager/Context.class.php");
 
 class ProcesadorPagina{
 
-	var $miConfigurador;
+	var $context;
 	var $raizDocumentos;
 	var $unBloque;
 
 	function __construct(){
 
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 
-		$this->raizDocumentos=$this->miConfigurador->getVariableConfiguracion("raizDocumento");
+		$this->raizDocumentos=$this->context->getVariable("raizDocumento");
 
 	}
 

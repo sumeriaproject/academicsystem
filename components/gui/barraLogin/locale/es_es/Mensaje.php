@@ -1,5 +1,5 @@
 <?php
-$token=strrev(($this->miConfigurador->getVariableConfiguracion("enlace")));
+$token=strrev(($this->context->getVariable("enlace")));
 $this->idioma[$token."usuario"]="Email:";
 $this->idioma[$token."clave"]="Clave:";
 $this->idioma["enlaceRecordarClave"]="¿Olvidó su clave?";

@@ -23,7 +23,7 @@ if(!isset($GLOBALS["autorizado"]))
 		if(count($this->mensaje['error']) == 0){	
 
 			$cadena_sql=$this->sql->cadena_sql("insertarCompetencia",$variable);
-			$result=$this->miRecursoDB->ejecutarAcceso($cadena_sql,"");
+			$result=$this->resource->execute($cadena_sql,"");
 
 			return $this->status = TRUE;
 			

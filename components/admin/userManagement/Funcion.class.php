@@ -5,7 +5,7 @@ if (!isset($GLOBALS["autorizado"])) {
 }
 
 include_once("core/auth/Sesion.class.php");
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -18,10 +18,10 @@ class FuncionuserManagement
     var $funcion;
     var $lenguaje;
     var $ruta;
-    var $miConfigurador;
+    var $context;
     var $miInspectorHTML;
     var $error;
-    var $miRecursoDB;
+    var $resource;
     var $crypto;
     var $mensaje;
     var $status;
@@ -92,7 +92,7 @@ class FuncionuserManagement
                     $variable .= "&editRol=" . $_REQUEST['role'][0];
                     $variable .= "&optionValue=" . $this->new_id;
                     $variable .= "&mensaje=" . $mensaje;
-                    $variable = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
+                    $variable = $this->context->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
                     
                     echo "<script>location.replace('" . $variable . "')</script>";
                 }
@@ -116,7 +116,7 @@ class FuncionuserManagement
                     $variable .= "&option=edit";
                     $variable .= "&optionValue=" . $_REQUEST['userid'];
                     $variable .= "&mensaje=" . $mensaje;
-                    $variable = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
+                    $variable = $this->context->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
                     
                     echo "<script>location.replace('" . $variable . "')</script>";
                 }
@@ -139,7 +139,7 @@ class FuncionuserManagement
                     $variable .= "&editRol=3";
                     $variable .= "&optionValue=" . $_REQUEST['userid'];
                     $variable .= "&mensaje=" . $mensaje;
-                    $variable = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
+                    $variable = $this->context->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
                     
                     echo "<script>location.replace('" . $variable . "')</script>";
                 }
@@ -157,7 +157,7 @@ class FuncionuserManagement
                 $variable .= "&enroll=true";
                 $variable .= "&optionValue=" . $_REQUEST['optionValue'];
                 $variable .= "&mensaje=" . $mensaje;
-                $variable = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
+                $variable = $this->context->fabricaConexiones->crypto->codificar_url($variable, $this->enlace);
                 
                 echo "<script>location.replace('" . $variable . "')</script>";
                 
@@ -174,7 +174,7 @@ class FuncionuserManagement
                 }
                 $variable["option"] = "list";
                 
-                $this->miConfigurador->render("userManagement", $variable);
+                $this->context->render("userManagement", $variable);
                 
                 break;
         }
@@ -184,19 +184,19 @@ class FuncionuserManagement
     function __construct()
     {
         
-        $this->miConfigurador = Configurador::singleton();
+        $this->context = Context::singleton();
         $this->miSesion       = Sesion::singleton();
         $this->idSesion       = $this->miSesion->getValorSesion('idUsuario');
         
         $this->miInspectorHTML = InspectorHTML::singleton();
         
-        $this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+        $this->ruta = $this->context->getVariable("rutaBloque");
         
         $this->miMensaje   = Mensaje::singleton();
         $this->mail        = new phpmailer();
-        $this->enlace      = $this->miConfigurador->getVariableConfiguracion("host") . $this->miConfigurador->getVariableConfiguracion("site") . "?" . $this->miConfigurador->getVariableConfiguracion("enlace");
+        $this->enlace      = $this->context->getVariable("host") . $this->context->getVariable("site") . "?" . $this->context->getVariable("enlace");
         $conexion          = "aplicativo";
-        $this->miRecursoDB = $this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+        $this->resource = $this->context->fabricaConexiones->getRecursoDB($conexion);
         $this->pagina      = new Pagina();
         
         

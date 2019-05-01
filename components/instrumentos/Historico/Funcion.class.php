@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"])){
 }
 
 include_once("core/auth/Sesion.class.php");
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -21,10 +21,10 @@ class FuncionHistorico{
 	var $funcion;
 	var $lenguaje;
 	var $ruta;
-	var $miConfigurador;
+	var $context;
 	var $miInspectorHTML;
 	var $error;
-	var $miRecursoDB;
+	var $resource;
 	var $crypto;
 	var $mensaje;
 	var $status;
@@ -43,17 +43,17 @@ class FuncionHistorico{
 
 		//2. Consultar si la nota existe
 		$cadenaSql=$this->sql->cadenaSql("notaPorCriterio",$variable);
-		$notaPorCriterio=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$notaPorCriterio=$this->resource->execute($cadenaSql,"busqueda");
 
 		//3. Si ya existe actualizarNota
 		if(is_array($notaPorCriterio)){
 			$cadenaSql=$this->sql->cadenaSql("actualizarNota",$variable);
-			$notaPorCriterio=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+			$notaPorCriterio=$this->resource->execute($cadenaSql,"");
 		}
 		//4. Si no existe insertar
 		else{
 			$cadenaSql=$this->sql->cadenaSql("insertarNota",$variable);
-			$notaPorCriterio=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+			$notaPorCriterio=$this->resource->execute($cadenaSql,"");
 		}
 	}
 
@@ -68,13 +68,13 @@ class FuncionHistorico{
 			//5.1 Para poder calcular la sumatoria, todos los criterios deben tener la correspondiente nota
 
 			$cadenaSql=$this->sql->cadenaSql("criteriosPorCompetencia",$competencia);
-			$criteriosPorCompetencia=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+			$criteriosPorCompetencia=$this->resource->execute($cadenaSql,"busqueda");
 
 			$variable['competencia']=$competencia;
 			$variable['estudiante']=$estudiante;
 
 			$cadenaSql=$this->sql->cadenaSql("notasPorEstudianteyCompetencia",$variable);
-			$notasPorEstudianteyCompetencia=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+			$notasPorEstudianteyCompetencia=$this->resource->execute($cadenaSql,"busqueda");
 			$notasPorEstudianteyCompetencia=$this->organizador->orderKeyBy($notasPorEstudianteyCompetencia,"CRITERIO");
 
 			$criteriosPendientes=0;
@@ -120,15 +120,15 @@ class FuncionHistorico{
       $variable['nota_porcentual']=$respuesta->notaFinalPorcentaje;
 
       $cadenaSql=$this->sql->cadenaSql("notaFinal",$variable);
-      $notaFinal=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $notaFinal=$this->resource->execute($cadenaSql,"busqueda");
 
       if(is_array($notaFinal)){
         $variable['id_nota_final']=$notaFinal[0]['ID'];
         $cadenaSql=$this->sql->cadenaSql("actualizarNotaFinal",$variable);
-        $notaFinal=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $notaFinal=$this->resource->execute($cadenaSql,"");
       }else{
         $cadenaSql=$this->sql->cadenaSql("insertarNotaFinal",$variable);
-        $notaFinal=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $notaFinal=$this->resource->execute($cadenaSql,"");
       }
 
 		echo json_encode($respuesta);
@@ -144,34 +144,34 @@ class FuncionHistorico{
 
 		//1.Rescato el listado de competencias para el grado actual
 		$cadenaSql=$this->sql->cadenaSql("competencias",$variable['grado']);
-		$competencias=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$competencias=$this->resource->execute($cadenaSql,"busqueda");
 		$competenciasPorArea=$this->organizador->orderMultiKeyBy($competencias,"ID_AREA");
 
 
 		//2.Consulto el listado de areas para el grado actual
 		$cadenaSql=$this->sql->cadenaSql("areas",$variable['grado']);
-		$areas=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$areas=$this->resource->execute($cadenaSql,"busqueda");
 
 
 		//2.Consultar nombres Sede, Curso, Area
 		$cadenaSql=$this->sql->cadenaSql("sedeByID",$variable['sede']);
-		$sedeByID=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$sedeByID=$this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID=$sedeByID[0];
 
 		$cadenaSql=$this->sql->cadenaSql("cursoByID",$variable['curso']);
-		$cursoByID=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursoByID=$this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID=$cursoByID[0];
 
 
     if( isset($variable['estudiante']) && !empty($variable['estudiante']) ){
 
       $cadenaSql=$this->sql->cadenaSql("estudianteByID",$variable['estudiante']);
-      $listadoEstudiantes=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $listadoEstudiantes=$this->resource->execute($cadenaSql,"busqueda");
 
     }else{
 
       $cadenaSql=$this->sql->cadenaSql("estudiantesPorCurso",$variable['curso']);
-      $listadoEstudiantes=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $listadoEstudiantes=$this->resource->execute($cadenaSql,"busqueda");
 
     }
 
@@ -192,7 +192,7 @@ class FuncionHistorico{
       //6. Consulto las notas finales de los estudiante
       $variable['estudiante']=$listadoEstudiantes[$e]['ID'];
       $cadenaSql=$this->sql->cadenaSql("notasFinalesPorEstudiante",$variable);
-      $notasFinalesPorEstudiante=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $notasFinalesPorEstudiante=$this->resource->execute($cadenaSql,"busqueda");
 
       //6.1 Organizar por competencias
       $notaEstudiante=$this->organizador->orderKeyBy($notasFinalesPorEstudiante,"COMPETENCIA");
@@ -307,7 +307,7 @@ class FuncionHistorico{
 				$variable["sede"]=$_REQUEST['sede'];
 				$variable["anio"]=$_REQUEST['anio'];
  
-				$this->miConfigurador->render("Historico",$variable);
+				$this->context->render("Historico",$variable);
 
 			break;
 			case "actualizarNota":
@@ -331,7 +331,7 @@ class FuncionHistorico{
 				}
 				$variable["option"]="list";
 
-				$this->miConfigurador->render("Historico",$variable);
+				$this->context->render("Historico",$variable);
 
 			break;
 		}
@@ -341,19 +341,19 @@ class FuncionHistorico{
 	function __construct()
 	{
 
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->miSesion=Sesion::singleton();
 		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
 
 		$this->miInspectorHTML=InspectorHTML::singleton();
 
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 
 		$this->miMensaje=Mensaje::singleton();
 		$this->mail=new phpmailer();
-		$this->enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion="aplicativo";
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);
 		$this->organizador=orderArray::singleton();
 
 

@@ -4,8 +4,8 @@ $indice=0;
 $embebido[$indice]=true;
 $funcion[$indice++]="function.js";
 
-$rutaBloque=$this->miConfigurador->getVariableConfiguracion("host");
-$rutaBloque.=$this->miConfigurador->getVariableConfiguracion("site");
+$rutaBloque=$this->context->getVariable("host");
+$rutaBloque.=$this->context->getVariable("site");
 
 if($unBloque["grupo"]==""){
 	$rutaBloque.="/components/".$unBloque["nombre"];

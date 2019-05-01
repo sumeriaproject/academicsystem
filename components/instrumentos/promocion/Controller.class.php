@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"])){
 }
 
 include_once("core/auth/Sesion.class.php");
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -19,10 +19,10 @@ class Funcionpromocion{
 	var $funcion;
 	var $lenguaje;
 	var $ruta;
-	var $miConfigurador;
+	var $context;
 	var $miInspectorHTML;
 	var $error;
-	var $miRecursoDB;
+	var $resource;
 	var $crypto;
 	var $mensaje;
 	var $status;
@@ -46,7 +46,7 @@ class Funcionpromocion{
 				$variable["grado"]=$_REQUEST['grado'];
 				$variable["sede"]=$_REQUEST['sede'];
 
-				$this->miConfigurador->render("promocion",$variable);*/
+				$this->context->render("promocion",$variable);*/
 
 			break;
       case "imprimirBoletines":
@@ -60,29 +60,29 @@ class Funcionpromocion{
 
 		//1.Rescato el listado de competencias para el grado actual
 		$cadenaSql = $this->sql->cadenaSql("competenciasPorGrado",$variable['grado']);
-		$competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$competencias = $this->resource->execute($cadenaSql,"busqueda");
 		$competenciasPorArea = $this->organizador->orderMultiKeyBy($competencias,"ID_AREA");
 
 		//2.Consulto el listado de areas para el grado actual
 		$cadenaSql = $this->sql->cadenaSql("areasPorGrado",$variable['grado']);
-		$areas = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$areas = $this->resource->execute($cadenaSql,"busqueda");
 
 		//2.Consultar nombres Sede, Curso, Area
 		$cadenaSql = $this->sql->cadenaSql("sedeByID",$variable['sede']);
-		$sedeByID  = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID  = $sedeByID[0];
 
 		$cadenaSql = $this->sql->cadenaSql("cursoByID",$variable['curso']);
-		$cursoByID = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+		$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID = $cursoByID[0];
 
     if( isset($variable['estudiante']) && !empty($variable['estudiante']) ) {
       $cadenaSql = $this->sql->cadenaSql("estudianteByID",$variable['estudiante']);
-      $listadoEstudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $listadoEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
     }else  {
 
       $cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$variable['curso']);
-      $listadoEstudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $listadoEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
     }
     $this->loadPDFBoletin($listadoEstudiantes,$cursoByID,$sedeByID,$areas,$competenciasPorArea);
 	}
@@ -99,12 +99,12 @@ class Funcionpromocion{
       // Consulto las notas finales de los estudiantes
       $variable['estudiante'] = $listadoEstudiantes[$e]['ID'];
       $cadenaSql = $this->sql->cadenaSql("notasDefinitivasPorEstudiante",$variable);
-      $notasDefEstudiante = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $notasDefEstudiante = $this->resource->execute($cadenaSql,"busqueda");
       $notasDefEstudiante = $this->organizador->orderKeyBy($notasDefEstudiante,"AREA");
 
       // Consulto las notas finales de las competencias
       $cadenaSql = $this->sql->cadenaSql("notasFinalesPorEstudiante",$variable);
-      $notasCompetencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $notasCompetencias = $this->resource->execute($cadenaSql,"busqueda");
       $notasCompetencias = $this->organizador->orderKeyBy($notasCompetencias,"COMPETENCIA");
 
       //traer
@@ -295,7 +295,7 @@ class Funcionpromocion{
 
     //Traer listado de cursos sin cerrar
     $cadenaSql = $this->sql->cadenaSql("cursosCerrados","2015");
-    $cursosCerrados = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $cursosCerrados = $this->resource->execute($cadenaSql,"busqueda");
     $cursosCerrados = $this->organizador->orderMultiKeyBy($cursosCerrados,"IDCURSO");
 
 
@@ -306,7 +306,7 @@ class Funcionpromocion{
 
     //listado de competencias por grado organizadas por area
     $cadenaSql    = $this->sql->cadenaSql("competenciasPorArea",$variable["grado"]);
-    $competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $competencias = $this->resource->execute($cadenaSql,"busqueda");
     $competencias = $this->organizador->orderTwoKeyBy($competencias,"IDAREA","ID");
 
    /*  echo ":: <pre>";
@@ -316,7 +316,7 @@ class Funcionpromocion{
 
     //listado de notas de estudiantes por curso organizados por estudiante y competencia
     $cadenaSql    = $this->sql->cadenaSql("notasFinalesPorCurso",$variable["curso"]);
-    $notasFinales = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $notasFinales = $this->resource->execute($cadenaSql,"busqueda");
     $notasFinales = $this->organizador->orderTwoKeyBy($notasFinales,"ESTUDIANTE","COMPETENCIA");
 
     //recorro las areas con sus respecitivas competencias
@@ -367,7 +367,7 @@ class Funcionpromocion{
           $variable['estado']       = '1';
 
           $cadenaSql = $this->sql->cadenaSql("insertarNotaCerrada",$variable);
-          $insert    = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+          $insert    = $this->resource->execute($cadenaSql,"");
 
         }
       }
@@ -382,15 +382,15 @@ class Funcionpromocion{
 
 	function __construct() {
 
-		$this->miConfigurador = Configurador::singleton();
+		$this->context = Context::singleton();
 		$this->miSesion = Sesion::singleton();
 		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
     $this->miInspectorHTML = InspectorHTML::singleton();
-		$this->ruta = $this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta = $this->context->getVariable("rutaBloque");
 		$this->miMensaje = Mensaje::singleton();
-		$this->enlace = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion = "aplicativo";
-		$this->miRecursoDB = $this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$this->resource = $this->context->fabricaConexiones->getRecursoDB($conexion);
 		$this->organizador = orderArray::singleton();
 
 	}

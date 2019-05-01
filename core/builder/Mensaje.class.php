@@ -9,12 +9,12 @@ class Mensaje{
 	 * @var String
 	 */
 	
-	private $miConfigurador;
+	private $context;
 	
 	
 	function __construct(){
 		
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 
 	}
 

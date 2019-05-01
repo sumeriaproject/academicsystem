@@ -5,7 +5,7 @@ if(!isset($GLOBALS["autorizado"])){
 }
 
 include_once("core/auth/Sesion.class.php");
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/builder/InspectorHTML.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
@@ -21,10 +21,10 @@ class Funcioncomportamiento{
 	var $funcion;
 	var $lenguaje;
 	var $ruta;
-	var $miConfigurador;
+	var $context;
 	var $miInspectorHTML;
 	var $error;
-	var $miRecursoDB;
+	var $resource;
 	var $crypto;
 	var $mensaje;
 	var $status;
@@ -76,31 +76,31 @@ class Funcioncomportamiento{
       }
       //2. Consultar si la notas existen
       $cadenaSql = $this->sql->cadenaSql("notaPorEstudiante",$variable);
-      $notaPorEstudiante=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $notaPorEstudiante=$this->resource->execute($cadenaSql,"busqueda");
       //3. Si ya existe actualizar registro
       if(is_array($notaPorEstudiante)){
         $cadenaSql = $this->sql->cadenaSql("actualizarNotaPerido",$variable);
-        $notaPorEstudiante=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $notaPorEstudiante=$this->resource->execute($cadenaSql,"");
       }
       //4. Si no existe insertar
       else{
         $cadenaSql = $this->sql->cadenaSql("insertarNotaPerido",$variable);
-        $notaPorCriterio=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $notaPorCriterio=$this->resource->execute($cadenaSql,"");
       }
     }else if(isset($variable['obs'])) {
 
       //1. Consultar si la notas existen
       $cadenaSql = $this->sql->cadenaSql("notaPorEstudiante",$variable);
-      $notaPorEstudiante=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $notaPorEstudiante=$this->resource->execute($cadenaSql,"busqueda");
       //2. Si ya existe actualizar registro
       if(is_array($notaPorEstudiante)){
         $cadenaSql = $this->sql->cadenaSql("actualizarObsPerido",$variable);
-        $notaPorEstudiante=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $notaPorEstudiante=$this->resource->execute($cadenaSql,"");
       }
       //3. Si no existe insertar
       else{
         $cadenaSql = $this->sql->cadenaSql("insertarObsPerido",$variable);
-        $notaPorCriterio=$this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $notaPorCriterio=$this->resource->execute($cadenaSql,"");
       }
     }
   }
@@ -109,24 +109,24 @@ class Funcioncomportamiento{
 
   function getComportamiento($variable) {
 
-    $this->miConfigurador->render("comportamiento",$variable);
+    $this->context->render("comportamiento",$variable);
   }
 
 	function __construct() {
 
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->miSesion=Sesion::singleton();
 		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
 
 		$this->miInspectorHTML=InspectorHTML::singleton();
 
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 
 		$this->miMensaje=Mensaje::singleton();
 		$this->mail=new phpmailer();
-		$this->enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion="aplicativo";
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);
 		$this->organizador=orderArray::singleton();
 
 

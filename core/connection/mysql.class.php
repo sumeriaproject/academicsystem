@@ -442,7 +442,7 @@ class mysql //implements Conector
 
 	//Funcion para el acceso a las bases de datos
 
-	function ejecutarAcceso($cadena_sql,$tipo="",$numeroRegistros=0)
+	function execute($cadena_sql,$tipo="",$numeroRegistros=0)
 	{
 		if(!is_object($this->enlace)){
 			error_log("NO HAY ACCESO A LA BASE DE DATOS!!!");

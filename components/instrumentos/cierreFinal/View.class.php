@@ -4,7 +4,7 @@ if(!isset($GLOBALS["autorizado"])){
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 include_once("class/controlAcceso.class.php");
 include_once("class/Array.class.php");
@@ -17,13 +17,13 @@ class ViewcierreFinal{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 
 	function __construct() {
-		$this->miConfigurador = Configurador::singleton();
+		$this->context = Context::singleton();
 		$this->miSesion = Sesion::singleton();
-		$this->miRecursoDB = $this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->resource = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
 		$this->controlAcceso = new controlAcceso();
 		$this->controlAcceso->usuario = $this->idSesion;
@@ -54,7 +54,7 @@ class ViewcierreFinal{
 
 	function html() {
 
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"panel";
 
 		switch($option){
@@ -73,19 +73,19 @@ class ViewcierreFinal{
 
       //traer listado de todos los estudiantes con el respectivo grado
       $cadenaSql = $this->sql->cadenaSql("estudiantes","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       $e=0;
       while(isset($estudiantes[$e][0])){
 
         $cadenaSql = $this->sql->cadenaSql("notasFinalesFueradelGrado",$estudiantes[$e]);
-        $notasFinales = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $notasFinales = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($notasFinales)){
 
           $n=0;
           while(isset($notasFinales[$n][0])) {
             $cadenaSql = $this->sql->cadenaSql("inactivarNotaFinal",$notasFinales[$n]['IDNOTA']);
-            $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+            $result = $this->resource->execute($cadenaSql,"");
             $n++;
           }
           echo "<br>".$e.":".$estudiantes[$e]['ID']." idgrado:".$estudiantes[$e]['IDGRADO'];
@@ -107,17 +107,17 @@ class ViewcierreFinal{
 
 		//Consulto el listado de estudiantes organizados por curso
 			$cadenaSql = $this->sql->cadenaSql("estudiantes","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       $estudiantes = $this->organizador->orderMultiKeyBy($estudiantes,"IDCURSO");
 
     //Consulto el listado de competencias organizados por grado
 			$cadenaSql = $this->sql->cadenaSql("competencias","");
-      $competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $competencias = $this->resource->execute($cadenaSql,"busqueda");
       $competencias = $this->organizador->orderMultiKeyBy($competencias,"IDGRADO");
 
     //Traer listado de cursos sin cerrar
       $cadenaSql = $this->sql->cadenaSql("cursosCerrados",$this->activeYear);
-      $cursosCerrados = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $cursosCerrados = $this->resource->execute($cadenaSql,"busqueda");
       $cursosCerrados = $this->organizador->orderMultiKeyBy($cursosCerrados,"IDCURSO");
 
     //Se asume que un curso esta asociado a un unico grado y una unica sede
@@ -136,7 +136,7 @@ class ViewcierreFinal{
           $estudiantesAlDia      = 0;
 
         	$cadenaSql = $this->sql->cadenaSql("notasFinalesPorCurso",$idcourse);
-          $notas = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+          $notas = $this->resource->execute($cadenaSql,"busqueda");
 
           if(is_array($notas)) {
 
@@ -162,7 +162,7 @@ class ViewcierreFinal{
           $formSaraData .= "&curso=".$idcourse;
           $formSaraData .= "&sede=".$idsede;
           $formSaraData .= "&grado=".$courses[$idsede][$idcourse]["GRADO_ID"];
-          $courses[$idsede][$idcourse]["LINK_BOLETIN"] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+          $courses[$idsede][$idcourse]["LINK_BOLETIN"] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 
           $formSaraData  = "action=controlEvaluacion";
           $formSaraData .= "&bloque=controlEvaluacion";
@@ -171,7 +171,7 @@ class ViewcierreFinal{
           $formSaraData .= "&curso=".$idcourse;
           $formSaraData .= "&sede=".$idsede;
           $formSaraData .= "&grado=".$courses[$idsede][$idcourse]["GRADO_ID"];
-          $courses[$idsede][$idcourse]["LINK_NOTAS"] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+          $courses[$idsede][$idcourse]["LINK_NOTAS"] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 
           if(!isset($cursosCerrados[$idcourse])) {
             $formSaraData  = "action=cierreFinal";
@@ -181,7 +181,7 @@ class ViewcierreFinal{
             $formSaraData .= "&curso=".$idcourse;
             $formSaraData .= "&sede=".$idsede;
             $formSaraData .= "&grado=".$courses[$idsede][$idcourse]["GRADO_ID"];
-            $courses[$idsede][$idcourse]["LINK_CIERRE"] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+            $courses[$idsede][$idcourse]["LINK_CIERRE"] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
             $courses[$idsede][$idcourse]["REPEAT_CIERRE"] = FALSE;
           }else {
             $formSaraData  = "action=cierreFinal";
@@ -191,7 +191,7 @@ class ViewcierreFinal{
             $formSaraData .= "&curso=".$idcourse;
             $formSaraData .= "&sede=".$idsede;
             $formSaraData .= "&grado=".$courses[$idsede][$idcourse]["GRADO_ID"];
-            $courses[$idsede][$idcourse]["LINK_CIERRE"] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+            $courses[$idsede][$idcourse]["LINK_CIERRE"] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
             $courses[$idsede][$idcourse]["REPEAT_CIERRE"] = TRUE;
           }
         }

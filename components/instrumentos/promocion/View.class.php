@@ -4,7 +4,7 @@ if(!isset($GLOBALS["autorizado"])){
 	exit;
 }
 
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
 include_once("class/controlAcceso.class.php");
 include_once("class/Array.class.php");
@@ -17,13 +17,13 @@ class Viewpromocion{
 	var $lenguaje;
 	var $formulario;
 	var $enlace;
-	var $miConfigurador;
+	var $context;
 
 	function __construct() {
-		$this->miConfigurador = Configurador::singleton();
+		$this->context = Context::singleton();
 		$this->miSesion = Sesion::singleton();
-		$this->miRecursoDB = $this->miConfigurador->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace = $this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->resource = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
+		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
 		$this->controlAcceso = new controlAcceso();
 		$this->controlAcceso->usuario = $this->idSesion;
@@ -54,7 +54,7 @@ class Viewpromocion{
 
 	function html() {
 
-		$this->ruta=$this->miConfigurador->getVariableConfiguracion("rutaBloque");
+		$this->ruta=$this->context->getVariable("rutaBloque");
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"";
 
 		switch($option){
@@ -75,22 +75,22 @@ class Viewpromocion{
 
   function loadSIMAT() {
     $cadenaSql = $this->sql->cadenaSql("countSIMAT","");
-    $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
 
     echo "<br/>Número actual de Estudiantes en SIMAT: ".$estudiantes[0][0];
 
     $cadenaSql = $this->sql->cadenaSql("countEstudiantes","");
-    $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
 
     echo "<br/>Número actual de Estudiantes en el sistema: ".$estudiantes[0][0];
 
     $cadenaSql = $this->sql->cadenaSql("conteoEstudiantesSinSistema","");
-    $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
 
     echo "<br/>Número actual de Estudiantes de SIMAT fuera del sistema: ".$estudiantes[0][0];
 
     $cadenaSql = $this->sql->cadenaSql("conteoEstudiantesSinSIMAT","");
-    $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
 
     echo "<br/>Número actual de Estudiantes en el sistema fuera del SIMAT: ".$estudiantes[0][0];
 
@@ -108,7 +108,7 @@ class Viewpromocion{
     //1.Estudiantes en estado Desertor o Retirado o cualquier estado diferente de 1 = Activo
 
       $cadenaSql = $this->sql->cadenaSql("estudiantesInactivos",$anio);
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       foreach($estudiantes as $estudiante => $data) {
          $data = array("anio" => $anio,
                       "id_estudiante" => $data["ID"],
@@ -123,7 +123,7 @@ class Viewpromocion{
     //2.Estudiantes que no se encuentran en el SIMAT por NUI
     
       $cadenaSql = $this->sql->cadenaSql("estudiantesSinSIMATPorNUI","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
 
       foreach($estudiantes as $estudiante => $data) {
         $data = array("anio" => $anio,
@@ -142,7 +142,7 @@ class Viewpromocion{
     //Numero de Notas Cerradas debe ser igual Al numero de Areas del GRado Actual
 
     $cadenaSql = $this->sql->cadenaSql("estudiantesNotasPendientes","");
-    $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+    $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
      
       foreach($estudiantes as $estudiante => $data) {
         $data = array("anio" => $anio,
@@ -161,7 +161,7 @@ class Viewpromocion{
     //cursos en el SIMAT
     //4. Estudiantes cuyo curso es igual al SIMAT
       $cadenaSql = $this->sql->cadenaSql("estudiantesGradoIgual","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       
       foreach($estudiantes as $estudiante => $data) {
         $data = array("anio" => $anio,
@@ -177,7 +177,7 @@ class Viewpromocion{
       
     //5. Estudiantes notas al dia 
       $cadenaSql = $this->sql->cadenaSql("estudiantesNotasCompletas","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       
       foreach($estudiantes as $estudiante => $data) {
         $data = array("anio" => $anio,
@@ -195,7 +195,7 @@ class Viewpromocion{
     //para proceder a enviar las notas de los estudiantes PROMOVIDOS e INACTIVOS a los respectivos historicos  
     
       $cadenaSql = $this->sql->cadenaSql("estudiantesParaHistoricos","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       
       foreach($estudiantes as $estudiante => $data) {
         //$this->enviarNotasAHistoricos($data["ID"],$anio); 
@@ -206,7 +206,7 @@ class Viewpromocion{
     //pero la idea es que este cambio se realice desde el sistema
     
       $cadenaSql = $this->sql->cadenaSql("estudiantesPromovidos","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       /*  SELECT
            uc.id_usuario,
            uc.id_curso,
@@ -229,37 +229,37 @@ class Viewpromocion{
     //8. Codificar Estudiantes
     
       $cadenaSql = $this->sql->cadenaSql("estudiantesSinSistema","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       
       foreach($estudiantes as $estudiante => $data) {
         
         $cadena_sql = $this->sql->cadenaSql("lastIdByCourse",$data['SEDE']);
-        $result = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+        $result = $this->resource->execute($cadena_sql,"busqueda");
         $lastID = $result[0][0];
         
         $cadena_sql = $this->sql->cadenaSql("basicUserByID",$lastID);
-        $exist = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");
+        $exist = $this->resource->execute($cadena_sql,"busqueda");
           
         while(is_array($exist)){
           $lastID++;
           $cadena_sql = $this->sql->cadenaSql("basicUserByID",$lastID);
-          $exist = $this->miRecursoDB->ejecutarAcceso($cadena_sql,"busqueda");  
+          $exist = $this->resource->execute($cadena_sql,"busqueda");  
         }
         
         $data['LASTID'] = $lastID;
         
         echo "<hr/><br/>*".$cadenaSql = $this->sql->cadenaSql("insertarEstudiante",$data);
-        $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $estudiantes = $this->resource->execute($cadenaSql,"");
         echo "<br/>*".$cadenaSql = $this->sql->cadenaSql("insertarCurso",$data);
-        $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $estudiantes = $this->resource->execute($cadenaSql,"");
         echo "<br/>*".$cadenaSql = $this->sql->cadenaSql("insertarSubsistema",$data);
-        $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+        $estudiantes = $this->resource->execute($cadenaSql,"");
         
       }
     
     //8. Esto es lo unico que deberia estar aca de aqui para arriba deberia estar en el controlador 
         $cadenaSql = $this->sql->cadenaSql("resultadoPendientes",$data);
-        $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       echo "<br/><br/><h2>ESTUDIANTES PENDIENTES</h2><br/><table>";
       foreach($estudiantes as $estudiante => $data) {
         echo "<tr><td>".$data[0]." </td><td> ".$data[1]." </td><td>".$data[2]."</td><td>".$data[3]."</td><td>".$data[4]."</td><td>".$data[5]."</td><td>".$data[6]."</td></tr>";
@@ -269,7 +269,7 @@ class Viewpromocion{
 
   private function registrarHistoricoEstudiante($data) {
     echo "<br/>".$cadenaSql = $this->sql->cadenaSql("registrarHistoricoEstudiante",$data);
-    $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+    $result = $this->resource->execute($cadenaSql,"");
   }
 
  
@@ -280,30 +280,30 @@ class Viewpromocion{
     //Notas Parcial
       //Insertar historico
        echo "<hr/><br/>".$cadenaSql = $this->sql->cadenaSql("insertarHistoricoParcial",$parametros);
-      $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+      $result = $this->resource->execute($cadenaSql,"");
 
        //Eliminar actual
       $cadenaSql = $this->sql->cadenaSql("eliminarActualParcial",$parametros);
-      $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+      $result = $this->resource->execute($cadenaSql,"");
 
     //Notas Final
       //Insertar historico
       $cadenaSql = $this->sql->cadenaSql("insertarHistoricoFinal",$parametros);
-      $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+      $result = $this->resource->execute($cadenaSql,"");
 
        //Eliminar actual
       $cadenaSql = $this->sql->cadenaSql("eliminarActualFinal",$parametros);
-      $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+      $result = $this->resource->execute($cadenaSql,"");
 
 
     //Notas Cerrada
       //Insertar historico
       $cadenaSql = $this->sql->cadenaSql("insertarHistoricoCerrada",$parametros);
-      $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+      $result = $this->resource->execute($cadenaSql,"");
 
        //Eliminar actual
       $cadenaSql = $this->sql->cadenaSql("eliminarActualCerrada",$parametros);
-      $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+      $result = $this->resource->execute($cadenaSql,"");
 
   }
 
@@ -316,19 +316,19 @@ class Viewpromocion{
 
       //traer listado de todos los estudiantes con el respectivo grado
       $cadenaSql = $this->sql->cadenaSql("estudiantes","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       $e=0;
       while(isset($estudiantes[$e][0])){
 
         $cadenaSql = $this->sql->cadenaSql("notasFinalesFueradelGrado",$estudiantes[$e]);
-        $notasFinales = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+        $notasFinales = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($notasFinales)){
 
           $n=0;
           while(isset($notasFinales[$n][0])) {
             $cadenaSql = $this->sql->cadenaSql("inactivarNotaFinal",$notasFinales[$n]['IDNOTA']);
-           // $result = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"");
+           // $result = $this->resource->execute($cadenaSql,"");
             $n++;
           }
           echo "<br>".$e.":".$estudiantes[$e]['ID']." idgrado:".$estudiantes[$e]['IDGRADO'];
@@ -349,17 +349,17 @@ class Viewpromocion{
 
 		//Consulto el listado de estudiantes organizados por curso
 			$cadenaSql = $this->sql->cadenaSql("estudiantes","");
-      $estudiantes = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       $estudiantes = $this->organizador->orderMultiKeyBy($estudiantes,"IDCURSO");
 
     //Consulto el listado de competencias organizados por grado
 			$cadenaSql = $this->sql->cadenaSql("competencias","");
-      $competencias = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $competencias = $this->resource->execute($cadenaSql,"busqueda");
       $competencias = $this->organizador->orderMultiKeyBy($competencias,"IDGRADO");
 
     //Traer listado de cursos sin cerrar
       $cadenaSql = $this->sql->cadenaSql("cursosCerrados","2015");
-      $cursosCerrados = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+      $cursosCerrados = $this->resource->execute($cadenaSql,"busqueda");
       $cursosCerrados = $this->organizador->orderMultiKeyBy($cursosCerrados,"IDCURSO");
 
     //Se asume que un curso esta asociado a un unico grado y una unica sede
@@ -375,7 +375,7 @@ class Viewpromocion{
           $estudiantesAlDia      = 0;
 
         	$cadenaSql = $this->sql->cadenaSql("notasFinalesPorCurso",$idcourse);
-          $notas = $this->miRecursoDB->ejecutarAcceso($cadenaSql,"busqueda");
+          $notas = $this->resource->execute($cadenaSql,"busqueda");
 
           if(is_array($notas)) {
 
@@ -401,7 +401,7 @@ class Viewpromocion{
           $formSaraData .= "&curso=".$idcourse;
           $formSaraData .= "&sede=".$idsede;
           $formSaraData .= "&grado=".$courses[$idsede][$idcourse]["GRADO_ID"];
-          $courses[$idsede][$idcourse]["LINK_BOLETIN"] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+          $courses[$idsede][$idcourse]["LINK_BOLETIN"] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 
           $formSaraData  = "action=controlEvaluacion";
           $formSaraData .= "&bloque=controlEvaluacion";
@@ -410,7 +410,7 @@ class Viewpromocion{
           $formSaraData .= "&curso=".$idcourse;
           $formSaraData .= "&sede=".$idsede;
           $formSaraData .= "&grado=".$courses[$idsede][$idcourse]["GRADO_ID"];
-          $courses[$idsede][$idcourse]["LINK_NOTAS"] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+          $courses[$idsede][$idcourse]["LINK_NOTAS"] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 
           if(!isset($cursosCerrados[$idcourse])) {
             $formSaraData  = "action=promocion";
@@ -420,7 +420,7 @@ class Viewpromocion{
             $formSaraData .= "&curso=".$idcourse;
             $formSaraData .= "&sede=".$idsede;
             $formSaraData .= "&grado=".$courses[$idsede][$idcourse]["GRADO_ID"];
-            $courses[$idsede][$idcourse]["LINK_CIERRE"] = $this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+            $courses[$idsede][$idcourse]["LINK_CIERRE"] = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
           }else {
             $courses[$idsede][$idcourse]["LINK_CIERRE"] = "";
           }

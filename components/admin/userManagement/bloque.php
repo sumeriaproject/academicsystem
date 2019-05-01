@@ -3,7 +3,7 @@ if (!isset($GLOBALS["autorizado"])) {
     include("../index.php");
     exit;
 }
-include_once("core/manager/Configurador.class.php");
+include_once("core/manager/Context.class.php");
 include_once("View.class.php");
 include_once("Funcion.class.php");
 include_once("Sql.class.php");
@@ -14,12 +14,12 @@ if (class_exists('BloqueuserManagement') === false) {
         var $nombreBloque;
         var $miFuncion;
         var $miSql;
-        var $miConfigurador;
+        var $context;
         public function __construct($esteBloque, $lenguaje = "")
         {
-            $this->miConfigurador = Configurador::singleton();
-            $ruta                 = $this->miConfigurador->getVariableConfiguracion("raizDocumento");
-            $rutaURL              = $this->miConfigurador->getVariableConfiguracion("host") . $this->miConfigurador->getVariableConfiguracion("site");
+            $this->context = Context::singleton();
+            $ruta                 = $this->context->getVariable("raizDocumento");
+            $rutaURL              = $this->context->getVariable("host") . $this->context->getVariable("site");
             if ($esteBloque["grupo"] == "") {
                 $ruta .= "/components/" . $esteBloque["nombre"] . "/";
                 $rutaURL .= "/components/" . $esteBloque["nombre"] . "/";
@@ -27,8 +27,8 @@ if (class_exists('BloqueuserManagement') === false) {
                 $ruta .= "/components/" . $esteBloque["grupo"] . "/" . $esteBloque["nombre"] . "/";
                 $rutaURL .= "/components/" . $esteBloque["grupo"] . "/" . $esteBloque["nombre"] . "/";
             }
-            $this->miConfigurador->setVariableConfiguracion("rutaBloque", $ruta);
-            $this->miConfigurador->setVariableConfiguracion("rutaUrlBloque", $rutaURL);
+            $this->context->setVariable("rutaBloque", $ruta);
+            $this->context->setVariable("rutaUrlBloque", $rutaURL);
             $nombreClaseFuncion  = "Funcion" . $esteBloque["nombre"];
             $this->miFuncion     = new $nombreClaseFuncion();
             $nombreClaseSQL      = "Sql" . $esteBloque["nombre"];
@@ -57,7 +57,7 @@ if (class_exists('BloqueuserManagement') === false) {
 $unBloque["nombre"] = "userManagement";
 $unBloque["grupo"]  = "admin";
 $estaClase          = "Bloque" . $unBloque["nombre"];
-$this->miConfigurador->setVariableConfiguracion("esteBloque", $unBloque);
+$this->context->setVariable("esteBloque", $unBloque);
 if (isset($lenguaje)) {
     $esteBloque = new $estaClase($unBloque, $lenguaje);
 } else {

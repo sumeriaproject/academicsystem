@@ -5,14 +5,14 @@ if(isset($_REQUEST['kipu-development'])){
 }
 
 
-require_once("core/manager/Configurador.class.php");
+require_once("core/manager/Context.class.php");
 require_once("core/builder/builderSql.class.php");
 include_once("core/auth/Sesion.class.php");
 
 
 class ArmadorPagina{
 
-	var $miConfigurador;
+	var $context;
 	var $generadorClausulas;
 	var $host;
 	var $sitio;
@@ -22,15 +22,15 @@ class ArmadorPagina{
 
 	function __construct(){
 
-		$this->miConfigurador=Configurador::singleton();
+		$this->context=Context::singleton();
 		$this->generadorClausulas=BuilderSql::singleton();
-		$this->host=$this->miConfigurador->getVariableConfiguracion("host");
-		$this->sitio=$this->miConfigurador->getVariableConfiguracion("site");
-		$this->raizDocumentos=$this->miConfigurador->getVariableConfiguracion("raizDocumento");
+		$this->host=$this->context->getVariable("host");
+		$this->sitio=$this->context->getVariable("site");
+		$this->raizDocumentos=$this->context->getVariable("raizDocumento");
 		$this->miSesion=Sesion::singleton();
-		$this->enlace=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."?".$this->miConfigurador->getVariableConfiguracion("enlace");
+		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion="aplicativo";
-		$this->miRecursoDB=$this->miConfigurador->fabricaConexiones->getRecursoDB($conexion);
+		$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);
 
 	}
 
@@ -38,14 +38,14 @@ class ArmadorPagina{
 
 		$this->bloques=$registroBloques;
 
-		if($this->miConfigurador->getVariableConfiguracion("cache")) {
+		if($this->context->getVariable("cache")) {
 
 			//De forma predeterminada las paginas del aplicativo no tienen cache
 			header("Cache-Control: cache");
 			// header("Expires: Sat, 20 Jun 1974 10:00:00 GMT");
 		}
 
-		$this->raizDocumento=$this->miConfigurador->getVariableConfiguracion("raizDocumento");
+		$this->raizDocumento=$this->context->getVariable("raizDocumento");
 
 		echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> ';
 		echo "\n<html lang='es'>\n";
@@ -56,7 +56,7 @@ class ArmadorPagina{
 
 	private function encabezadoPagina(){
 		$htmlPagina="<head>\n";
-		$htmlPagina.="<title>".$this->miConfigurador->getVariableConfiguracion("nombreAplicativo")."</title>\n";
+		$htmlPagina.="<title>".$this->context->getVariable("nombreAplicativo")."</title>\n";
 		$htmlPagina.="<meta http-equiv='Content-Type' content='text/html; charset=utf-8' >\n";
 		$htmlPagina.="<link rel='shortcut icon' href='".$this->host.$this->sitio."/"."favicon.ico' >\n";
 		echo $htmlPagina;
@@ -92,13 +92,13 @@ class ArmadorPagina{
 		echo "<body>\n";
 
 		if(isset($_REQUEST["tema"]) && $_REQUEST["tema"]<>""){
-			$this->miConfigurador->setVariableConfiguracion("tema",$_REQUEST["tema"]);
+			$this->context->setVariable("tema",$_REQUEST["tema"]);
 
 		}else{
 			$tema=$this->miSesion->getValorSesion("tema");
 
 			if($tema<>""){
-				$this->miConfigurador->setVariableConfiguracion("tema",$tema);
+				$this->context->setVariable("tema",$tema);
 			}
 
 		}
@@ -108,9 +108,9 @@ class ArmadorPagina{
 		$mensaje=isset($_REQUEST["mensaje"])?$_REQUEST["mensaje"]:"";
 		$nombreUsuario=$userName=$valor["nombreUsuario"];
 		$linkFin=$linkEnd=$valor["linkFinSesion"];
-		$this->miConfigurador->setVariableConfiguracion("linkEnd",$linkEnd);
+		$this->context->setVariable("linkEnd",$linkEnd);
 
-		$rutaTema=$this->miConfigurador->getVariableConfiguracion("host").$this->miConfigurador->getVariableConfiguracion("site")."/theme/".$this->miConfigurador->getVariableConfiguracion("tema");
+		$rutaTema=$this->context->getVariable("host").$this->context->getVariable("site")."/theme/".$this->context->getVariable("tema");
 
 
 
@@ -119,7 +119,7 @@ class ArmadorPagina{
 			$salida[$unBloque["seccion"]]=$this->incluirBloque($unBloque);
 		}
 
-		include($this->raizDocumentos."/theme/".$this->miConfigurador->getVariableConfiguracion("tema")."/template.php");
+		include($this->raizDocumentos."/theme/".$this->context->getVariable("tema")."/template.php");
 
 
 		echo "</body>\n";
@@ -140,7 +140,7 @@ class ArmadorPagina{
 		$formSaraData.="&bloque=barraLogin";
 		$formSaraData.="&bloqueGrupo=gui";
 		$formSaraData.="&opcionLogin=logout";
-		$formSaraData=$this->miConfigurador->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
+		$formSaraData=$this->context->fabricaConexiones->crypto->codificar_url($formSaraData,$this->enlace);
 
 		$valor['linkFinSesion']=$formSaraData;
 
@@ -156,7 +156,7 @@ class ArmadorPagina{
 		  }
 
 		$cadena=$this->generadorClausulas->cadenaSql("usuario",$usuario_registro);
-		$usuario=$this->miRecursoDB->ejecutarAcceso($cadena,"busqueda");
+		$usuario=$this->resource->execute($cadena,"busqueda");
 
 		if(is_array($usuario)){
 			$valor['nombreUsuario']=$usuario[0]['NOMBRE'];
@@ -260,7 +260,7 @@ class ArmadorPagina{
 
 
 	private function armar_no_pagina($seccion,$cadena) {
-		$this->la_cadena=$cadena.' AND '.$this->miConfigurador->configuracion["prefijo"].'bloque_pagina.seccion="'.$seccion.'" ORDER BY '.$this->miConfigurador->configuracion["prefijo"].'bloque_pagina.posicion ASC';
+		$this->la_cadena=$cadena.' AND '.$this->context->configuracion["prefijo"].'bloque_pagina.seccion="'.$seccion.'" ORDER BY '.$this->context->configuracion["prefijo"].'bloque_pagina.posicion ASC';
 		$this->base->registro_db($this->la_cadena,0);
 		$this->armar_registro=$this->base->getRegistroDb();
 		$this->total=$this->base->obtener_conteo_db();
@@ -271,7 +271,7 @@ class ArmadorPagina{
 
 				$this->id_bloque=$this->armar_registro[$this->contador][0];
 				$this->incluir=$this->armar_registro[$this->contador][4];
-				include($this->miConfigurador->configuracion["raiz_documento"].$this->miConfigurador->configuracion["bloques"]."/".$this->incluir."/bloque.php");
+				include($this->context->configuracion["raiz_documento"].$this->context->configuracion["bloques"]."/".$this->incluir."/bloque.php");
 
 
 			}
