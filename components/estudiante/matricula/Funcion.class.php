@@ -6,7 +6,7 @@ if(!isset($GLOBALS["autorizado"])){
 
 include_once("core/auth/Sesion.class.php");
 include_once("core/manager/Context.class.php");
-include_once("core/builder/InspectorHTML.class.php");
+include_once("core/builder/Inspector.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
 include_once("plugin/mail/class.phpmailer.php");
@@ -22,7 +22,7 @@ class Funcionmatricula{
 	var $lenguaje;
 	var $ruta;
 	var $context;
-	var $miInspectorHTML;
+	var $inspector;
 	var $error;
 	var $resource;
 	var $crypto;
@@ -35,7 +35,7 @@ class Funcionmatricula{
 		//Evitar que se ingrese codigo HTML y PHP en los campos de texto
 		//Campos que se quieren excluir de la limpieza de código. Formato: nombreCampo1|nombreCampo2|nombreCampo3
 		$excluir="";
-		$_REQUEST=$this->miInspectorHTML->limpiarPHPHTML($_REQUEST);
+		$_REQUEST=$this->inspector->cleanPHPHTML($_REQUEST);
 
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 
@@ -75,31 +75,31 @@ class Funcionmatricula{
         return false;
       }
       //2. Consultar si la notas existen
-      $cadenaSql = $this->sql->cadenaSql("notaPorEstudiante",$variable);
+      $cadenaSql = $this->sql->get("notaPorEstudiante",$variable);
       $notaPorEstudiante=$this->resource->execute($cadenaSql,"busqueda");
       //3. Si ya existe actualizar registro
       if(is_array($notaPorEstudiante)){
-        $cadenaSql = $this->sql->cadenaSql("actualizarNotaPerido",$variable);
+        $cadenaSql = $this->sql->get("actualizarNotaPerido",$variable);
         $notaPorEstudiante=$this->resource->execute($cadenaSql,"");
       }
       //4. Si no existe insertar
       else{
-        $cadenaSql = $this->sql->cadenaSql("insertarNotaPerido",$variable);
+        $cadenaSql = $this->sql->get("insertarNotaPerido",$variable);
         $notaPorCriterio=$this->resource->execute($cadenaSql,"");
       }
     }else if(isset($variable['obs'])) {
 
       //1. Consultar si la notas existen
-      $cadenaSql = $this->sql->cadenaSql("notaPorEstudiante",$variable);
+      $cadenaSql = $this->sql->get("notaPorEstudiante",$variable);
       $notaPorEstudiante=$this->resource->execute($cadenaSql,"busqueda");
       //2. Si ya existe actualizar registro
       if(is_array($notaPorEstudiante)){
-        $cadenaSql = $this->sql->cadenaSql("actualizarObsPerido",$variable);
+        $cadenaSql = $this->sql->get("actualizarObsPerido",$variable);
         $notaPorEstudiante=$this->resource->execute($cadenaSql,"");
       }
       //3. Si no existe insertar
       else{
-        $cadenaSql = $this->sql->cadenaSql("insertarObsPerido",$variable);
+        $cadenaSql = $this->sql->get("insertarObsPerido",$variable);
         $notaPorCriterio=$this->resource->execute($cadenaSql,"");
       }
     }
@@ -115,10 +115,10 @@ class Funcionmatricula{
 	function __construct() {
 
 		$this->context=Context::singleton();
-		$this->miSesion=Sesion::singleton();
-		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
+		$this->session=Sesion::singleton();
+		$this->sessionId=$this->session->getValue('idUsuario');
 
-		$this->miInspectorHTML=InspectorHTML::singleton();
+		$this->inspector=Inspector::singleton();
 
 		$this->ruta=$this->context->getVariable("rutaBloque");
 
@@ -127,7 +127,7 @@ class Funcionmatricula{
 		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion="aplicativo";
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);
-		$this->organizador=orderArray::singleton();
+		$this->sorter=orderArray::singleton();
 
 
 	}

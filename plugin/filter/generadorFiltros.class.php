@@ -22,7 +22,7 @@ class generadorFiltros
     }
     public function rescatarFiltros($identificador)
     {
-        $cadena_sql = $this->sql->cadena_sql("buscarComponente", 'GTR_RESTAURANTES');
+        $cadena_sql = $this->sql->get("buscarComponente", 'GTR_RESTAURANTES');
         $registro   = $this->resource->execute($cadena_sql, "busqueda");
         foreach ($registro as $clave => $valor) {
             $componentes[$valor['ID_COMPONENTE']]['OPCIONES'][]        = array(
@@ -49,13 +49,13 @@ class generadorFiltros
     }
     public function filterComponentList($component)
     {
-        $cadena_sql = $this->sql->cadena_sql("buscarComponente", $component);
+        $cadena_sql = $this->sql->get("buscarComponente", $component);
         $result     = $this->resource->execute($cadena_sql, "busqueda");
         return $result;
     }
     public function valuesListByID($id, $component, $defaul = "")
     {
-        $cadena_sql = $this->sql->cadena_sql("valuesListByID", $component);
+        $cadena_sql = $this->sql->get("valuesListByID", $component);
         $result     = $this->resource->execute($cadena_sql, "busqueda");
         return $result;
     }

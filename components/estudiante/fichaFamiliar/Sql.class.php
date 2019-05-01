@@ -22,7 +22,7 @@ class SqlfichaFamiliar extends sql {
 	}
 	
 
-	function cadena_sql($tipo,$variable="") {
+	function get($tipo,$variable="") {
 		 
 		/**
 		 * 1. Revisar las variables para evitar SQL Injection

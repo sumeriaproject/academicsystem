@@ -1,5 +1,5 @@
 <?php
-class InspectorHTML{
+class Inspector{
 	
 	private static $instance;
 	
@@ -19,7 +19,7 @@ class InspectorHTML{
 		return self::$instance;
 	}
 	
-	function limpiarPHPHTML($arreglo, $excluir=""){
+	function cleanPHPHTML($arreglo, $excluir=""){
 		
 		if($excluir!=""){
 			$variables=explode("|",$excluir);
@@ -45,7 +45,7 @@ class InspectorHTML{
 	}
 	
 	
-	function limpiarSQL($arreglo, $excluir=""){
+	function cleanSQL($arreglo, $excluir=""){
 	
 		if($excluir!=""){
 			$variables=explode("|",$excluir);

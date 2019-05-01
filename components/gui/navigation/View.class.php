@@ -14,11 +14,11 @@ class ViewNavigation{
 	
 	function __construct()
 	{
-		$this->miSesion=Sesion::singleton();
+		$this->session=Sesion::singleton();
 		$this->context=Context::singleton();
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->id_usuario=$this->miSesion->getValorSesion('idUsuario');
+		$this->id_usuario=$this->session->getValue('idUsuario');
 	}
 
 	public function setRuta($unaRuta)
@@ -55,12 +55,12 @@ class ViewNavigation{
 	
 	function showMenu(){
 
-		$cadena_sql=$this->sql->cadena_sql("menuList",$this->miSesion->getValorSesion('rol'));
+		$cadena_sql=$this->sql->get("menuList",$this->session->getValue('rol'));
 		$menuList=$this->resource->execute($cadena_sql,"busqueda");
 
 		$menuList=$this->orderArrayKeyBy($menuList,"PADRE");
 
-		$cadena_sql=$this->sql->cadena_sql("roleList");
+		$cadena_sql=$this->sql->get("roleList");
 		$roleList=$this->resource->execute($cadena_sql,"busqueda");
 
 

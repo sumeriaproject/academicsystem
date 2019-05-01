@@ -176,7 +176,7 @@ class Sesion
 
 			$this->setSesionId($sesion);
 			// Busca una sesión que coincida con el id del computador y el nivel de acceso de la página
-			$this->el_resultado=$this->getValorSesion('rol');
+			$this->el_resultado=$this->getValue('rol');
 			
 			if($this->el_resultado){
 				
@@ -186,7 +186,7 @@ class Sesion
 				//Si el actual del rol del usuario se encuentra en los roles permitidos para la pagina solicitada
 				if($this->el_resultado[0][0]==$this->getRolPagina($this->miPaginaActual))
 				{
-					$this->el_resultado=$this->getValorSesion('expiracion');
+					$this->el_resultado=$this->getValue('expiracion');
 					if($this->el_resultado[0][0]>time())
 					{
 						return TRUE;
@@ -657,7 +657,7 @@ class Sesion
 	 */
 
 
-	function getValorSesion($variable,$sesion="TRUE"){
+	function getValue($variable,$sesion="TRUE"){
 
 		if($sesion=="TRUE"){
 			if(isset($_SESSION["aplicativo"])){

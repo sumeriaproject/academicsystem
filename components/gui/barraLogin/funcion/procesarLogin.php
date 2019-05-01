@@ -12,14 +12,14 @@ if (!isset($GLOBALS["autorizado"])) {
         if (!$esteRecursoDB) {
             exit;
         }
-        $cadena_sql = $this->sql->cadena_sql("buscarUsuarioAplicativo", $variable);
+        $cadena_sql = $this->sql->get("buscarUsuarioAplicativo", $variable);
         $registro   = $esteRecursoDB->execute($cadena_sql, "busqueda");
         if ($registro) {
             if ($registro[0]["CLAVE"] == $variable["clave"]) {
-                $this->miSesion->tema   = $registro[0]["TEMA"];
-                $this->miSesion->rol    = $registro[0]["ROL"];
-                $this->miSesion->idioma = $registro[0]["IDIOMA"];
-                $registro[0]["SESION"]  = $this->miSesion->crearSesion($registro[0]["USUARIOID"]);
+                $this->session->tema   = $registro[0]["TEMA"];
+                $this->session->rol    = $registro[0]["ROL"];
+                $this->session->idioma = $registro[0]["IDIOMA"];
+                $registro[0]["SESION"]  = $this->session->crearSesion($registro[0]["USUARIOID"]);
                 $registro[0]["OPCION"]  = "account";
                 $this->funcion->redireccionar("indexUsuario", $registro[0]);
                 return true;

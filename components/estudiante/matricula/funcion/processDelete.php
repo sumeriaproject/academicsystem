@@ -9,15 +9,15 @@ if(!isset($GLOBALS["autorizado"]))
 	
 	
 		
-		$cadena_sql=$this->sql->cadena_sql("userByID",$id);
+		$cadena_sql=$this->sql->get("userByID",$id);
 		$result=$this->resource->execute($cadena_sql,"busqueda");	
-		$variable['usuario']=$this->idSesion;
+		$variable['usuario']=$this->sessionId;
 		$variable['evento']=json_encode(array("evento"=>"delete","datos"=>$result));
 		 
-		$cadena_sql=$this->sql->cadena_sql("DeleteUser",$id);
+		$cadena_sql=$this->sql->get("DeleteUser",$id);
 		$result=$this->resource->execute($cadena_sql,"");
 		if($result===TRUE){
-			$cadena_sql=$this->sql->cadena_sql("logger",$variable);
+			$cadena_sql=$this->sql->get("logger",$variable);
 			$result=$this->resource->execute($cadena_sql,"");
 			$status=TRUE;
 		}else{

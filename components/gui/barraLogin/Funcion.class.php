@@ -5,7 +5,7 @@ if (!isset($GLOBALS["autorizado"])) {
 }
 include_once("core/manager/Context.class.php");
 include_once("core/auth/Sesion.class.php");
-include_once("core/builder/InspectorHTML.class.php");
+include_once("core/builder/Inspector.class.php");
 include_once("core/builder/Mensaje.class.php");
 class FuncionbarraLogin
 {
@@ -14,8 +14,8 @@ class FuncionbarraLogin
     var $lenguaje;
     var $ruta;
     var $context;
-    var $miInspectorHTML;
-    var $miSesion;
+    var $inspector;
+    var $session;
     var $error;
     var $resource;
     var $crypto;
@@ -40,19 +40,19 @@ class FuncionbarraLogin
     {
         $this->borrarSesionesExpiradas();
         $excluir  = "";
-        $_REQUEST = $this->miInspectorHTML->limpiarPHPHTML($_REQUEST);
+        $_REQUEST = $this->inspector->cleanPHPHTML($_REQUEST);
         if (!isset($_REQUEST["opcionLogin"]) || (isset($_REQUEST["opcionLogin"]) && ($_REQUEST["opcionLogin"] == "login"))) {
             $validacion = $this->verificarCampos();
             if ($validacion == false) {
                 echo "Datos Incorrectos";
             } else {
-                $_REQUEST = $this->miInspectorHTML->limpiarSQL($_REQUEST);
+                $_REQUEST = $this->inspector->cleanSQL($_REQUEST);
                 if (!isset($_REQUEST['opcionLogin']) || $_REQUEST["opcionLogin"] == "login") {
                     $this->login();
                 }
             }
         } else if (isset($_REQUEST["opcionLogin"]) && ($_REQUEST["opcionLogin"] == "logout")) {
-            $this->miSesion->terminarSesion($_SESSION['aplicativo']);
+            $this->session->terminarSesion($_SESSION['aplicativo']);
             $valor['OPCION'] = "login";
             $_REQUEST        = array();
             echo "<script>location.replace('http://www.ceruralrestrepo.com/')</script>";
@@ -62,10 +62,10 @@ class FuncionbarraLogin
     function __construct()
     {
         $this->context  = Context::singleton();
-        $this->miInspectorHTML = InspectorHTML::singleton();
+        $this->inspector = Inspector::singleton();
         $this->ruta            = $this->context->getVariable("rutaBloque");
         $this->miMensaje       = Mensaje::singleton();
-        $this->miSesion        = Sesion::singleton();
+        $this->session        = Sesion::singleton();
         $this->enlace          = $this->context->getVariable("host") . $this->context->getVariable("site") . "?" . $this->context->getVariable("enlace");
         $conexion              = "aplicativo";
         $this->resource     = $this->context->fabricaConexiones->getRecursoDB($conexion);
@@ -97,11 +97,11 @@ class FuncionbarraLogin
     public function borrarSesionesExpiradas()
     {
         if (!$this->context->getVariable("estaSesion")) {
-            $miSesion["sesionId"] = time();
-            $this->context->setVariable("estaSesion", $miSesion);
+            $session["sesionId"] = time();
+            $this->context->setVariable("estaSesion", $session);
         }
         $estaSesion    = $this->context->getVariable("estaSesion");
-        $cadena_sql    = $this->sql->cadena_sql("eliminarTemp", $estaSesion["sesionId"]);
+        $cadena_sql    = $this->sql->get("eliminarTemp", $estaSesion["sesionId"]);
         $conexion      = "configuracion";
         $esteRecursoDB = $this->context->fabricaConexiones->getRecursoDB($conexion);
         $resultado     = $esteRecursoDB->execute($cadena_sql, "acceso");

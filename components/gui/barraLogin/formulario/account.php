@@ -8,9 +8,9 @@ if(!isset($GLOBALS["autorizado"])) {
   $esteBloque=$this->context->getVariable("esteBloque");
   $enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
   
-  if($this->miSesion->getValorSesion('idUsuario')<>""){
+  if($this->session->getValue('idUsuario')<>""){
 	
-	$usuario_registro=$this->miSesion->getValorSesion('idUsuario');
+	$usuario_registro=$this->session->getValue('idUsuario');
 	$linkAccount="pagina=myAccount";
 	$linkAccount.="&user=".$usuario_registro;
 	$linkAccount=$this->context->fabricaConexiones->crypto->codificar_url($linkAccount,$enlace);
@@ -21,7 +21,7 @@ if(!isset($GLOBALS["autorizado"])) {
 	  $usuario_registro=0; //0 ES POR DEFECTO EL USUARIO ANONIMO
   }
 	
-	$cadena_sql=$this->sql->cadena_sql("dataUserByID",$usuario_registro);
+	$cadena_sql=$this->sql->get("dataUserByID",$usuario_registro);
 	$user=$this->resource->execute($cadena_sql,"busqueda"); 
 
 	$formSaraData="action=barraLogin";

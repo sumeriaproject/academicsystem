@@ -21,14 +21,14 @@ class Viewmatricula{
 
 	function __construct(){
 		$this->context=Context::singleton();
-		$this->miSesion=Sesion::singleton();
+		$this->session=Sesion::singleton();
 		$this->resource = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
+		$this->sessionId = $this->session->getValue('idUsuario');
 		$this->controlAcceso=new controlAcceso();
-		$this->controlAcceso->usuario = $this->idSesion;
-		$this->controlAcceso->rol = $this->miSesion->getValorSesion('rol');
-		$this->organizador=orderArray::singleton();
+		$this->controlAcceso->usuario = $this->sessionId;
+		$this->controlAcceso->rol = $this->session->getValue('rol');
+		$this->sorter=orderArray::singleton();
 	}
 
 	public function setRuta($unaRuta){
@@ -83,16 +83,16 @@ class Viewmatricula{
 		//3.Consulto el curso asociado a la sede y grado, inicialmente solo existe un curso para cada grado y sede
 		//  por consiguiente la consulta solo debe arrojar un registro.
 
-			$cadenaSql = $this->sql->cadenaSql("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
+			$cadenaSql = $this->sql->get("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
 			$cursos = $this->resource->execute($cadenaSql,"busqueda");
 			$id_curso = $cursos[0]['ID'];
 
 		//4.Consulto el listado de estudiantes para el curso actual
-			$cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$id_curso);
+			$cadenaSql = $this->sql->get("estudiantesPorCurso",$id_curso);
       $estudiantesPorCurso = $this->resource->execute($cadenaSql,"busqueda");
 
 		//4.1.Consulto el listado de estudiantes para el curso actual
-   		$cadenaSql   = $this->sql->cadenaSql("notasEstudiantes",$id_curso);
+   		$cadenaSql   = $this->sql->get("notasEstudiantes",$id_curso);
     	$notasEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
     	$compEstudiante = array();
     	foreach($notasEstudiantes as $key=>$value){
@@ -100,11 +100,11 @@ class Viewmatricula{
     	}//echo "<pre>"; var_dump($compEstudiante); echo "</pre>";
 
     //5.Consultar nombres Sede, Curso, Area
-      $cadenaSql = $this->sql->cadenaSql("sedeByID",$id_sede);
+      $cadenaSql = $this->sql->get("sedeByID",$id_sede);
       $sedeByID = $this->resource->execute($cadenaSql,"busqueda");
       $sedeByID = $sedeByID[0];
 
-      $cadenaSql = $this->sql->cadenaSql("cursoByID",$id_curso);
+      $cadenaSql = $this->sql->get("cursoByID",$id_curso);
       $cursoByID = $this->resource->execute($cadenaSql,"busqueda");
       $cursoByID = $cursoByID[0];
 

@@ -6,7 +6,7 @@ if(!isset($GLOBALS["autorizado"])){
 
 include_once("core/auth/Sesion.class.php");
 include_once("core/manager/Context.class.php");
-include_once("core/builder/InspectorHTML.class.php");
+include_once("core/builder/Inspector.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
 include_once("plugin/html2pdf/html2pdf.class.php");
@@ -20,7 +20,7 @@ class Funcionpromocion{
 	var $lenguaje;
 	var $ruta;
 	var $context;
-	var $miInspectorHTML;
+	var $inspector;
 	var $error;
 	var $resource;
 	var $crypto;
@@ -33,7 +33,7 @@ class Funcionpromocion{
 		//Evitar que se ingrese codigo HTML y PHP en los campos de texto
 		//Campos que se quieren excluir de la limpieza de código. Formato: nombreCampo1|nombreCampo2|nombreCampo3
 		$excluir="";
-		$_REQUEST=$this->miInspectorHTML->limpiarPHPHTML($_REQUEST);
+		$_REQUEST=$this->inspector->cleanPHPHTML($_REQUEST);
 
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 
@@ -59,29 +59,29 @@ class Funcionpromocion{
 	function imprimirBoletines($variable){
 
 		//1.Rescato el listado de competencias para el grado actual
-		$cadenaSql = $this->sql->cadenaSql("competenciasPorGrado",$variable['grado']);
+		$cadenaSql = $this->sql->get("competenciasPorGrado",$variable['grado']);
 		$competencias = $this->resource->execute($cadenaSql,"busqueda");
-		$competenciasPorArea = $this->organizador->orderMultiKeyBy($competencias,"ID_AREA");
+		$competenciasPorArea = $this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
 
 		//2.Consulto el listado de areas para el grado actual
-		$cadenaSql = $this->sql->cadenaSql("areasPorGrado",$variable['grado']);
+		$cadenaSql = $this->sql->get("areasPorGrado",$variable['grado']);
 		$areas = $this->resource->execute($cadenaSql,"busqueda");
 
 		//2.Consultar nombres Sede, Curso, Area
-		$cadenaSql = $this->sql->cadenaSql("sedeByID",$variable['sede']);
+		$cadenaSql = $this->sql->get("sedeByID",$variable['sede']);
 		$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID  = $sedeByID[0];
 
-		$cadenaSql = $this->sql->cadenaSql("cursoByID",$variable['curso']);
+		$cadenaSql = $this->sql->get("cursoByID",$variable['curso']);
 		$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID = $cursoByID[0];
 
     if( isset($variable['estudiante']) && !empty($variable['estudiante']) ) {
-      $cadenaSql = $this->sql->cadenaSql("estudianteByID",$variable['estudiante']);
+      $cadenaSql = $this->sql->get("estudianteByID",$variable['estudiante']);
       $listadoEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
     }else  {
 
-      $cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$variable['curso']);
+      $cadenaSql = $this->sql->get("estudiantesPorCurso",$variable['curso']);
       $listadoEstudiantes = $this->resource->execute($cadenaSql,"busqueda");
     }
     $this->loadPDFBoletin($listadoEstudiantes,$cursoByID,$sedeByID,$areas,$competenciasPorArea);
@@ -98,14 +98,14 @@ class Funcionpromocion{
 
       // Consulto las notas finales de los estudiantes
       $variable['estudiante'] = $listadoEstudiantes[$e]['ID'];
-      $cadenaSql = $this->sql->cadenaSql("notasDefinitivasPorEstudiante",$variable);
+      $cadenaSql = $this->sql->get("notasDefinitivasPorEstudiante",$variable);
       $notasDefEstudiante = $this->resource->execute($cadenaSql,"busqueda");
-      $notasDefEstudiante = $this->organizador->orderKeyBy($notasDefEstudiante,"AREA");
+      $notasDefEstudiante = $this->sorter->orderKeyBy($notasDefEstudiante,"AREA");
 
       // Consulto las notas finales de las competencias
-      $cadenaSql = $this->sql->cadenaSql("notasFinalesPorEstudiante",$variable);
+      $cadenaSql = $this->sql->get("notasFinalesPorEstudiante",$variable);
       $notasCompetencias = $this->resource->execute($cadenaSql,"busqueda");
-      $notasCompetencias = $this->organizador->orderKeyBy($notasCompetencias,"COMPETENCIA");
+      $notasCompetencias = $this->sorter->orderKeyBy($notasCompetencias,"COMPETENCIA");
 
       //traer
 
@@ -294,9 +294,9 @@ class Funcionpromocion{
   function procesarCierre($variable){
 
     //Traer listado de cursos sin cerrar
-    $cadenaSql = $this->sql->cadenaSql("cursosCerrados","2015");
+    $cadenaSql = $this->sql->get("cursosCerrados","2015");
     $cursosCerrados = $this->resource->execute($cadenaSql,"busqueda");
-    $cursosCerrados = $this->organizador->orderMultiKeyBy($cursosCerrados,"IDCURSO");
+    $cursosCerrados = $this->sorter->orderMultiKeyBy($cursosCerrados,"IDCURSO");
 
 
     if(isset($cursosCerrados[$variable["curso"]])) {
@@ -305,9 +305,9 @@ class Funcionpromocion{
     }
 
     //listado de competencias por grado organizadas por area
-    $cadenaSql    = $this->sql->cadenaSql("competenciasPorArea",$variable["grado"]);
+    $cadenaSql    = $this->sql->get("competenciasPorArea",$variable["grado"]);
     $competencias = $this->resource->execute($cadenaSql,"busqueda");
-    $competencias = $this->organizador->orderTwoKeyBy($competencias,"IDAREA","ID");
+    $competencias = $this->sorter->orderTwoKeyBy($competencias,"IDAREA","ID");
 
    /*  echo ":: <pre>";
       echo count($competencias);
@@ -315,9 +315,9 @@ class Funcionpromocion{
     echo "</pre>";*/
 
     //listado de notas de estudiantes por curso organizados por estudiante y competencia
-    $cadenaSql    = $this->sql->cadenaSql("notasFinalesPorCurso",$variable["curso"]);
+    $cadenaSql    = $this->sql->get("notasFinalesPorCurso",$variable["curso"]);
     $notasFinales = $this->resource->execute($cadenaSql,"busqueda");
-    $notasFinales = $this->organizador->orderTwoKeyBy($notasFinales,"ESTUDIANTE","COMPETENCIA");
+    $notasFinales = $this->sorter->orderTwoKeyBy($notasFinales,"ESTUDIANTE","COMPETENCIA");
 
     //recorro las areas con sus respecitivas competencias
     //e inserto la nota del area por cada estudiante
@@ -366,7 +366,7 @@ class Funcionpromocion{
           }
           $variable['estado']       = '1';
 
-          $cadenaSql = $this->sql->cadenaSql("insertarNotaCerrada",$variable);
+          $cadenaSql = $this->sql->get("insertarNotaCerrada",$variable);
           $insert    = $this->resource->execute($cadenaSql,"");
 
         }
@@ -383,15 +383,15 @@ class Funcionpromocion{
 	function __construct() {
 
 		$this->context = Context::singleton();
-		$this->miSesion = Sesion::singleton();
-		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
-    $this->miInspectorHTML = InspectorHTML::singleton();
+		$this->session = Sesion::singleton();
+		$this->sessionId = $this->session->getValue('idUsuario');
+    $this->inspector = Inspector::singleton();
 		$this->ruta = $this->context->getVariable("rutaBloque");
 		$this->miMensaje = Mensaje::singleton();
 		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion = "aplicativo";
 		$this->resource = $this->context->fabricaConexiones->getRecursoDB($conexion);
-		$this->organizador = orderArray::singleton();
+		$this->sorter = orderArray::singleton();
 
 	}
 

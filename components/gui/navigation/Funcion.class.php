@@ -6,7 +6,7 @@ if(!isset($GLOBALS["autorizado"]))
 }
 
 include_once("core/manager/Context.class.php");
-include_once("core/builder/InspectorHTML.class.php");
+include_once("core/builder/Inspector.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
 
@@ -18,7 +18,7 @@ class FuncionNavigation
 	var $lenguaje;
 	var $ruta;
 	var $context;
-	var $miInspectorHTML;
+	var $inspector;
 	var $error;
 	var $resource;
 	var $crypto;
@@ -36,7 +36,7 @@ class FuncionNavigation
 		
 		$this->context=Context::singleton();
 
-		$this->miInspectorHTML=InspectorHTML::singleton();
+		$this->inspector=Inspector::singleton();
 			
 		$this->ruta=$this->context->getVariable("rutaBloque");		
 		

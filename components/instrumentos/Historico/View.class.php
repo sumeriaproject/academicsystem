@@ -21,14 +21,14 @@ class ViewHistorico{
 
 	function __construct(){
 		$this->context=Context::singleton();
-		$this->miSesion=Sesion::singleton();
+		$this->session=Sesion::singleton();
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
+		$this->sessionId=$this->session->getValue('idUsuario');
 		$this->controlAcceso=new controlAcceso();
-		$this->controlAcceso->usuario=$this->idSesion;
-		$this->controlAcceso->rol=$this->miSesion->getValorSesion('rol');
-		$this->organizador=orderArray::singleton();
+		$this->controlAcceso->usuario=$this->sessionId;
+		$this->controlAcceso->rol=$this->session->getValue('rol');
+		$this->sorter=orderArray::singleton();
 	}
 
 	public function setRuta($unaRuta){
@@ -78,34 +78,34 @@ class ViewHistorico{
 	function showBoletin($variable){
 
    	//1.Rescato el listado de competencias para el grado actual
-    $cadenaSql=$this->sql->cadenaSql("competencias",$variable['grado']);
+    $cadenaSql=$this->sql->get("competencias",$variable['grado']);
     $competencias=$this->resource->execute($cadenaSql,"busqueda");
-    $competenciasPorArea=$this->organizador->orderMultiKeyBy($competencias,"ID_AREA");
+    $competenciasPorArea=$this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
 
 
     //2.Consulto el listado de areas para el grado actual
-    $cadenaSql=$this->sql->cadenaSql("areas",$variable['grado']);
+    $cadenaSql=$this->sql->get("areas",$variable['grado']);
     $areas=$this->resource->execute($cadenaSql,"busqueda");
 
 
 		//2.Consultar nombres Sede, Curso, Area
-		$cadenaSql=$this->sql->cadenaSql("sedeByID",$variable['sede']);
+		$cadenaSql=$this->sql->get("sedeByID",$variable['sede']);
 		$sedeByID=$this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID=$sedeByID[0];
 
-		$cadenaSql=$this->sql->cadenaSql("cursoByID",$variable['curso']);
+		$cadenaSql=$this->sql->get("cursoByID",$variable['curso']);
 		$cursoByID=$this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID=$cursoByID[0];
 
-		$cadenaSql=$this->sql->cadenaSql("estudianteByID",$variable['estudiante']);
+		$cadenaSql=$this->sql->get("estudianteByID",$variable['estudiante']);
 		$estudianteByID=$this->resource->execute($cadenaSql,"busqueda");
 
 
 		//6. Consulto las notas finales de los estudiante
-		$cadenaSql=$this->sql->cadenaSql("notasFinalesPorEstudiante",$variable);
+		$cadenaSql=$this->sql->get("notasFinalesPorEstudiante",$variable);
 		$notasFinalesPorEstudiante=$this->resource->execute($cadenaSql,"busqueda");
     //6.1 Organizar por competencias
-		$notaEstudiante=$this->organizador->orderKeyBy($notasFinalesPorEstudiante,"COMPETENCIA");
+		$notaEstudiante=$this->sorter->orderKeyBy($notasFinalesPorEstudiante,"COMPETENCIA");
 
    /*echo "<pre>";
     var_dump($notasFinalesPorEstudiante);
@@ -144,20 +144,20 @@ class ViewHistorico{
 		//3.Consulto el curso asociado a la sede y grado, inicialmente solo existe un curso para cada grado y sede
 		//  por consiguiente la consulta solo debe arrojar un registro.
 
-		$cadenaSql = $this->sql->cadenaSql("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
+		$cadenaSql = $this->sql->get("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
 		$cursos    = $this->resource->execute($cadenaSql,"busqueda");
 		$id_curso  = $cursos[0]['ID'];
 
 		//4.Consulto el listado de estudiantes para el curso actual
-		$cadenaSql=$this->sql->cadenaSql("estudiantesPorCurso",$id_curso,$anio);
+		$cadenaSql=$this->sql->get("estudiantesPorCurso",$id_curso,$anio);
       	$estudiantesPorCurso=$this->resource->execute($cadenaSql,"busqueda");
 
 		//5.Consultar nombres Sede, Curso, Area
-		$cadenaSql=$this->sql->cadenaSql("sedeByID",$id_sede);
+		$cadenaSql=$this->sql->get("sedeByID",$id_sede);
 		$sedeByID=$this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID=$sedeByID[0];
 
-		$cadenaSql=$this->sql->cadenaSql("cursoByID",$id_curso);
+		$cadenaSql=$this->sql->get("cursoByID",$id_curso);
 		$cursoByID=$this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID=$cursoByID[0];
 

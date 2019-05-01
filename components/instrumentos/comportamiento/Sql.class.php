@@ -22,10 +22,10 @@ class Sqlcomportamiento extends sql {
 	}
 
 
-	function cadenaSql($tipo,$variable="") 
+	function get($tipo,$variable="") 
 	{
 		$prefijo=$this->context->getVariable("prefijo");
-		$idSesion=$this->context->getVariable("id_sesion");
+		$sessionId=$this->context->getVariable("id_sesion");
 		if(isset($_REQUEST['sufijo']) && !empty($_REQUEST['sufijo'])) {
     	$sufijo = $_REQUEST['sufijo'];
   	}else {

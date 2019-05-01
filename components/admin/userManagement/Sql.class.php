@@ -12,10 +12,10 @@ class SqluserManagement extends sql
     {
         $this->context = Context::singleton();
     }
-    function cadena_sql($tipo, $variable = "")
+    function get($tipo, $variable = "")
     {
         $prefijo  = $this->context->getVariable("prefijo");
-        $idSesion = $this->context->getVariable("id_sesion");
+        $sessionId = $this->context->getVariable("id_sesion");
         switch ($tipo) {
             case "estudiantebyID":
                 $cadena_sql = "SELECT ";

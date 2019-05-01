@@ -1,4 +1,4 @@
-<?php
+  <?php
 if(!isset($GLOBALS["autorizado"])){
 	include("../index.php");
 	exit;
@@ -21,14 +21,14 @@ class ViewcierreFinal{
 
 	function __construct() {
 		$this->context = Context::singleton();
-		$this->miSesion = Sesion::singleton();
+		$this->session = Sesion::singleton();
 		$this->resource = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->idSesion = $this->miSesion->getValorSesion('idUsuario');
+		$this->sessionId = $this->session->getValue('idUsuario');
 		$this->controlAcceso = new controlAcceso();
-		$this->controlAcceso->usuario = $this->idSesion;
-		$this->controlAcceso->rol = $this->miSesion->getValorSesion('rol');
-		$this->organizador = orderArray::singleton();
+		$this->controlAcceso->usuario = $this->sessionId;
+		$this->controlAcceso->rol = $this->session->getValue('rol');
+		$this->sorter = orderArray::singleton();
 	}
 
 	public function setRuta($unaRuta){
@@ -72,19 +72,19 @@ class ViewcierreFinal{
   function conflictStudents(){
 
       //traer listado de todos los estudiantes con el respectivo grado
-      $cadenaSql = $this->sql->cadenaSql("estudiantes","");
+      $cadenaSql = $this->sql->get("estudiantes","");
       $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       $e=0;
       while(isset($estudiantes[$e][0])){
 
-        $cadenaSql = $this->sql->cadenaSql("notasFinalesFueradelGrado",$estudiantes[$e]);
+        $cadenaSql = $this->sql->get("notasFinalesFueradelGrado",$estudiantes[$e]);
         $notasFinales = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($notasFinales)){
 
           $n=0;
           while(isset($notasFinales[$n][0])) {
-            $cadenaSql = $this->sql->cadenaSql("inactivarNotaFinal",$notasFinales[$n]['IDNOTA']);
+            $cadenaSql = $this->sql->get("inactivarNotaFinal",$notasFinales[$n]['IDNOTA']);
             $result = $this->resource->execute($cadenaSql,"");
             $n++;
           }
@@ -106,19 +106,19 @@ class ViewcierreFinal{
 			$sedes = $this->controlAcceso->getSedes();
 
 		//Consulto el listado de estudiantes organizados por curso
-			$cadenaSql = $this->sql->cadenaSql("estudiantes","");
+			$cadenaSql = $this->sql->get("estudiantes","");
       $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
-      $estudiantes = $this->organizador->orderMultiKeyBy($estudiantes,"IDCURSO");
+      $estudiantes = $this->sorter->orderMultiKeyBy($estudiantes,"IDCURSO");
 
     //Consulto el listado de competencias organizados por grado
-			$cadenaSql = $this->sql->cadenaSql("competencias","");
+			$cadenaSql = $this->sql->get("competencias","");
       $competencias = $this->resource->execute($cadenaSql,"busqueda");
-      $competencias = $this->organizador->orderMultiKeyBy($competencias,"IDGRADO");
+      $competencias = $this->sorter->orderMultiKeyBy($competencias,"IDGRADO");
 
     //Traer listado de cursos sin cerrar
-      $cadenaSql = $this->sql->cadenaSql("cursosCerrados",$this->activeYear);
+      $cadenaSql = $this->sql->get("cursosCerrados",$this->activeYear);
       $cursosCerrados = $this->resource->execute($cadenaSql,"busqueda");
-      $cursosCerrados = $this->organizador->orderMultiKeyBy($cursosCerrados,"IDCURSO");
+      $cursosCerrados = $this->sorter->orderMultiKeyBy($cursosCerrados,"IDCURSO");
 
     //Se asume que un curso esta asociado a un unico grado y una unica sede
     // Listado de notas finales por curso y estudiante
@@ -135,12 +135,12 @@ class ViewcierreFinal{
           $estudiantesPendientes = 0;
           $estudiantesAlDia      = 0;
 
-        	$cadenaSql = $this->sql->cadenaSql("notasFinalesPorCurso",$idcourse);
+        	$cadenaSql = $this->sql->get("notasFinalesPorCurso",$idcourse);
           $notas = $this->resource->execute($cadenaSql,"busqueda");
 
           if(is_array($notas)) {
 
-           $notas = $this->organizador->orderMultiTwoKeyBy($notas,"IDCURSO","ESTUDIANTE");
+           $notas = $this->sorter->orderMultiTwoKeyBy($notas,"IDCURSO","ESTUDIANTE");
 
             foreach($notas[$idcourse] as $idestudiante => $notasestudiante) {
 

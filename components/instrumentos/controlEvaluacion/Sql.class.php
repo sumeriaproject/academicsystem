@@ -15,10 +15,10 @@ class SqlcontrolEvaluacion extends sql {
 		$this->context=Context::singleton();
 	}
 
-	function cadenaSql($tipo,$variable="") {
+	function get($tipo,$variable="") {
 
 		$prefijo=$this->context->getVariable("prefijo");
-		$idSesion=$this->context->getVariable("id_sesion");
+		$sessionId=$this->context->getVariable("id_sesion");
 		$anioActivo = $this->context->getVariable("anio");
 
 		if($anioActivo == $this->activeYear) {

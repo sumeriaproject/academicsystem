@@ -18,7 +18,7 @@ if (!isset($GLOBALS["autorizado"])) {
             $this->mensaje['error'][] = "- El numero de identificacion es obligatorio";
         }
         
-        $cadena_sql = $this->sql->cadena_sql("searchUserByIdandUser", $_REQUEST);
+        $cadena_sql = $this->sql->get("searchUserByIdandUser", $_REQUEST);
         $registro   = $this->resource->execute($cadena_sql, "busqueda");
         
         if (is_array($registro)) {
@@ -26,7 +26,7 @@ if (!isset($GLOBALS["autorizado"])) {
         }
         
         if ($password <> "") {
-            if ($this->miInspectorHTML->minMaxRange(5, 25, $password)) {
+            if ($this->inspector->minMaxRange(5, 25, $password)) {
                 $this->mensaje['error'][] = "- La clave debe tener entre 5 y 25 caracteres";
             }
             if ($password != $confirm_pass) {
@@ -36,15 +36,15 @@ if (!isset($GLOBALS["autorizado"])) {
         //End data validation
         if (count($this->mensaje['error']) == 0) {
             
-            $cadena_sql = $this->sql->cadena_sql("actualizarRegistro", $_REQUEST);
+            $cadena_sql = $this->sql->get("actualizarRegistro", $_REQUEST);
             $result     = $this->resource->execute($cadena_sql, "");
             
-            $cadena_sql = $this->sql->cadena_sql("EliminarSubsistema", $id);
+            $cadena_sql = $this->sql->get("EliminarSubsistema", $id);
             $result     = $this->resource->execute($cadena_sql, "");
             
             if (is_array($_POST["role"])) {
                 foreach ($_POST["role"] as $name => $value) {
-                    $cadena_sql = $this->sql->cadena_sql("insertarSubsistema", array(
+                    $cadena_sql = $this->sql->get("insertarSubsistema", array(
                         "id" => $id,
                         "subsistema" => $value
                     ));
@@ -52,12 +52,12 @@ if (!isset($GLOBALS["autorizado"])) {
                 }
             }
             
-            $cadena_sql = $this->sql->cadena_sql("EliminarCursos", $id);
+            $cadena_sql = $this->sql->get("EliminarCursos", $id);
             $result     = $this->resource->execute($cadena_sql, "");
             
             if (is_array($_POST["course"])) {
                 foreach ($_POST["course"] as $name => $value) {
-                    $cadena_sql = $this->sql->cadena_sql("insertarCurso", array(
+                    $cadena_sql = $this->sql->get("insertarCurso", array(
                         "id" => $id,
                         "curso" => $value
                     ));

@@ -22,15 +22,15 @@ class ViewcontrolEvaluacion{
 
 	function __construct(){
 		$this->context  = Context::singleton();
-		$this->miSesion        = Sesion::singleton();
+		$this->session        = Sesion::singleton();
 		$this->resource     = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->enlace          = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->idSesion        = $this->miSesion->getValorSesion('idUsuario');
+		$this->sessionId        = $this->session->getValue('idUsuario');
 		$this->controlAcceso   = new controlAcceso();
 		$this->calendario      = new Calendario();
 		$this->sorter     = orderArray::singleton();
-		$this->controlAcceso->usuario = $this->idSesion;
-		$this->controlAcceso->rol     = $this->miSesion->getValorSesion('rol');
+		$this->controlAcceso->usuario = $this->sessionId;
+		$this->controlAcceso->rol     = $this->session->getValue('rol');
 	}
 
 	public function setRuta($unaRuta)
@@ -84,25 +84,25 @@ class ViewcontrolEvaluacion{
 	{
 
 		//2. Consulto la competencia
-		$cadenaSql   = $this->sql->cadenaSql("competenciaByID",$_REQUEST['competencia']);
+		$cadenaSql   = $this->sql->get("competenciaByID",$_REQUEST['competencia']);
 		$competencia = $this->resource->execute($cadenaSql,"busqueda");
 		$competencia = $competencia[0];
 
 		//1.Consultar nombres Sede, Curso, Area
-		$cadenaSql = $this->sql->cadenaSql("sedeByID",$_REQUEST['sede']);
+		$cadenaSql = $this->sql->get("sedeByID",$_REQUEST['sede']);
 		$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
 		$sedeByID  = $sedeByID[0];
 
-		$cadenaSql = $this->sql->cadenaSql("cursoByID",$_REQUEST['curso']);
+		$cadenaSql = $this->sql->get("cursoByID",$_REQUEST['curso']);
 		$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
 		$cursoByID = $cursoByID[0];
 
-		$cadenaSql = $this->sql->cadenaSql("areaByID",$competencia['ID_AREA']);
+		$cadenaSql = $this->sql->get("areaByID",$competencia['ID_AREA']);
 		$areaByID  = $this->resource->execute($cadenaSql,"busqueda");
 		$areaByID  = $areaByID[0];
 
 		//3. Consulto los estudiantes que pertenecen al curso
-		$cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$_REQUEST['curso']);
+		$cadenaSql = $this->sql->get("estudiantesPorCurso",$_REQUEST['curso']);
 		$estudiantesPorCurso = $this->resource->execute($cadenaSql,"busqueda");
 
 	    $formSaraDataXML  = "action=controlEvaluacion";
@@ -125,19 +125,19 @@ class ViewcontrolEvaluacion{
 		{
 			case 'CRITERIOS':
 				//4. Consulto los criterios de evaluacion para el area a la que pertenece la competencia
-				$cadenaSql = $this->sql->cadenaSql("criteriosPorCompetencia",$_REQUEST['competencia']);
+				$cadenaSql = $this->sql->get("criteriosPorCompetencia",$_REQUEST['competencia']);
 				$criteriosPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 
 				//4.1 Agrupo los criterios por grupo
 				$criteriosPorCompetencia = $this->sorter->orderMultiKeyBy($criteriosPorCompetencia,"GRUPO");
 
 				//5. Consulto las notas parciales de los estudiantes correspondientes a los criterios
-				$cadenaSql  = $this->sql->cadenaSql("notasPorCompetencia",$_REQUEST);
+				$cadenaSql  = $this->sql->get("notasPorCompetencia",$_REQUEST);
 				$notasPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$notasPorCompetencia = $this->sorter->orderTwoKeyBy($notasPorCompetencia,"ESTUDIANTE","CRITERIO");
 
 				//6. Consulto las notas finales de los estudiantes correspondientes a los criterios
-				$cadenaSql = $this->sql->cadenaSql("notasFinalesCriteriosPorCompetencia",$_REQUEST);
+				$cadenaSql = $this->sql->get("notasFinalesCriteriosPorCompetencia",$_REQUEST);
 				$notasFinalesPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$notasFinalesPorCompetencia = $this->sorter->orderKeyBy($notasFinalesPorCompetencia,"ESTUDIANTE");
 
@@ -157,12 +157,12 @@ class ViewcontrolEvaluacion{
 			break;
 			case 'CUALITATIVA':
 
-				$cadenaSql = $this->sql->cadenaSql("cualitativasPorCompetencia",$_REQUEST['competencia']);
+				$cadenaSql = $this->sql->get("cualitativasPorCompetencia",$_REQUEST['competencia']);
 				$cualitativasPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$cualitativasPorCompetencia = $this->sorter->orderKeyBy($cualitativasPorCompetencia,"ID");
 
 				//Consulto las notas finales de los estudiantes correspondientes a las cualitativas
-				$cadenaSql  = $this->sql->cadenaSql("notasFinalesCualitativasPorCompetencia",$_REQUEST);
+				$cadenaSql  = $this->sql->get("notasFinalesCualitativasPorCompetencia",$_REQUEST);
 				$notasPorCompetencia = $this->resource->execute($cadenaSql,"busqueda");
 				$notasPorCompetencia = $this->sorter->orderKeyBy($notasPorCompetencia,"ESTUDIANTE");
 
@@ -203,7 +203,7 @@ class ViewcontrolEvaluacion{
 		//3.Consulto el curso asociado a la sede y grado, inicialmente solo existe un curso para cada grado y sede
 		//  por consiguiente la consulta solo debe arrojar un registro.
 
-		$cadenaSql = $this->sql->cadenaSql("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
+		$cadenaSql = $this->sql->get("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
 		$cursos    =$this->resource->execute($cadenaSql,"busqueda");
 		$id_curso  = $cursos[0]['ID'];
 
@@ -215,11 +215,11 @@ class ViewcontrolEvaluacion{
 		}*/
 
 		//4.Consulto el listado de areas para el grado actual
-		$cadenaSql = $this->sql->cadenaSql("areas",$id_grado);
+		$cadenaSql = $this->sql->get("areas",$id_grado);
 		$areas     = $this->resource->execute($cadenaSql,"busqueda");
 
 		//5.Rescato el listado de competencias para el grado actual
-		$cadenaSql    = $this->sql->cadenaSql("competencias",$id_grado);
+		$cadenaSql    = $this->sql->get("competencias",$id_grado);
 		$competencias = $this->resource->execute($cadenaSql,"busqueda");
 		$competenciasPorArea = $this->orderArrayMultiKeyBy($competencias,"ID_AREA");
 
@@ -250,11 +250,11 @@ class ViewcontrolEvaluacion{
 
 	function showNew(){
 
-		$cadenaSql=$this->sql->cadenaSql("grados");
+		$cadenaSql=$this->sql->get("grados");
 		$grados=$this->resource->execute($cadenaSql,"busqueda");
 
 		$id_grado="2"; //corregir esto para q las areas correspondan al grado
-		$cadenaSql=$this->sql->cadenaSql("areas",$id_grado);
+		$cadenaSql=$this->sql->get("areas",$id_grado);
 		$areas=$this->resource->execute($cadenaSql,"busqueda");
 
 		$formSaraDataAction="bloque=controlEvaluacion";

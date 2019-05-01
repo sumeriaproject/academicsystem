@@ -9,7 +9,7 @@ class Calendario{
 
 	public function __construct(){
 		$this->context=Context::singleton();
-		$this->organizador=orderArray::singleton();
+		$this->sorter=orderArray::singleton();
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->prefijo=$this->context->getVariable("prefijo");
 	}

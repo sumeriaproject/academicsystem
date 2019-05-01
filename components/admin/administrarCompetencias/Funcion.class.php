@@ -7,7 +7,7 @@ if(!isset($GLOBALS["autorizado"]))
 
 include_once("core/auth/Sesion.class.php");
 include_once("core/manager/Context.class.php");
-include_once("core/builder/InspectorHTML.class.php");
+include_once("core/builder/Inspector.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
 include_once("plugin/mail/class.phpmailer.php");
@@ -27,7 +27,7 @@ class FuncionadministrarCompetencias
 	var $lenguaje;
 	var $ruta;
 	var $context;
-	var $miInspectorHTML;
+	var $inspector;
 	var $error;
 	var $resource;
 	var $crypto;
@@ -58,7 +58,7 @@ class FuncionadministrarCompetencias
 	function action()
 	{
 		$excluir  = "";
-		$_REQUEST = $this->miInspectorHTML->limpiarPHPHTML($_REQUEST);
+		$_REQUEST = $this->inspector->cleanPHPHTML($_REQUEST);
 		$option   = isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 		
 		switch($option){
@@ -113,9 +113,9 @@ class FuncionadministrarCompetencias
 	{
 		
 		$this->context = Context::singleton();
-		$this->miSesion       = Sesion::singleton();
-		$this->idSesion       = $this->miSesion->getValorSesion('idUsuario');
-		$this->miInspectorHTML = InspectorHTML::singleton();
+		$this->session       = Sesion::singleton();
+		$this->sessionId       = $this->session->getValue('idUsuario');
+		$this->inspector = Inspector::singleton();
 		$this->ruta   = $this->context->getVariable("rutaBloque");		
 		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
 		$conexion = "aplicativo";

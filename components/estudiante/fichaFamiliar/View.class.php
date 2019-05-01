@@ -20,9 +20,9 @@ class ViewfichaFamiliar{
 		$this->context=Context::singleton();
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->miSesion=Sesion::singleton();
-		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
-		if($this->idSesion==""){
+		$this->session=Sesion::singleton();
+		$this->sessionId=$this->session->getValue('idUsuario');
+		if($this->sessionId==""){
 			echo "<br/><br/>***********Sesion cerrada**********<br/>";
 		}
 		
@@ -117,10 +117,10 @@ class ViewfichaFamiliar{
 	*/
 	function companyByUser(){
 
-		$cadena_sql=$this->sql->cadena_sql("companyByUser",$this->idSesion);
+		$cadena_sql=$this->sql->get("companyByUser",$this->sessionId);
 		$result=$this->resource->execute($cadena_sql,"busqueda");
 
-		$cadena_sql=$this->sql->cadena_sql("companyListAll");
+		$cadena_sql=$this->sql->get("companyListAll");
 		$allCompanies=$this->resource->execute($cadena_sql,"busqueda");
 
 
@@ -141,7 +141,7 @@ class ViewfichaFamiliar{
 
 	function companyByParent($parent,$allCompanies) {
 		
-		/*$cadena_sql=$this->sql->cadena_sql("companyList",$parent);
+		/*$cadena_sql=$this->sql->get("companyList",$parent);
 		$result=$this->resource->execute($cadena_sql,"busqueda");*/
 		$allCompaniesOrderByParent=$this->orderArrayKeyBy($allCompanies,"IDPARENT");
 
@@ -186,7 +186,7 @@ class ViewfichaFamiliar{
 			break;
 		}
 
-		$cadena_sql=$this->sql->cadena_sql("commerceFilterList",$idcommerce);
+		$cadena_sql=$this->sql->get("commerceFilterList",$idcommerce);
 		$commerce=$this->resource->execute($cadena_sql,"busqueda");
  		$commerce=$this->orderArrayKeyBy($commerce,"IDOPTION");
 
@@ -219,14 +219,14 @@ class ViewfichaFamiliar{
 
 	function showEdit($id){
 
-		$cadena_sql=$this->sql->cadena_sql("companyListbyID",$id);
+		$cadena_sql=$this->sql->get("companyListbyID",$id);
 		$company=$this->resource->execute($cadena_sql,"busqueda");
 		$company=$company[0];
 
-		$cadena_sql=$this->sql->cadena_sql("commerceListbyCompany",$id);
+		$cadena_sql=$this->sql->get("commerceListbyCompany",$id);
 		$commerce=$this->resource->execute($cadena_sql,"busqueda");
 		
-		$cadena_sql=$this->sql->cadena_sql("categoryListCommerce");
+		$cadena_sql=$this->sql->get("categoryListCommerce");
 		$categoryListCommerce=$this->resource->execute($cadena_sql,"busqueda");		
 		
 
@@ -247,7 +247,7 @@ class ViewfichaFamiliar{
 
 	function showView($id){
 
-		$cadena_sql=$this->sql->cadena_sql("companyListbyID",$id);
+		$cadena_sql=$this->sql->get("companyListbyID",$id);
 		$company=$this->resource->execute($cadena_sql,"busqueda");
 		$company=$company[0];
 
@@ -257,7 +257,7 @@ class ViewfichaFamiliar{
 
 	function showList(){
 
-		$cadena_sql=$this->sql->cadena_sql("companyListbyID",implode(",",$this->companies));
+		$cadena_sql=$this->sql->get("companyListbyID",implode(",",$this->companies));
 		$companyList=$this->resource->execute($cadena_sql,"busqueda");
 
 		include_once($this->ruta."/html/list.php");
@@ -265,10 +265,10 @@ class ViewfichaFamiliar{
 
 	function showNew(){
 
-		$cadena_sql=$this->sql->cadena_sql("companyList");
+		$cadena_sql=$this->sql->get("companyList");
 		$companyList=$this->resource->execute($cadena_sql,"busqueda");
 
-		$cadena_sql=$this->sql->cadena_sql("roleList");
+		$cadena_sql=$this->sql->get("roleList");
 		$roleList=$this->resource->execute($cadena_sql,"busqueda");
 
 		$formSaraData="bloque=userManagement";

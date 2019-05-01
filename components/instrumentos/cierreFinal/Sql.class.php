@@ -21,7 +21,7 @@ class SqlcierreFinal extends sql {
 	}
 
 
-	function cadenaSql($tipo,$variable="") {
+	function get($tipo,$variable="") {
 
     $anioActivo = $this->context->getVariable("anio");
     
@@ -37,7 +37,7 @@ class SqlcierreFinal extends sql {
 		 */
 
 		$prefijo=$this->context->getVariable("prefijo");
-		$idSesion=$this->context->getVariable("id_sesion");
+		$sessionId=$this->context->getVariable("id_sesion");
 
 		switch($tipo) {
 

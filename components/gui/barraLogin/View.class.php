@@ -14,7 +14,7 @@ class ViewbarraLogin{
 	function __construct()
 	{
 		$conexion="aplicativo";
-		$this->miSesion=Sesion::singleton();
+		$this->session=Sesion::singleton();
 		$this->context=Context::singleton();
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB($conexion);		
 	}
@@ -52,12 +52,12 @@ class ViewbarraLogin{
 	{
 		$this->ruta=$this->context->getVariable("rutaBloque");
 
-		if($this->miSesion->getValorSesion('idUsuario')<>"" && $this->miSesion->getValorSesion('rol')<>"0"){
+		if($this->session->getValue('idUsuario')<>"" && $this->session->getValue('rol')<>"0"){
 		  
       include_once($this->ruta."formulario/account.php");
-      $variable['usuario']=$this->miSesion->getValorSesion('idUsuario');
+      $variable['usuario']=$this->session->getValue('idUsuario');
 
-			$cadena_sql=$this->sql->cadena_sql("buscarIndexUsuario",$variable);
+			$cadena_sql=$this->sql->get("buscarIndexUsuario",$variable);
 			$registro=$this->resource->execute($cadena_sql,"busqueda");
       
       if(!is_array($registro)){

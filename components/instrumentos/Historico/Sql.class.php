@@ -22,7 +22,7 @@ class SqlHistorico extends sql {
 	}
 
 
-	function cadenaSql($tipo,$variable="",$anio="") {
+	function get($tipo,$variable="",$anio="") {
 
 		/**
 		 * 1. Revisar las variables para evitar SQL Injection
@@ -30,7 +30,7 @@ class SqlHistorico extends sql {
 		 */
 
 		$prefijo=$this->context->getVariable("prefijo");
-		$idSesion=$this->context->getVariable("id_sesion");
+		$sessionId=$this->context->getVariable("id_sesion");
     	$sufijo = "_".$anio;  
 
 		switch($tipo) {

@@ -5,10 +5,10 @@ if(!isset($GLOBALS["autorizado"]))
 	exit;
 }else{
 
-	$cadena_sql=$this->sql->cadena_sql("deleteDataCompany",$_REQUEST);
+	$cadena_sql=$this->sql->get("deleteDataCompany",$_REQUEST);
 	$result=$this->resource->execute($cadena_sql,"");
 
-	$cadena_sql=$this->sql->cadena_sql("deleteDataCommmerce",$_REQUEST);
+	$cadena_sql=$this->sql->get("deleteDataCommmerce",$_REQUEST);
 	$result=$this->resource->execute($cadena_sql,"");
 	
 	//pendiente log 

@@ -22,7 +22,7 @@ class SqlNavigation extends sql {
 	}
 	
 
-	function cadena_sql($tipo,$variable="") {
+	function get($tipo,$variable="") {
 		 
 		/**
 		 * 1. Revisar las variables para evitar SQL Injection
@@ -30,7 +30,7 @@ class SqlNavigation extends sql {
 		 */
 		
 		$prefijo=$this->context->getVariable("prefijo");
-		$idSesion=$this->context->getVariable("id_sesion");
+		$sessionId=$this->context->getVariable("id_sesion");
 		 
 		switch($tipo) {
 			 

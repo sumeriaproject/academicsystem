@@ -14,10 +14,10 @@ class ViewadministrarCompetencias{
 	
 	function __construct(){
 		$this->context=Context::singleton();
-		$this->miSesion=Sesion::singleton();
+		$this->session=Sesion::singleton();
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->enlace=$this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->idSesion=$this->miSesion->getValorSesion('idUsuario');
+		$this->sessionId=$this->session->getValue('idUsuario');
 	}
 
 	public function setRuta($unaRuta){
@@ -65,19 +65,19 @@ class ViewadministrarCompetencias{
 	
 	function showEdit($id) 
 	{ 
-		$cadena_sql  = $this->sql->cadena_sql("competenciaByID",$id);
+		$cadena_sql  = $this->sql->get("competenciaByID",$id);
 		$competencia = $this->resource->execute($cadena_sql,"busqueda");
 		$competencia = $competencia[0];
 		 
-		$cadena_sql = $this->sql->cadena_sql("grados");
+		$cadena_sql = $this->sql->get("grados");
 		$grados = $this->resource->execute($cadena_sql,"busqueda");
 		
 		$id_grado = "1"; //corregir esto para q las areas correspondan al grado  
-		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
+		$cadena_sql = $this->sql->get("areas",$id_grado);
 		$areas = $this->resource->execute($cadena_sql,"busqueda");
 
 		$id_grado = "2"; //corregir esto para q las areas correspondan al grado  
-		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
+		$cadena_sql = $this->sql->get("areas",$id_grado);
 		$areas2 = $this->resource->execute($cadena_sql,"busqueda");
 
 		$areas = array_merge($areas,$areas2);
@@ -105,16 +105,16 @@ class ViewadministrarCompetencias{
 	
 	function showList($id_grado){
 		
-		$cadena_sql=$this->sql->cadena_sql("grados");
+		$cadena_sql=$this->sql->get("grados");
 		$grados=$this->resource->execute($cadena_sql,"busqueda");		
 		$grados=$this->orderArrayKeyBy($grados,"ID");		
 		
 		//rescato el listado de areas para el grado actual
-		$cadena_sql=$this->sql->cadena_sql("areas",$id_grado);
+		$cadena_sql=$this->sql->get("areas",$id_grado);
 		$areas=$this->resource->execute($cadena_sql,"busqueda");
 		
 		//rescato el listado de competencias para el grado actual
-		$cadena_sql = $this->sql->cadena_sql("competencias",$id_grado);
+		$cadena_sql = $this->sql->get("competencias",$id_grado);
 		$competencias = $this->resource->execute($cadena_sql,"busqueda");
 		$competenciasPorArea = $this->orderArrayMultiKeyBy($competencias,"ID_AREA");
 
@@ -145,15 +145,15 @@ class ViewadministrarCompetencias{
 
 	function showNew(){
 		
-		$cadena_sql=$this->sql->cadena_sql("grados");
+		$cadena_sql=$this->sql->get("grados");
 		$grados=$this->resource->execute($cadena_sql,"busqueda");
 		
 		$id_grado = "1"; //corregir esto para q las areas correspondan al grado  
-		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
+		$cadena_sql = $this->sql->get("areas",$id_grado);
 		$areas = $this->resource->execute($cadena_sql,"busqueda");
 
 		$id_grado = "2"; //corregir esto para q las areas correspondan al grado  
-		$cadena_sql = $this->sql->cadena_sql("areas",$id_grado);
+		$cadena_sql = $this->sql->get("areas",$id_grado);
 		$areas2 = $this->resource->execute($cadena_sql,"busqueda");
 
 		$areas = array_merge($areas,$areas2);

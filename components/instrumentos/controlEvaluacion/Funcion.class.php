@@ -6,7 +6,7 @@ if(!isset($GLOBALS["autorizado"])){
 
 include_once("core/auth/Sesion.class.php");
 include_once("core/manager/Context.class.php");
-include_once("core/builder/InspectorHTML.class.php");
+include_once("core/builder/Inspector.class.php");
 include_once("core/builder/Mensaje.class.php");
 include_once("core/crypto/Encriptador.class.php");
 include_once("class/Array.class.php");
@@ -21,7 +21,7 @@ class FuncioncontrolEvaluacion
 	var $lenguaje;
 	var $ruta;
 	var $context;
-	var $miInspectorHTML;
+	var $inspector;
 	var $error;
 	var $resource;
 	var $crypto;
@@ -31,9 +31,9 @@ class FuncioncontrolEvaluacion
     function __construct()
     {
         $this->context = Context::singleton();
-        $this->miSesion = Sesion::singleton();
-        $this->idSesion = $this->miSesion->getValorSesion('idUsuario');
-        $this->miInspectorHTML=InspectorHTML::singleton();
+        $this->session = Sesion::singleton();
+        $this->sessionId = $this->session->getValue('idUsuario');
+        $this->inspector=Inspector::singleton();
         $this->ruta = $this->context->getVariable("rutaBloque");
         $this->miMensaje = Mensaje::singleton();
         $this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
@@ -47,11 +47,11 @@ class FuncioncontrolEvaluacion
     	$respuesta = new StdClass();
         $variable['nota'] = str_replace(",",".",$variable['nota']);
         $variable['nota'] = filter_var($variable['nota'],FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
-        $variable['usuario'] = $this->idSesion;
+        $variable['usuario'] = $this->sessionId;
 
         //0. Consultar desempenio competencia anterior
         //a. Seleccionar todas las competencias con un identificador menor al actual
-        $cadenaSql = $this->sql->cadenaSql("competenciasAnteriores",$variable);
+        $cadenaSql = $this->sql->get("competenciasAnteriores",$variable);
     	$competenciasAnteriores = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($competenciasAnteriores)){
@@ -60,7 +60,7 @@ class FuncioncontrolEvaluacion
             $variable_tmp['competencia'] = $competenciasAnteriores[$ca]['ID'];
             $variable_tmp['estudiante'] = $variable['estudiante'];
 
-            $cadenaSql = $this->sql->cadenaSql("notaFinal",$variable_tmp);
+            $cadenaSql = $this->sql->get("notaFinal",$variable_tmp);
             $nota = $this->resource->execute($cadenaSql,"busqueda");
 
             if(!is_array($nota) || $nota[0]['DESEMPENIO']=="" ){
@@ -79,18 +79,18 @@ class FuncioncontrolEvaluacion
 		}
 
 		//2. Consultar si la nota existe
-		$cadenaSql = $this->sql->cadenaSql("notaPorCriterio",$variable);
+		$cadenaSql = $this->sql->get("notaPorCriterio",$variable);
 		$notaPorCriterio = $this->resource->execute($cadenaSql,"busqueda");
 
 		//3. Si ya existe, actualizarNota
 		if(is_array($notaPorCriterio)){
-			$cadenaSql = $this->sql->cadenaSql("actualizarNotaCriterio",$variable);
+			$cadenaSql = $this->sql->get("actualizarNotaCriterio",$variable);
 			$notaPorCriterio = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
 		}
 		//4. Si no existe insertar
 		else{
-			$cadenaSql = $this->sql->cadenaSql("insertarNotaCriterio",$variable);
+			$cadenaSql = $this->sql->get("insertarNotaCriterio",$variable);
 			$notaPorCriterio = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
 		}
@@ -101,21 +101,21 @@ class FuncioncontrolEvaluacion
     {
         $respuesta = new StdClass();
 
-        $variable['usuario'] = $this->idSesion;
+        $variable['usuario'] = $this->sessionId;
 
         //Consultar si la nota existe
-        $cadenaSql = $this->sql->cadenaSql("notaPorCualitativa",$variable);
+        $cadenaSql = $this->sql->get("notaPorCualitativa",$variable);
         $notaPorCualitativa = $this->resource->execute($cadenaSql,"busqueda");
 
         //Si ya existe, actualizarNota
         if(is_array($notaPorCualitativa)){
-            $cadenaSql = $this->sql->cadenaSql("actualizarNotaCualitativa",$variable);
+            $cadenaSql = $this->sql->get("actualizarNotaCualitativa",$variable);
             $notaPorCualitativa = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
         }
         //Si no existe insertar
         else{
-            $cadenaSql = $this->sql->cadenaSql("insertarNotaCualitativa",$variable);
+            $cadenaSql = $this->sql->get("insertarNotaCualitativa",$variable);
             $notaPorCualitativa = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
         }
@@ -153,13 +153,13 @@ class FuncioncontrolEvaluacion
 
 			//5.1 Para poder calcular la sumatoria, todos los criterios deben tener la correspondiente nota
 
-			$cadenaSql= $this->sql->cadenaSql("criteriosPorCompetencia",$competencia);
+			$cadenaSql= $this->sql->get("criteriosPorCompetencia",$competencia);
 			$criteriosPorCompetencia= $this->resource->execute($cadenaSql,"busqueda");
 
 			$variable['competencia']= $competencia;
 			$variable['estudiante']= $estudiante;
 
-			$cadenaSql= $this->sql->cadenaSql("notasPorEstudianteyCompetencia",$variable);
+			$cadenaSql= $this->sql->get("notasPorEstudianteyCompetencia",$variable);
 			$notasPorEstudianteyCompetencia= $this->resource->execute($cadenaSql,"busqueda");
 			$notasPorEstudianteyCompetencia= $this->sorter->orderKeyBy($notasPorEstudianteyCompetencia,"CRITERIO");
 
@@ -203,15 +203,15 @@ class FuncioncontrolEvaluacion
         $variable['nota_final'] = $respuesta->notaFinal;
         $variable['nota_porcentual'] = $respuesta->notaFinalPorcentaje;
 
-        $cadenaSql = $this->sql->cadenaSql("notaFinal",$variable);
+        $cadenaSql = $this->sql->get("notaFinal",$variable);
         $notaFinal = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($notaFinal)){
             $variable['id_nota_final'] = $notaFinal[0]['ID'];
-            $cadenaSql = $this->sql->cadenaSql("actualizarNotaFinal",$variable);
+            $cadenaSql = $this->sql->get("actualizarNotaFinal",$variable);
             $notaFinal = $this->resource->execute($cadenaSql,"");
         }else{
-            $cadenaSql = $this->sql->cadenaSql("insertarNotaFinal",$variable);
+            $cadenaSql = $this->sql->get("insertarNotaFinal",$variable);
             $notaFinal = $this->resource->execute($cadenaSql,"");
         }
 
@@ -224,7 +224,7 @@ class FuncioncontrolEvaluacion
 		//Evitar que se ingrese codigo HTML y PHP en los campos de texto
 		//Campos que se quieren excluir de la limpieza de código. Formato: nombreCampo1|nombreCampo2|nombreCampo3
 		$excluir="";
-		$_REQUEST= $this->miInspectorHTML->limpiarPHPHTML($_REQUEST);
+		$_REQUEST= $this->inspector->cleanPHPHTML($_REQUEST);
 
 		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 
@@ -300,31 +300,31 @@ class FuncioncontrolEvaluacion
 
 	public function showPDFCompetencias($variable)
     {
-        $cadenaSql = $this->sql->cadenaSql("sedeByID",$variable['sede']);
+        $cadenaSql = $this->sql->get("sedeByID",$variable['sede']);
     	$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
     	$sedeByID  = $sedeByID[0];
 
-        $cadenaSql = $this->sql->cadenaSql("cursoByID",$_REQUEST['curso']);
+        $cadenaSql = $this->sql->get("cursoByID",$_REQUEST['curso']);
     	$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
     	$cursoByID = $cursoByID[0];
 
-        $cadenaSql = $this->sql->cadenaSql("estudiantesPorCurso",$variable['curso']);
+        $cadenaSql = $this->sql->get("estudiantesPorCurso",$variable['curso']);
         $estudiantesPorCurso = $this->resource->execute($cadenaSql,"busqueda");
 
-        $cadenaSql = $this->sql->cadenaSql("notasCriteroPorCurso",$variable['curso']);
+        $cadenaSql = $this->sql->get("notasCriteroPorCurso",$variable['curso']);
         $notasPorCurso = $this->resource->execute($cadenaSql,"busqueda");
         $notasPorCurso = $this->sorter->orderTwoKeyBy($notasPorCurso,"ESTUDIANTE","COMPETENCIA");       
         
-        $cadenaSql = $this->sql->cadenaSql("notasDefinitivasPorCurso",$variable['curso']);
+        $cadenaSql = $this->sql->get("notasDefinitivasPorCurso",$variable['curso']);
         $notasDefinitivas = $this->resource->execute($cadenaSql,"busqueda");
         $notasDefinitivas = $this->sorter->orderTwoKeyBy($notasDefinitivas,"ESTUDIANTE","AREA");
 
-        $cadenaSql = $this->sql->cadenaSql("competencias",$variable['grado']);
+        $cadenaSql = $this->sql->get("competencias",$variable['grado']);
     	$competencias = $this->resource->execute($cadenaSql,"busqueda");
     	$competenciasPorArea = $this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
 
         //Consulto el listado de areas para el grado actual
-        $cadenaSql = $this->sql->cadenaSql("areas",$variable['grado']);
+        $cadenaSql = $this->sql->get("areas",$variable['grado']);
         $areas = $this->resource->execute($cadenaSql,"busqueda");
         $areas = $this->sorter->orderKeyBy($areas,"ID");
 
@@ -337,7 +337,7 @@ class FuncioncontrolEvaluacion
             break;
             case 'CUALITATIVA':
 
-                $cadenaSql = $this->sql->cadenaSql("notasCualitativaPorCurso",$variable['curso']);
+                $cadenaSql = $this->sql->get("notasCualitativaPorCurso",$variable['curso']);
                 $notasPorCurso = $this->resource->execute($cadenaSql,"busqueda");
                 $notasPorCurso = $this->sorter->orderTwoKeyBy($notasPorCurso,"ESTUDIANTE","COMPETENCIA");
                

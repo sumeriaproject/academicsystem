@@ -6,7 +6,7 @@ if (!isset($GLOBALS["autorizado"])) {
     
     if (!empty($_REQUEST)) {
         
-        $this->mensaje['error'][] = $cadena_sql = $this->sql->cadena_sql("notasByID", $id);
+        $this->mensaje['error'][] = $cadena_sql = $this->sql->get("notasByID", $id);
         $result                   = $this->resource->execute($cadena_sql, "busqueda");
         
         if (is_array($result)) {
@@ -14,18 +14,18 @@ if (!isset($GLOBALS["autorizado"])) {
             return FALSE;
         }
         
-        $cadena_sql          = $this->sql->cadena_sql("userByID", $id);
+        $cadena_sql          = $this->sql->get("userByID", $id);
         $result              = $this->resource->execute($cadena_sql, "busqueda");
-        $variable['usuario'] = $this->idSesion;
+        $variable['usuario'] = $this->sessionId;
         $variable['evento']  = json_encode(array(
             "evento" => "delete",
             "datos" => $result
         ));
         
-        $cadena_sql = $this->sql->cadena_sql("DeleteUser", $id);
+        $cadena_sql = $this->sql->get("DeleteUser", $id);
         $result     = $this->resource->execute($cadena_sql, "");
         if ($result === TRUE) {
-            $cadena_sql = $this->sql->cadena_sql("logger", $variable);
+            $cadena_sql = $this->sql->get("logger", $variable);
             $result     = $this->resource->execute($cadena_sql, "");
             $status     = TRUE;
         } else {

@@ -20,13 +20,13 @@ class ViewuserManagement
     {
         
         $this->context = Context::singleton();
-        $this->miSesion       = Sesion::singleton();
+        $this->session       = Sesion::singleton();
         $this->resource    = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
         $this->enlace         = $this->context->getVariable("host") . $this->context->getVariable("site") . "?" . $this->context->getVariable("enlace");
-        $this->idSesion       = $this->miSesion->getValorSesion('idUsuario');
-        $this->rol            = $this->miSesion->getValorSesion('rol');
+        $this->sessionId       = $this->session->getValue('idUsuario');
+        $this->rol            = $this->session->getValue('rol');
         
-        if ($this->idSesion == "") {
+        if ($this->sessionId == "") {
             $formSaraData = "action=barraLogin";
             $formSaraData .= "&bloque=barraLogin";
             $formSaraData .= "&bloqueGrupo=gui";
@@ -34,11 +34,11 @@ class ViewuserManagement
             $formSaraData = $this->context->fabricaConexiones->crypto->codificar_url($formSaraData, $this->enlace);
             echo "<script>location.replace('" . $formSaraData . "')</script>";
         }
-        $this->rol                    = $this->miSesion->getValorSesion('rol');
+        $this->rol                    = $this->session->getValue('rol');
         $this->controlAcceso          = new controlAcceso();
-        $this->controlAcceso->usuario = $this->idSesion;
+        $this->controlAcceso->usuario = $this->sessionId;
         $this->controlAcceso->rol     = $this->rol;
-        $this->organizador            = orderArray::singleton();
+        $this->sorter            = orderArray::singleton();
     }
     
     public function setRuta($unaRuta)
@@ -138,11 +138,11 @@ class ViewuserManagement
                 }
                 break;
             case "view":
-                $optionValue = isset($_REQUEST['optionValue']) ? $_REQUEST['optionValue'] : $this->idSesion;
+                $optionValue = isset($_REQUEST['optionValue']) ? $_REQUEST['optionValue'] : $this->sessionId;
                 $this->showView($optionValue);
                 break;
             case "getMunicipio":
-                echo $this->organizador->getMuncipiosColombia($_REQUEST['id']);
+                echo $this->sorter->getMuncipiosColombia($_REQUEST['id']);
                 break;
             case "printEnroll":
                 $this->printEnroll($_REQUEST['optionValue']);
@@ -152,11 +152,11 @@ class ViewuserManagement
     
     function printEnroll($id)
     {
-        $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
+        $cadena_sql   = $this->sql->get("userListByID", $id);
         $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
-        $cadena_sql     = $this->sql->cadena_sql("userEnrollByID", $id);
+        $cadena_sql     = $this->sql->get("userEnrollByID", $id);
         $userEnrollByID = $this->resource->execute($cadena_sql, "busqueda");
         $userEnrollByID = $userEnrollByID[0];
         
@@ -177,7 +177,7 @@ class ViewuserManagement
         $discapacidad['DC'] = "DEFICIENCIA COGNITIVA";
         $discapacidad['NA'] = "NO APLICA";
         
-        $departamento = $this->organizador->getDeptosColombia();
+        $departamento = $this->sorter->getDeptosColombia();
         
         $sede       = array();
         $sede['9']  = "BRISAS DE UPIN";
@@ -196,9 +196,9 @@ class ViewuserManagement
         $sede['1']  = "VILLA REINA";
         $sede['12'] = "SAN ISIDRO";
         
-        $cadena_sql  = $this->sql->cadena_sql("teacherList");
+        $cadena_sql  = $this->sql->get("teacherList");
         $teacherList = $this->resource->execute($cadena_sql, "busqueda");
-        $teacherList = $this->organizador->orderKeyBy($teacherList, 'ID');
+        $teacherList = $this->sorter->orderKeyBy($teacherList, 'ID');
         $imageFolder = $this->context->getVariable("raizDocumento").'/images/';
         
         $this->nextYear = ($this->context->getVariable("anio")) * 1 + 1;
@@ -351,23 +351,23 @@ class ViewuserManagement
     function showEdit($id, $rol)
     {
         
-        $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
+        $cadena_sql   = $this->sql->get("userListByID", $id);
         $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
-        $cadena_sql  = $this->sql->cadena_sql("espacioList");
+        $cadena_sql  = $this->sql->get("espacioList");
         $espacioList = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("sedeList");
+        $cadena_sql = $this->sql->get("sedeList");
         $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("roleList");
+        $cadena_sql = $this->sql->get("roleList");
         $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("courseList");
+        $cadena_sql = $this->sql->get("courseList");
         $courseList = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql   = $this->sql->cadena_sql("courseByUser", $id);
+        $cadena_sql   = $this->sql->get("courseByUser", $id);
         $courseByUser = $this->resource->execute($cadena_sql, "busqueda");
         $courseByUser = explode(",", $courseByUser[0]['COURSES']);
         
@@ -412,30 +412,30 @@ class ViewuserManagement
     
     function showEditEnroll($id, $rol = 3)
     {
-        $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
+        $cadena_sql   = $this->sql->get("userListByID", $id);
         $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
-        $cadena_sql     = $this->sql->cadena_sql("userEnrollByID", $id);
+        $cadena_sql     = $this->sql->get("userEnrollByID", $id);
         $userEnrollByID = $this->resource->execute($cadena_sql, "busqueda");
         $userEnrollByID = $userEnrollByID[0];
         
-        $cadena_sql  = $this->sql->cadena_sql("espacioList");
+        $cadena_sql  = $this->sql->get("espacioList");
         $espacioList = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("sedeList");
+        $cadena_sql = $this->sql->get("sedeList");
         $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql  = $this->sql->cadena_sql("teacherList");
+        $cadena_sql  = $this->sql->get("teacherList");
         $teacherList = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("roleList");
+        $cadena_sql = $this->sql->get("roleList");
         $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("courseList");
+        $cadena_sql = $this->sql->get("courseList");
         $courseList = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql   = $this->sql->cadena_sql("courseByUser", $id);
+        $cadena_sql   = $this->sql->get("courseByUser", $id);
         $courseByUser = $this->resource->execute($cadena_sql, "busqueda");
         $courseByUser = explode(",", $courseByUser[0]['COURSES']);
         
@@ -471,24 +471,24 @@ class ViewuserManagement
         $formSaraDataPrint .= "&optionValue=" . $id;
         $formSaraDataPrint = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataPrint, $this->enlace);
         
-        $departamentos = $this->organizador->getDeptosColombia();
+        $departamentos = $this->sorter->getDeptosColombia();
         
         include_once($this->ruta . "/html/editStudentEnroll.php");
     }
     
     function showView($id)
     {
-        $cadena_sql   = $this->sql->cadena_sql("userListByID", $id);
+        $cadena_sql   = $this->sql->get("userListByID", $id);
         $userDataByID = $this->resource->execute($cadena_sql, "busqueda");
         $userDataByID = $userDataByID[0];
         
-        $cadena_sql = $this->sql->cadena_sql("roleList");
+        $cadena_sql = $this->sql->get("roleList");
         $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("sedeList");
+        $cadena_sql = $this->sql->get("sedeList");
         $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql  = $this->sql->cadena_sql("espacioList");
+        $cadena_sql  = $this->sql->get("espacioList");
         $espacioList = $this->resource->execute($cadena_sql, "busqueda");
         
         $link = $this->getUrlLinksbyId($id);
@@ -498,7 +498,7 @@ class ViewuserManagement
     
     function showList($option, $rol)
     {
-        $cadena_sql = $this->sql->cadena_sql("sedeList");
+        $cadena_sql = $this->sql->get("sedeList");
         $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         $sedeList   = $this->orderArrayKeyBy($sedeList, "ID");
         
@@ -527,26 +527,26 @@ class ViewuserManagement
         $formSaraDataDelete .= "&option=processDelete";
         $formSaraDataDelete = $this->context->fabricaConexiones->crypto->codificar_url($formSaraDataDelete, $this->enlace);
         
-        $cadena_sql = $this->sql->cadena_sql("courseList");
+        $cadena_sql = $this->sql->get("courseList");
         $courseList = $this->resource->execute($cadena_sql, "busqueda");
         $courseList = $this->orderArrayKeyBy($courseList, "IDCOURSE");
         
-        $cadena_sql = $this->sql->cadena_sql("roleList");
+        $cadena_sql = $this->sql->get("roleList");
         $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         $roleList   = $this->orderArrayKeyBy($roleList, "ID");
         
         $variable['sede'] = isset($_REQUEST['sede']) ? $_REQUEST['sede'] : "";
         $variable['rol']  = isset($_REQUEST['rol']) ? $_REQUEST['rol'] : "";
         
-        $cadena_sql  = $this->sql->cadena_sql("userList", $variable);
+        $cadena_sql  = $this->sql->get("userList", $variable);
         $userAllList = $this->resource->execute($cadena_sql, "busqueda");
         $userAllList = $this->orderArrayKeyBy($userAllList, "ID");
         
-        $cadena_sql       = $this->sql->cadena_sql("UserListbyCourse");
+        $cadena_sql       = $this->sql->get("UserListbyCourse");
         $userListbyCourse = $this->resource->execute($cadena_sql, "busqueda");
         $userListbyCourse = $this->orderArrayKeyBy($userListbyCourse, "IDUSER");
         
-        $cadena_sql     = $this->sql->cadena_sql("UserListbyRole");
+        $cadena_sql     = $this->sql->get("UserListbyRole");
         $userListbyRole = $this->resource->execute($cadena_sql, "busqueda");
         $userListbyRole = $this->orderArrayMultiKeyBy($userListbyRole, "IDUSER");
         
@@ -560,9 +560,9 @@ class ViewuserManagement
         
         $access = $this->controlAcceso->getAccesoCompleto();
         
-        $cadena_sql  = $this->sql->cadena_sql("UserListWithAcces", $variable);
+        $cadena_sql  = $this->sql->get("UserListWithAcces", $variable);
         $result      = $this->resource->execute($cadena_sql, "busqueda");
-        $userAllList = $this->organizador->orderMultiTwoKeyBy($result, "SEDE_ID", "CURSO_ID");
+        $userAllList = $this->sorter->orderMultiTwoKeyBy($result, "SEDE_ID", "CURSO_ID");
         
         $formSaraDataEdit = "pagina=userManagement";
         $formSaraDataEdit .= "&bloque=userManagement";
@@ -576,26 +576,26 @@ class ViewuserManagement
     function showNew()
     {
         
-        $cadena_sql = $this->sql->cadena_sql("roleList");
+        $cadena_sql = $this->sql->get("roleList");
         $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("sedeList");
+        $cadena_sql = $this->sql->get("sedeList");
         $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("courseList");
+        $cadena_sql = $this->sql->get("courseList");
         $courseList = $this->resource->execute($cadena_sql, "busqueda");
         $courseList = $this->orderArrayMultiKeyBy($courseList, 'NAMESEDE');
         
         $s = 0;
         
         while (isset($sedeList[$s][0])) {
-            $cadena_sql = $this->sql->cadena_sql("lastIdByCourse", $sedeList[$s]['ID']);
+            $cadena_sql = $this->sql->get("lastIdByCourse", $sedeList[$s]['ID']);
             $result     = $this->resource->execute($cadena_sql, "busqueda");
 
             $lastID = $result[0][0];
             
             do {
-                $cadena_sql = $this->sql->cadena_sql("basicUserByID", $lastID);
+                $cadena_sql = $this->sql->get("basicUserByID", $lastID);
                 $exist      = $this->resource->execute($cadena_sql, "busqueda");
                 
                 if (is_array($exist)) {
@@ -621,25 +621,25 @@ class ViewuserManagement
     function showNewStudent()
     {
         
-        $cadena_sql = $this->sql->cadena_sql("roleList");
+        $cadena_sql = $this->sql->get("roleList");
         $roleList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("sedeList");
+        $cadena_sql = $this->sql->get("sedeList");
         $sedeList   = $this->resource->execute($cadena_sql, "busqueda");
         
-        $cadena_sql = $this->sql->cadena_sql("courseList");
+        $cadena_sql = $this->sql->get("courseList");
         $courseList = $this->resource->execute($cadena_sql, "busqueda");
         
         $courseList = $this->orderArrayMultiKeyBy($courseList, 'NAMESEDE');
         $s          = 0;
         while (isset($sedeList[$s][0])) {
-            $cadena_sql = $this->sql->cadena_sql("lastIdByCourse", $sedeList[$s]['ID']);
+            $cadena_sql = $this->sql->get("lastIdByCourse", $sedeList[$s]['ID']);
             $result     = $this->resource->execute($cadena_sql, "busqueda");
             
             $lastID = $result[0][0];
             
             do {
-                $cadena_sql = $this->sql->cadena_sql("basicUserByID", $lastID);
+                $cadena_sql = $this->sql->get("basicUserByID", $lastID);
                 $exist      = $this->resource->execute($cadena_sql, "busqueda");
                 
                 if (is_array($exist)) {

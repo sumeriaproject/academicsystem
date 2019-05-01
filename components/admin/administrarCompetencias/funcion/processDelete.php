@@ -22,7 +22,7 @@ else
 
 		if(count($this->mensaje['error']) == 0)
 		{	
-			$cadena_sql = $this->sql->cadena_sql("eliminarCompetencia",$variable);
+			$cadena_sql = $this->sql->get("eliminarCompetencia",$variable);
 			$result     = $this->resource->execute($cadena_sql,"");
 			return $this->status=TRUE;
 		} 

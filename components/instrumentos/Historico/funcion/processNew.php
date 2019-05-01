@@ -14,7 +14,7 @@ if(!isset($GLOBALS["autorizado"]))
 		//End data validation
 		if(count($this->mensaje['error']) == 0){	
 
-			$cadena_sql=$this->sql->cadena_sql("insertarCompetencia",$_REQUEST);
+			$cadena_sql=$this->sql->get("insertarCompetencia",$_REQUEST);
 			$result=$this->resource->execute($cadena_sql,"");
 
 			return $this->status=TRUE;

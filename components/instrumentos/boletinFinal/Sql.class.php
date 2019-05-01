@@ -22,7 +22,7 @@ class SqlboletinFinal extends sql {
 	}
 
 
-	function cadenaSql($tipo,$variable="") {
+	function get($tipo,$variable="") {
 
 		/**
 		 * 1. Revisar las variables para evitar SQL Injection
@@ -30,7 +30,7 @@ class SqlboletinFinal extends sql {
 		 */
 
 		$prefijo    = $this->context->getVariable("prefijo");
-		$idSesion   = $this->context->getVariable("id_sesion");
+		$sessionId   = $this->context->getVariable("id_sesion");
 		$anioActivo = $this->context->getVariable("anio");
 
 		if($anioActivo == $this->activeYear) {

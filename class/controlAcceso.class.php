@@ -9,7 +9,7 @@ class controlAcceso{
 
 	public function __construct(){
 		$this->context=Context::singleton();
-		$this->organizador=orderArray::singleton();
+		$this->sorter=orderArray::singleton();
 		$this->resource=$this->context->fabricaConexiones->getRecursoDB("aplicativo");
 		$this->prefijo=$this->context->getVariable("prefijo");
 	}
@@ -21,20 +21,20 @@ class controlAcceso{
 
 		$cadena_sql="SELECT DISTINCT(id_grado) ID FROM {$this->prefijo}curso WHERE id_curso IN ({$cursos}) ";
 		$result=$this->resource->execute($cadena_sql,"busqueda");
-		$result=$this->organizador->orderKeyBy($result,"ID");
+		$result=$this->sorter->orderKeyBy($result,"ID");
 		
 		$grados=implode(",",array_keys($result));
 		
 		$cadena_sql="SELECT id_grado ID,nombre_numero NOMBRE FROM {$this->prefijo}grado WHERE  id_grado IN ({$grados}) AND estado<>0";
 		$result=$this->resource->execute($cadena_sql,"busqueda");
-		$result=$this->organizador->orderKeyBy($result,"ID");
+		$result=$this->sorter->orderKeyBy($result,"ID");
 		return $result;
 	}
 	
 	public function getCursosUsuario(){
 		$cadena_sql="SELECT id_curso ID FROM {$this->prefijo}usuario_curso WHERE id_usuario={$this->usuario} ";
 		$result=$this->resource->execute($cadena_sql,"busqueda");
-		$result=$this->organizador->orderKeyBy($result,"ID");
+		$result=$this->sorter->orderKeyBy($result,"ID");
 		return $result;
 	}	
   
@@ -55,7 +55,7 @@ class controlAcceso{
 	    AND uc.id_usuario = {$this->usuario} ";
 	    
 			$result=$this->resource->execute($cadena_sql,"busqueda");
-		$result=$this->organizador->orderTwoKeyBy($result,"SEDE_ID","CURSO_ID");
+		$result=$this->sorter->orderTwoKeyBy($result,"SEDE_ID","CURSO_ID");
 		return $result;
 	}
 	
@@ -66,13 +66,13 @@ class controlAcceso{
 		
 		$cadena_sql="SELECT DISTINCT(id_sede) ID FROM {$this->prefijo}curso WHERE id_curso IN ({$cursos}) ";
 		$result=$this->resource->execute($cadena_sql,"busqueda");
-		$result=$this->organizador->orderKeyBy($result,"ID");
+		$result=$this->sorter->orderKeyBy($result,"ID");
 		
 		$sedes=implode(",",array_keys($result));
 		
 		$cadena_sql="SELECT id_sede ID,nombre NOMBRE FROM {$this->prefijo}sede WHERE  id_sede IN ({$sedes}) AND estado<>0 ";
 		$result=$this->resource->execute($cadena_sql,"busqueda");
-		$result=$this->organizador->orderKeyBy($result,"ID");
+		$result=$this->sorter->orderKeyBy($result,"ID");
 		return $result;	
 	}
 }
