@@ -1,7 +1,7 @@
 <?php
 if(!isset($GLOBALS["autorizado"])){
-	include("../index.php");
-	exit;
+    include("../index.php");
+    exit;
 }
 
 include_once("core/auth/Sesion.class.php");
@@ -16,17 +16,17 @@ include_once("plugin/fpdf/fpdf.php");
 class FuncioncontrolEvaluacion
 {
 
-	var $sql;
-	var $funcion;
-	var $lenguaje;
-	var $ruta;
-	var $context;
-	var $inspector;
-	var $error;
-	var $resource;
-	var $crypto;
-	var $mensaje;
-	var $status;
+    var $sql;
+    var $funcion;
+    var $lenguaje;
+    var $ruta;
+    var $context;
+    var $inspector;
+    var $error;
+    var $resource;
+    var $crypto;
+    var $mensaje;
+    var $status;
 
     function __construct()
     {
@@ -42,9 +42,9 @@ class FuncioncontrolEvaluacion
         $this->sorter=orderArray::singleton();
     }
 
-	function procesarNotaCriterio($variable)
+    function procesarNotaCriterio($variable)
     {
-    	$respuesta = new StdClass();
+        $respuesta = new StdClass();
         $variable['nota'] = str_replace(",",".",$variable['nota']);
         $variable['nota'] = filter_var($variable['nota'],FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
         $variable['usuario'] = $this->sessionId;
@@ -52,7 +52,7 @@ class FuncioncontrolEvaluacion
         //0. Consultar desempenio competencia anterior
         //a. Seleccionar todas las competencias con un identificador menor al actual
         $cadenaSql = $this->sql->get("competenciasAnteriores",$variable);
-    	$competenciasAnteriores = $this->resource->execute($cadenaSql,"busqueda");
+        $competenciasAnteriores = $this->resource->execute($cadenaSql,"busqueda");
 
         if(is_array($competenciasAnteriores)){
           $ca = 0;
@@ -72,30 +72,30 @@ class FuncioncontrolEvaluacion
           }
         }
 
-		//1. Validar nota menor a 5
-		if($variable['nota']>5){
-			$respuesta->error = "La nota máxima es 5";
-			$respuesta->status = false;
-		}
+        //1. Validar nota menor a 5
+        if($variable['nota']>5){
+            $respuesta->error = "La nota máxima es 5";
+            $respuesta->status = false;
+        }
 
-		//2. Consultar si la nota existe
-		$cadenaSql = $this->sql->get("notaPorCriterio",$variable);
-		$notaPorCriterio = $this->resource->execute($cadenaSql,"busqueda");
+        //2. Consultar si la nota existe
+        $cadenaSql = $this->sql->get("notaPorCriterio",$variable);
+        $notaPorCriterio = $this->resource->execute($cadenaSql,"busqueda");
 
-		//3. Si ya existe, actualizarNota
-		if(is_array($notaPorCriterio)){
-			$cadenaSql = $this->sql->get("actualizarNotaCriterio",$variable);
-			$notaPorCriterio = $this->resource->execute($cadenaSql,"");
+        //3. Si ya existe, actualizarNota
+        if(is_array($notaPorCriterio)){
+            $cadenaSql = $this->sql->get("actualizarNotaCriterio",$variable);
+            $notaPorCriterio = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
-		}
-		//4. Si no existe insertar
-		else{
-			$cadenaSql = $this->sql->get("insertarNotaCriterio",$variable);
-			$notaPorCriterio = $this->resource->execute($cadenaSql,"");
+        }
+        //4. Si no existe insertar
+        else{
+            $cadenaSql = $this->sql->get("insertarNotaCriterio",$variable);
+            $notaPorCriterio = $this->resource->execute($cadenaSql,"");
             $respuesta->status = true;
-		}
+        }
     return $respuesta;
-	}
+    }
 
     function procesarNotaCualitativa($variable)
     {
@@ -140,63 +140,63 @@ class FuncioncontrolEvaluacion
         $html2pdf = new HTML2PDF('L','Legal','en',true, 'UTF-8', array(10, 10, 10, 10));
         $html2pdf->WriteHTML($content);
         $html2pdf->Output('notas.pdf');
-	}
+    }
 
-	/**
-	*	Este método retorna un JSON con los resultados de la operación
-	*/
-	function calcularNotasFinales($estudiante,$competencia)
+    /**
+    *   Este método retorna un JSON con los resultados de la operación
+    */
+    function calcularNotasFinales($estudiante,$competencia)
     {
 
-			$respuesta=new stdClass();
+            $respuesta=new stdClass();
         //5. Recalcular definitivas
 
-			//5.1 Para poder calcular la sumatoria, todos los criterios deben tener la correspondiente nota
+            //5.1 Para poder calcular la sumatoria, todos los criterios deben tener la correspondiente nota
 
-			$cadenaSql= $this->sql->get("criteriosPorCompetencia",$competencia);
-			$criteriosPorCompetencia= $this->resource->execute($cadenaSql,"busqueda");
+            $cadenaSql= $this->sql->get("criteriosPorCompetencia",$competencia);
+            $criteriosPorCompetencia= $this->resource->execute($cadenaSql,"busqueda");
 
-			$variable['competencia']= $competencia;
-			$variable['estudiante']= $estudiante;
+            $variable['competencia']= $competencia;
+            $variable['estudiante']= $estudiante;
 
-			$cadenaSql= $this->sql->get("notasPorEstudianteyCompetencia",$variable);
-			$notasPorEstudianteyCompetencia= $this->resource->execute($cadenaSql,"busqueda");
-			$notasPorEstudianteyCompetencia= $this->sorter->orderKeyBy($notasPorEstudianteyCompetencia,"CRITERIO");
+            $cadenaSql= $this->sql->get("notasPorEstudianteyCompetencia",$variable);
+            $notasPorEstudianteyCompetencia= $this->resource->execute($cadenaSql,"busqueda");
+            $notasPorEstudianteyCompetencia= $this->sorter->orderKeyBy($notasPorEstudianteyCompetencia,"CRITERIO");
 
-			$criteriosPendientes=0;
-			$i=0;
-			$notaFinal=0;
-			while(isset($criteriosPorCompetencia[$i][0])){
-				if(!isset($notasPorEstudianteyCompetencia[$criteriosPorCompetencia[$i]['ID']]) || $notasPorEstudianteyCompetencia[$criteriosPorCompetencia[$i]['ID']]['NOTA']==""){
-					$criteriosPendientes++;
-				}else{
-					$notaFinal= $notaFinal+($notasPorEstudianteyCompetencia[$criteriosPorCompetencia[$i]['ID']]['NOTA'])*($criteriosPorCompetencia[$i]['PORCENTAJE'])/100;
-				}
-			$i++;
-			}
-			if($criteriosPendientes==0){
+            $criteriosPendientes=0;
+            $i=0;
+            $notaFinal=0;
+            while(isset($criteriosPorCompetencia[$i][0])){
+                if(!isset($notasPorEstudianteyCompetencia[$criteriosPorCompetencia[$i]['ID']]) || $notasPorEstudianteyCompetencia[$criteriosPorCompetencia[$i]['ID']]['NOTA']==""){
+                    $criteriosPendientes++;
+                }else{
+                    $notaFinal= $notaFinal+($notasPorEstudianteyCompetencia[$criteriosPorCompetencia[$i]['ID']]['NOTA'])*($criteriosPorCompetencia[$i]['PORCENTAJE'])/100;
+                }
+            $i++;
+            }
+            if($criteriosPendientes==0){
 
-				$respuesta->notaFinal=round($notaFinal,2);
-				$respuesta->notaFinalPorcentaje= $notaFinal*100/5;
-				$respuesta->notaFinalPorcentaje=round($respuesta->notaFinalPorcentaje,2);
+                $respuesta->notaFinal=round($notaFinal,2);
+                $respuesta->notaFinalPorcentaje= $notaFinal*100/5;
+                $respuesta->notaFinalPorcentaje=round($respuesta->notaFinalPorcentaje,2);
 
-				//no esta dinamico
+                //no esta dinamico
 
-				if(($respuesta->notaFinalPorcentaje)*1>=100){
-					$respuesta->desempenio = "Superior";
-				}
-				elseif(($respuesta->notaFinalPorcentaje)*1>=80 && ($respuesta->notaFinalPorcentaje)*1<100){
-					$respuesta->desempenio = "Alto";
-				}
-				elseif(($respuesta->notaFinalPorcentaje)*1<80){
-					$respuesta->desempenio = "Basico";
-				}
+                if(($respuesta->notaFinalPorcentaje)*1>=100){
+                    $respuesta->desempenio = "Superior";
+                }
+                elseif(($respuesta->notaFinalPorcentaje)*1>=80 && ($respuesta->notaFinalPorcentaje)*1<100){
+                    $respuesta->desempenio = "Alto";
+                }
+                elseif(($respuesta->notaFinalPorcentaje)*1<80){
+                    $respuesta->desempenio = "Basico";
+                }
 
-			}else{
+            }else{
                 $respuesta->desempenio = "";
                 $respuesta->notaFinal = $notaFinal;
-				$respuesta->notaFinalPorcentaje = "";
-			}
+                $respuesta->notaFinalPorcentaje = "";
+            }
 
         //almacenar en bd
         $variable['desempenio'] = $respuesta->desempenio;
@@ -216,45 +216,45 @@ class FuncioncontrolEvaluacion
         }
 
         $respuesta->status=true;
-		return $respuesta;
-	}
+        return $respuesta;
+    }
 
-	function action(){
+    function action(){
 
-		//Evitar que se ingrese codigo HTML y PHP en los campos de texto
-		//Campos que se quieren excluir de la limpieza de código. Formato: nombreCampo1|nombreCampo2|nombreCampo3
-		$excluir="";
-		$_REQUEST= $this->inspector->cleanPHPHTML($_REQUEST);
+        //Evitar que se ingrese codigo HTML y PHP en los campos de texto
+        //Campos que se quieren excluir de la limpieza de código. Formato: nombreCampo1|nombreCampo2|nombreCampo3
+        $excluir="";
+        $_REQUEST= $this->inspector->cleanPHPHTML($_REQUEST);
 
-		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"list";
+        $option=isset($_REQUEST['option'])?$_REQUEST['option']:"list";
 
 
-		switch($option){
-			case "processList":
+        switch($option){
+            case "processList":
 
-				$variable["option"] = "list";
-				$variable["grado"] = $_REQUEST['grado'];
-				$variable["sede"] = $_REQUEST['sede'];
+                $variable["option"] = "list";
+                $variable["grado"] = $_REQUEST['grado'];
+                $variable["sede"] = $_REQUEST['sede'];
 
-				$this->context->render("controlEvaluacion",$variable);
+                $this->context->render("controlEvaluacion",$variable);
 
-			break;
-			case "showPDFCompetencias":
-				$result = $this->showPDFCompetencias($_REQUEST);
-			break;
-			case "showNotasCompleto":
-				$result = $this->showNotasCompleto($_REQUEST);
-			break;
+            break;
+            case "showPDFCompetencias":
+                $result = $this->showPDFCompetencias($_REQUEST);
+            break;
+            case "showNotasCompleto":
+                $result = $this->showNotasCompleto($_REQUEST);
+            break;
 
-			case "actualizarNotaCriterio":
-				$result = $this->procesarNotaCriterio($_REQUEST);
+            case "actualizarNotaCriterio":
+                $result = $this->procesarNotaCriterio($_REQUEST);
                 if(!$result->status){
-                  	echo json_encode($result);
+                    echo json_encode($result);
                     return false;
                 }
-				$result = $this->calcularNotasFinales($_REQUEST['estudiante'],$_REQUEST['competencia']);
+                $result = $this->calcularNotasFinales($_REQUEST['estudiante'],$_REQUEST['competencia']);
                 echo json_encode($result);
-			break;
+            break;
 
             case "actualizarNotaCualitativa":
                 $result = $this->procesarNotaCualitativa($_REQUEST);
@@ -266,47 +266,47 @@ class FuncioncontrolEvaluacion
                 echo json_encode($result);
             break;
 
-			case "showNotasXML":
-				$result = $this->showNotasXML();
-			break;
-		}
-	}
+            case "showNotasXML":
+                $result = $this->showNotasXML();
+            break;
+        }
+    }
 
 
-	public function setRuta($unaRuta){
-		$this->ruta= $unaRuta;
-		//Incluir las funciones
-	}
+    public function setRuta($unaRuta){
+        $this->ruta= $unaRuta;
+        //Incluir las funciones
+    }
 
-	function setSql($a)
-	{
-		$this->sql = $a;
-	}
-
-	function setFuncion($funcion)
-	{
-		$this->funcion = $funcion;
-	}
-
-	public function setLenguaje($lenguaje)
-	{
-		$this->lenguaje = $lenguaje;
-	}
-
-	public function setView($view)
+    function setSql($a)
     {
-		$this->view = $view;
-	}
+        $this->sql = $a;
+    }
 
-	public function showPDFCompetencias($variable)
+    function setFuncion($funcion)
+    {
+        $this->funcion = $funcion;
+    }
+
+    public function setLenguaje($lenguaje)
+    {
+        $this->lenguaje = $lenguaje;
+    }
+
+    public function setView($view)
+    {
+        $this->view = $view;
+    }
+
+    public function showPDFCompetencias($variable)
     {
         $cadenaSql = $this->sql->get("sedeByID",$variable['sede']);
-    	$sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
-    	$sedeByID  = $sedeByID[0];
+        $sedeByID  = $this->resource->execute($cadenaSql,"busqueda");
+        $sedeByID  = $sedeByID[0];
 
         $cadenaSql = $this->sql->get("cursoByID",$_REQUEST['curso']);
-    	$cursoByID = $this->resource->execute($cadenaSql,"busqueda");
-    	$cursoByID = $cursoByID[0];
+        $cursoByID = $this->resource->execute($cadenaSql,"busqueda");
+        $cursoByID = $cursoByID[0];
 
         $cadenaSql = $this->sql->get("estudiantesPorCurso",$variable['curso']);
         $estudiantesPorCurso = $this->resource->execute($cadenaSql,"busqueda");
@@ -320,8 +320,8 @@ class FuncioncontrolEvaluacion
         $notasDefinitivas = $this->sorter->orderTwoKeyBy($notasDefinitivas,"ESTUDIANTE","AREA");
 
         $cadenaSql = $this->sql->get("competencias",$variable['grado']);
-    	$competencias = $this->resource->execute($cadenaSql,"busqueda");
-    	$competenciasPorArea = $this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
+        $competencias = $this->resource->execute($cadenaSql,"busqueda");
+        $competenciasPorArea = $this->sorter->orderMultiKeyBy($competencias,"ID_AREA");
 
         //Consulto el listado de areas para el grado actual
         $cadenaSql = $this->sql->get("areas",$variable['grado']);
@@ -343,17 +343,17 @@ class FuncioncontrolEvaluacion
                
             break;
         }*/
-
+        $imageFolder = $this->context->getVariable("raizDocumento").'/images/';
 
         $grid_w  = 4.7; //ancho de la cuadricula de notas
         $grid_fz = 5.6; //Tamaño letra de la cuadricula de notas
 
-    	$pdf = new FPDF('L','mm','Legal'); //215.9 mm x 279.4 mm
-    	$pdf->SetMargins(10,10,10); //izq,arr,der
+        $pdf = new FPDF('L','mm','Legal'); //215.9 mm x 279.4 mm
+        $pdf->SetMargins(10,10,10); //izq,arr,der
         $pdf->AddPage();
 
         $y = $pdf->GetY();
-        $pdf->Image('http://www.academia.ceruralrestrepo.com/cerural.jpg',10,10,25,25);
+        $pdf->Image($imageFolder.'/cerural.jpg',10,10,25,25);
         $pdf->SetY($y);
 
         $pdf->SetFont('Arial','',10);
@@ -458,5 +458,5 @@ class FuncioncontrolEvaluacion
          $a++;
         }
         $pdf->Output();
-	}
+    }
 }

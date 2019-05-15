@@ -1,7 +1,7 @@
-  <?php
+<?php
 if(!isset($GLOBALS["autorizado"])){
-	include("../index.php");
-	exit;
+  include("../index.php");
+  exit;
 }
 
 include_once("core/manager/Context.class.php");
@@ -11,60 +11,60 @@ include_once("class/Array.class.php");
 
 class ViewcierreFinal{
 
-	var $ruta;
-	var $sql;
-	var $funcion;
-	var $lenguaje;
-	var $formulario;
-	var $enlace;
-	var $context;
+  var $ruta;
+  var $sql;
+  var $funcion;
+  var $lenguaje;
+  var $formulario;
+  var $enlace;
+  var $context;
 
-	function __construct() {
-		$this->context = Context::singleton();
-		$this->session = Sesion::singleton();
-		$this->resource = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
-		$this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
-		$this->sessionId = $this->session->getValue('idUsuario');
-		$this->controlAcceso = new controlAcceso();
-		$this->controlAcceso->usuario = $this->sessionId;
-		$this->controlAcceso->rol = $this->session->getValue('rol');
-		$this->sorter = orderArray::singleton();
-	}
+  function __construct() {
+    $this->context = Context::singleton();
+    $this->session = Sesion::singleton();
+    $this->resource = $this->context->fabricaConexiones->getRecursoDB("aplicativo");
+    $this->enlace = $this->context->getVariable("host").$this->context->getVariable("site")."?".$this->context->getVariable("enlace");
+    $this->sessionId = $this->session->getValue('idUsuario');
+    $this->controlAcceso = new controlAcceso();
+    $this->controlAcceso->usuario = $this->sessionId;
+    $this->controlAcceso->rol = $this->session->getValue('rol');
+    $this->sorter = orderArray::singleton();
+  }
 
-	public function setRuta($unaRuta){
-		$this->ruta=$unaRuta;
-	}
+  public function setRuta($unaRuta){
+    $this->ruta=$unaRuta;
+  }
 
-	public function setLenguaje($lenguaje){
-		$this->lenguaje=$lenguaje;
-	}
+  public function setLenguaje($lenguaje){
+    $this->lenguaje=$lenguaje;
+  }
 
-	public function setFormulario($formulario){
-		$this->formulario=$formulario;
-	}
+  public function setFormulario($formulario){
+    $this->formulario=$formulario;
+  }
 
-	function setSql($a){
-		$this->sql=$a;
-	}
+  function setSql($a){
+    $this->sql=$a;
+  }
 
-	function setFuncion($funcion){
-		$this->funcion=$funcion;
-	}
+  function setFuncion($funcion){
+    $this->funcion=$funcion;
+  }
 
 
-	function html() {
+  function html() {
 
-		$this->ruta=$this->context->getVariable("rutaBloque");
-		$option=isset($_REQUEST['option'])?$_REQUEST['option']:"panel";
+    $this->ruta=$this->context->getVariable("rutaBloque");
+    $option=isset($_REQUEST['option'])?$_REQUEST['option']:"panel";
 
-		switch($option){
-			case "panel":
-				$this->showMainReport();
-				//$this->conflictStudents();
-				break;
-		}
+    switch($option){
+      case "panel":
+        $this->showMainReport();
+        //$this->conflictStudents();
+        break;
+    }
 
-	}
+  }
 
   /**
   * Estudiantes con notas de competencias diferentes al grado actual
@@ -99,19 +99,19 @@ class ViewcierreFinal{
 
   }
 
-	function showMainReport(){
+  function showMainReport(){
 
-		//Consulto el listado de sedes y grados permitidos para el usuario
-			$courses = $this->controlAcceso->getAccesoCompleto();
-			$sedes = $this->controlAcceso->getSedes();
+    //Consulto el listado de sedes y grados permitidos para el usuario
+      $courses = $this->controlAcceso->getAccesoCompleto();
+      $sedes = $this->controlAcceso->getSedes();
 
-		//Consulto el listado de estudiantes organizados por curso
-			$cadenaSql = $this->sql->get("estudiantes","");
+    //Consulto el listado de estudiantes organizados por curso
+      $cadenaSql = $this->sql->get("estudiantes","");
       $estudiantes = $this->resource->execute($cadenaSql,"busqueda");
       $estudiantes = $this->sorter->orderMultiKeyBy($estudiantes,"IDCURSO");
 
     //Consulto el listado de competencias organizados por grado
-			$cadenaSql = $this->sql->get("competencias","");
+      $cadenaSql = $this->sql->get("competencias","");
       $competencias = $this->resource->execute($cadenaSql,"busqueda");
       $competencias = $this->sorter->orderMultiKeyBy($competencias,"IDGRADO");
 
@@ -135,7 +135,7 @@ class ViewcierreFinal{
           $estudiantesPendientes = 0;
           $estudiantesAlDia      = 0;
 
-        	$cadenaSql = $this->sql->get("notasFinalesPorCurso",$idcourse);
+          $cadenaSql = $this->sql->get("notasFinalesPorCurso",$idcourse);
           $notas = $this->resource->execute($cadenaSql,"busqueda");
 
           if(is_array($notas)) {
@@ -198,10 +198,6 @@ class ViewcierreFinal{
       }
 
 
-			include_once($this->ruta."/html/mainReport.php");
-	}
-
-
-
+      include_once($this->ruta."/html/mainReport.php");
+  }
 }
-?>
