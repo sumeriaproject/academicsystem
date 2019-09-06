@@ -30,7 +30,7 @@
     if(count($cursos) > 1) {
       while(isset($cursos[$c][0])){
   ?>    
-      <a class="btn btn-success" href="<?=$formSaraDataList."&curso=".$cursos[$c]['ID']?>" ><?=$cursos[$c]['NAME']?></a>
+      <a class="btn <?=($cursos[$c]['ID']==$id_curso)?'btn-warning':''?>" href="<?=$formSaraDataList."&curso=".$cursos[$c]['ID']?>" ><?=$cursos[$c]['NAME']?></a>
   <?php  
       $c++;
       }

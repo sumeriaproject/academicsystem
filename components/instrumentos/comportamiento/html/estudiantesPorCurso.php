@@ -46,9 +46,6 @@
     <tr>
 
       <td style="padding: 0px !important;" >
-        Código
-      </td>
-      <td style="padding: 0px !important;" >
         Estudiante
       </td>
       <td class='hidden-480'  style="width: 100px;">
@@ -67,10 +64,6 @@
       $obsper = "OBS".$id_periodo;
     ?>
 		<tr>
-
-			<td style="padding: 0px !important;" >
-				<?php echo $estudiantesPorCurso[$e]['CODIGO']; ?>
-			</td>
 			<td style="padding: 0px !important;" >
 				<?php echo $estudiantesPorCurso[$e]['APELLIDO']; ?>
 				<?php echo $estudiantesPorCurso[$e]['APELLIDO2']; ?>
