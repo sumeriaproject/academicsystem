@@ -200,13 +200,13 @@ class ViewcontrolEvaluacion{
 		$id_sede    = isset($_REQUEST['sede'])?$_REQUEST['sede']:array_shift($keysSedes);
 
 
-		//3.Consulto el curso asociado a la sede y grado, inicialmente solo existe un curso para cada grado y sede
-		//  por consiguiente la consulta solo debe arrojar un registro.
+		//3.Consulto los cursos asociados a la sede y grado
 
 		$cadenaSql = $this->sql->get("cursos",array("GRADO"=>$id_grado,"SEDE"=>$id_sede));
-		$cursos    =$this->resource->execute($cadenaSql,"busqueda");
-		$id_curso  = $cursos[0]['ID'];
-
+		$cursos    = $this->resource->execute($cadenaSql,"busqueda");
+		
+    // Toma el primero curso por defecto 
+    $id_curso  = isset($_REQUEST['curso'])?$_REQUEST['curso']:$cursos[0]['ID'];
 
 		//Validación calendario
 		/* $abierto = $this->calendario->getEvento($id_curso,"notas");
@@ -214,6 +214,12 @@ class ViewcontrolEvaluacion{
 		$mensajeCierre = $this->calendario->getMensaje("notas");
 		}*/
 
+    $formSaraDataList="pagina=controlEvaluacion";
+		$formSaraDataList.="&option=list";
+		$formSaraDataList.="&sede=".$id_sede;
+		$formSaraDataList.="&grado=".$id_grado;    
+		$formSaraDataList=$this->context->fabricaConexiones->crypto->codificar_url($formSaraDataList,$this->enlace);
+     
 		//4.Consulto el listado de areas para el grado actual
 		$cadenaSql = $this->sql->get("areas",$id_grado);
 		$areas     = $this->resource->execute($cadenaSql,"busqueda");

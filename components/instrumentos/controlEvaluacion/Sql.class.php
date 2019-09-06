@@ -386,7 +386,8 @@ class SqlcontrolEvaluacion extends sql {
 
 			case "cursos":
 				$cadena_sql="SELECT ";
-				$cadena_sql.="id_curso ID ";
+				$cadena_sql.="id_curso ID, ";
+				$cadena_sql.="nombre NAME ";
 				$cadena_sql.="FROM ";
 				$cadena_sql.=$prefijo."curso ";
 				$cadena_sql.="WHERE ";
