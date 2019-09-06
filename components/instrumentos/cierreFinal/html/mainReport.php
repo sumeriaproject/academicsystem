@@ -31,7 +31,7 @@
               <td><?php echo $c = count($course["ESTUDIANTES_PENDIENTES"]); ?></td></td>
               <td><?php echo ($a-$b-$c); ?></td>
               <td style="width: 110px;">
-                <a title="Ver Notas" href="<?php echo $course["LINK_NOTAS"];?>" target="_blank">
+                <!--<a title="Ver Notas" href="<?php echo $course["LINK_NOTAS"];?>" target="_blank">
                   <img title="Ver Notas" src="/theme/admin/img/search109.png">
                 </a>
 
@@ -50,7 +50,7 @@
                 <a title="Imprimir Boletines"  href="<?php echo $course["LINK_BOLETIN"];?>" target="_blank">
                   <img title="Imprimir Boletines" src="/theme/admin/img/boletin50.png">
                 </a>
-              </td>
+              </td>-->
             </tr>
 
           <?php  endforeach; ?>
