@@ -28,7 +28,7 @@
 			<tr>
 				<td><b>SEDE:</b> <?php echo $sedeByID['NOMBRE']; ?></td>
 				<td>
-          <a href="<?php echo $formSaraDataPrintLote; ?>">
+          <a target="_blank" href="<?php echo $formSaraDataPrintLote; ?>">
             <img width="20px" src="/theme/admin/img/Test-paper-128.png" >
             Imprimir Lote
           </a>

@@ -69,7 +69,7 @@
 											</div>
 										</div>
 
-										<div class="control-group" id="desempenios" style="display:none">
+										<div class="control-group" id="desempenios">
 												<div class="control-group">
 													<label for="textfield" class="control-label">Desempeño Básico</label>
 													<div class="controls">
